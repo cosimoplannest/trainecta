@@ -15,66 +15,33 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export function GymSettings() {
   const { user } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [loadAttempts, setLoadAttempts] = useState(0);
-  const maxAttempts = 3;
-  
   const {
     form,
-    gymId,
-    gymSettingsId,
     fetchSettings,
     saveSettings,
     fetchError,
-    saveError
+    isLoading,
+    retryFetchSettings
   } = useGymSettingsForm();
 
+  const [saving, setSaving] = useState(false);
+
   useEffect(() => {
-    const loadSettings = async () => {
-      if (loadAttempts >= maxAttempts) {
-        setLoading(false);
-        return;
-      }
-      
-      setLoading(true);
-      try {
-        await fetchSettings(user);
-      } catch (error) {
-        console.error("Error in loadSettings:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadSettings();
-  }, [user, fetchSettings, loadAttempts]);
-
-  const handleRetry = () => {
-    setLoadAttempts(prev => prev + 1);
-  };
+    fetchSettings(user);
+  }, [user, fetchSettings]);
 
   const onSubmit = async (data: any) => {
     setSaving(true);
     try {
       await saveSettings(data);
-      toast({
-        title: "Successo",
-        description: "Le impostazioni della palestra sono state salvate",
-      });
     } catch (error) {
       console.error("Error saving gym settings:", error);
-      toast({
-        title: "Errore",
-        description: saveError || "Non è stato possibile salvare le impostazioni della palestra",
-        variant: "destructive",
-      });
     } finally {
       setSaving(false);
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center p-10 space-y-4">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
@@ -91,8 +58,11 @@ export function GymSettings() {
           <AlertTitle>Errore di caricamento</AlertTitle>
           <AlertDescription>{fetchError}</AlertDescription>
         </Alert>
-        <Button onClick={handleRetry} disabled={loading}>
-          {loading ? (
+        <Button 
+          onClick={() => retryFetchSettings(user)} 
+          disabled={isLoading}
+        >
+          {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Riprovo...

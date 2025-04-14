@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { User } from "@supabase/supabase-js";
 import { GymSettingsFormValues, TemplateSentBy } from "./types";
@@ -10,12 +10,15 @@ import {
   updateGymData,
   updateGymSettings
 } from "./api";
+import { toast } from "@/hooks/use-toast";
 
 export function useGymSettingsForm() {
   const [gymId, setGymId] = useState<string | null>(null);
   const [gymSettingsId, setGymSettingsId] = useState<string | null>(null);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
   
   const form = useForm<GymSettingsFormValues>({
     defaultValues: {
@@ -40,7 +43,13 @@ export function useGymSettingsForm() {
   });
 
   const fetchSettings = async (user: User | null) => {
-    if (!user) return;
+    if (!user) {
+      setFetchError("Utente non autenticato");
+      setIsLoading(false);
+      return;
+    }
+    
+    setIsLoading(true);
     setFetchError(null);
 
     try {
@@ -48,6 +57,7 @@ export function useGymSettingsForm() {
       const userGymId = await fetchUserGymId(user.id);
       if (!userGymId) {
         setFetchError("Non è stato possibile trovare la palestra associata all'utente");
+        setIsLoading(false);
         return;
       }
       
@@ -94,6 +104,8 @@ export function useGymSettingsForm() {
     } catch (error) {
       console.error("Error fetching gym settings:", error);
       setFetchError("Si è verificato un errore durante il caricamento delle impostazioni");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -107,12 +119,30 @@ export function useGymSettingsForm() {
       
       // Update gym settings
       await updateGymSettings(gymId, gymSettingsId, data);
+      
+      toast({
+        title: "Successo",
+        description: "Le impostazioni della palestra sono state salvate",
+      });
+      
       return true;
     } catch (error) {
       console.error("Error saving gym settings:", error);
       setSaveError("Si è verificato un errore durante il salvataggio delle impostazioni");
+      
+      toast({
+        title: "Errore",
+        description: "Si è verificato un errore durante il salvataggio delle impostazioni",
+        variant: "destructive",
+      });
+      
       throw error;
     }
+  };
+
+  const retryFetchSettings = (user: User | null) => {
+    setRetryCount(prev => prev + 1);
+    fetchSettings(user);
   };
 
   return {
@@ -122,7 +152,9 @@ export function useGymSettingsForm() {
     fetchSettings,
     saveSettings,
     fetchError,
-    saveError
+    saveError,
+    isLoading,
+    retryFetchSettings
   };
 }
 

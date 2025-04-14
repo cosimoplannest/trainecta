@@ -22,7 +22,9 @@ import {
   Loader2, 
   UserCog,
   ShieldCheck,
-  Eye
+  Eye,
+  CalendarClock,
+  Ticket
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -40,6 +42,8 @@ export function UserManagement() {
   const [admins, setAdmins] = useState<UserWithRoleType[]>([]);
   const [operators, setOperators] = useState<UserWithRoleType[]>([]);
   const [trainers, setTrainers] = useState<UserWithRoleType[]>([]);
+  const [assistants, setAssistants] = useState<UserWithRoleType[]>([]);
+  const [instructors, setInstructors] = useState<UserWithRoleType[]>([]);
   const [loading, setLoading] = useState(true);
   const [gymId, setGymId] = useState<string | null>(null);
 
@@ -91,6 +95,8 @@ export function UserManagement() {
           setAdmins(data.filter(u => u.role === 'admin'));
           setOperators(data.filter(u => u.role === 'operator'));
           setTrainers(data.filter(u => u.role === 'trainer'));
+          setAssistants(data.filter(u => u.role === 'assistant'));
+          setInstructors(data.filter(u => u.role === 'instructor'));
         }
       } catch (error) {
         console.error("Error fetching users:", error);
@@ -173,6 +179,14 @@ export function UserManagement() {
             <Dumbbell className="h-4 w-4" />
             Trainer
           </TabsTrigger>
+          <TabsTrigger value="assistants" className="flex items-center gap-1">
+            <UserRound className="h-4 w-4" />
+            Assistenti
+          </TabsTrigger>
+          <TabsTrigger value="instructors" className="flex items-center gap-1">
+            <Ticket className="h-4 w-4" />
+            Istruttori
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="admins">
@@ -196,7 +210,7 @@ export function UserManagement() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5" />
+                <UserCog className="h-5 w-5" />
                 Operatori
               </CardTitle>
               <CardDescription>
@@ -213,7 +227,7 @@ export function UserManagement() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <UserRound className="h-5 w-5" />
+                <Dumbbell className="h-5 w-5" />
                 Trainer
               </CardTitle>
               <CardDescription>
@@ -222,6 +236,40 @@ export function UserManagement() {
             </CardHeader>
             <CardContent>
               {renderUserTable(trainers, "Nessun trainer trovato")}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="assistants">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <UserRound className="h-5 w-5" />
+                Assistenti
+              </CardTitle>
+              <CardDescription>
+                Gestisci gli assistenti della tua palestra
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {renderUserTable(assistants, "Nessun assistente trovato")}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="instructors">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Ticket className="h-5 w-5" />
+                Istruttori
+              </CardTitle>
+              <CardDescription>
+                Gestisci gli istruttori della tua palestra
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {renderUserTable(instructors, "Nessun istruttore trovato")}
             </CardContent>
           </Card>
         </TabsContent>
