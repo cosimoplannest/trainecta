@@ -42,44 +42,7 @@ import { toast } from "sonner";
 import { CreateExerciseDialog } from "@/components/workout/CreateExerciseDialog";
 import { AssignTemplateDialog } from "@/components/workout/AssignTemplateDialog";
 import { ViewTemplateDialog } from "@/components/workout/ViewTemplateDialog";
-
-// Define workout type enum
-type WorkoutType = 'full_body' | 'upper_body' | 'lower_body' | 'push' | 'pull' | 'legs' | 'core' | 'cardio' | 'circuit' | 'arms' | 'shoulders' | 'back' | 'chest';
-
-// Interfaces
-interface Exercise {
-  id: string;
-  name: string;
-  description?: string;
-  video_url?: string;
-}
-
-interface TemplateExercise {
-  id: string;
-  exercise_id?: string;
-  exercise?: Exercise;
-  sets: number;
-  reps: string;
-  order_index: number;
-  notes?: string;
-}
-
-interface WorkoutTemplate {
-  id: string;
-  name: string;
-  category: string;
-  description?: string;
-  created_at: string;
-  created_by?: string;
-  user?: { full_name: string };
-  locked: boolean;
-  type?: WorkoutType | string;
-  gym_id: string;
-  template_exercises?: TemplateExercise[];
-  assignment_count?: number;
-  is_default?: boolean;
-  updated_at?: string;
-}
+import { WorkoutTemplate, TemplateExercise, Exercise, WorkoutType } from "@/types/workout";
 
 const WorkoutTemplates = () => {
   const navigate = useNavigate();
@@ -103,7 +66,6 @@ const WorkoutTemplates = () => {
   const [isViewingTemplate, setIsViewingTemplate] = useState(false);
   const [isAssigningTemplate, setIsAssigningTemplate] = useState(false);
 
-  // New exercise being added to a template
   const [newExercise, setNewExercise] = useState<Partial<TemplateExercise>>({
     sets: 3,
     reps: "12",
@@ -111,12 +73,10 @@ const WorkoutTemplates = () => {
     exercise_id: ""
   });
 
-  // Fetch templates and exercises
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Fetch templates with assignment counts and creator info
         const { data: templatesData, error: templatesError } = await supabase
           .from("workout_templates")
           .select(`
@@ -135,7 +95,6 @@ const WorkoutTemplates = () => {
 
         if (templatesError) throw templatesError;
 
-        // Get assignment counts for each template
         const templatesWithCounts = await Promise.all(
           templatesData.map(async (template) => {
             const { count, error } = await supabase
@@ -152,7 +111,6 @@ const WorkoutTemplates = () => {
 
         setTemplates(templatesWithCounts);
 
-        // Fetch exercises
         const { data: exercisesData, error: exercisesError } = await supabase
           .from("exercises")
           .select("*")
@@ -175,14 +133,12 @@ const WorkoutTemplates = () => {
     fetchData();
   }, [uiToast]);
 
-  // Filter templates based on search query
   const filteredTemplates = templates.filter(
     (template) =>
       template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       template.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Create new template
   const createTemplate = async () => {
     if (!newTemplate.name || !newTemplate.category) {
       toast.error("Inserisci nome e categoria");
@@ -190,23 +146,21 @@ const WorkoutTemplates = () => {
     }
     
     try {
-      // Creating template
       const { data, error } = await supabase
         .from("workout_templates")
         .insert({
           name: newTemplate.name,
           category: newTemplate.category,
           description: newTemplate.description,
-          type: newTemplate.type as WorkoutType || "full_body",
-          gym_id: "11111111-1111-1111-1111-111111111111", // Hardcoded for now
-          locked: false, // Set to false initially to allow adding exercises
+          type: newTemplate.type as WorkoutType,
+          gym_id: "11111111-1111-1111-1111-111111111111",
+          locked: false
         })
         .select()
         .single();
 
       if (error) throw error;
       
-      // Set as current template and move to adding exercises
       setCurrentTemplate(data as WorkoutTemplate);
       setIsCreatingTemplate(false);
       setIsAddingExercises(true);
@@ -217,7 +171,6 @@ const WorkoutTemplates = () => {
     }
   };
 
-  // Add exercise to template
   const addExerciseToTemplate = async () => {
     if (!currentTemplate || !newExercise.exercise_id) {
       toast.error("Seleziona un esercizio");
@@ -230,10 +183,8 @@ const WorkoutTemplates = () => {
     }
     
     try {
-      // Get the next order index
       const order_index = templateExercises.length + 1;
       
-      // Insert template exercise
       const { data, error } = await supabase
         .from("template_exercises")
         .insert({
@@ -252,10 +203,8 @@ const WorkoutTemplates = () => {
 
       if (error) throw error;
       
-      // Update local state
       setTemplateExercises([...templateExercises, data]);
       
-      // Reset form for next exercise
       setNewExercise({
         sets: 3,
         reps: "12",
@@ -271,7 +220,6 @@ const WorkoutTemplates = () => {
     }
   };
 
-  // Remove exercise from template
   const removeExerciseFromTemplate = async (id: string) => {
     if (!currentTemplate) return;
     
@@ -283,7 +231,6 @@ const WorkoutTemplates = () => {
 
       if (error) throw error;
       
-      // Update local state
       setTemplateExercises(templateExercises.filter(ex => ex.id !== id));
       toast.success("Esercizio rimosso");
     } catch (error) {
@@ -292,7 +239,6 @@ const WorkoutTemplates = () => {
     }
   };
 
-  // Finalize template
   const finalizeTemplate = async () => {
     if (!currentTemplate) return;
     
@@ -302,7 +248,6 @@ const WorkoutTemplates = () => {
     }
     
     try {
-      // Lock the template
       const { error } = await supabase
         .from("workout_templates")
         .update({ locked: true })
@@ -310,21 +255,18 @@ const WorkoutTemplates = () => {
 
       if (error) throw error;
       
-      // Log activity
       await supabase.from("activity_logs").insert({
         action: "template_created",
         target_id: currentTemplate.id,
         target_type: "workout_template",
-        gym_id: "11111111-1111-1111-1111-111111111111", // Hardcoded for now
+        gym_id: "11111111-1111-1111-1111-111111111111",
         notes: `Template '${currentTemplate.name}' creato con ${templateExercises.length} esercizi`
       });
       
-      // Reset and refresh
       setIsAddingExercises(false);
       setCurrentTemplate(null);
       setTemplateExercises([]);
       
-      // Refresh templates list
       const { data, error: refreshError } = await supabase
         .from("workout_templates")
         .select(`
@@ -344,8 +286,16 @@ const WorkoutTemplates = () => {
         
       if (refreshError) throw refreshError;
       
-      // Update local state
-      setTemplates(templates.map(t => t.id === data.id ? {...data, assignment_count: 0} as WorkoutTemplate : t));
+      const typedTemplate: WorkoutTemplate = {
+        ...data,
+        assignment_count: 0,
+        template_exercises: data.template_exercises?.map(ex => ({
+          ...ex,
+          exercise_id: ex.exercise?.id || ''
+        })) || []
+      };
+      
+      setTemplates(templates.map(t => t.id === data.id ? typedTemplate : t));
       
       toast.success("Template finalizzato con successo");
     } catch (error) {
@@ -354,9 +304,7 @@ const WorkoutTemplates = () => {
     }
   };
 
-  // Delete template
   const deleteTemplate = async (id: string) => {
-    // Find template to check assignments
     const template = templates.find(t => t.id === id);
     if (!template) return;
     
@@ -366,7 +314,6 @@ const WorkoutTemplates = () => {
     }
     
     try {
-      // Delete template
       const { error } = await supabase
         .from("workout_templates")
         .delete()
@@ -374,7 +321,6 @@ const WorkoutTemplates = () => {
 
       if (error) throw error;
       
-      // Update local state
       setTemplates(templates.filter(t => t.id !== id));
       toast.success("Template eliminato con successo");
     } catch (error) {
@@ -383,28 +329,22 @@ const WorkoutTemplates = () => {
     }
   };
 
-  // Handle new exercise added
   const handleExerciseAdded = (exercise: Exercise) => {
     setExercises([...exercises, exercise]);
-    // Automatically select the new exercise
     setNewExercise({...newExercise, exercise_id: exercise.id});
   };
 
-  // View template details
   const viewTemplate = (template: WorkoutTemplate) => {
     setCurrentTemplate(template);
     setIsViewingTemplate(true);
   };
 
-  // Assign template to client
   const assignTemplate = (template: WorkoutTemplate) => {
     setCurrentTemplate(template);
     setIsAssigningTemplate(true);
   };
 
-  // Handle template assigned
   const handleTemplateAssigned = async () => {
-    // Refresh the assignment count
     if (currentTemplate) {
       const { count } = await supabase
         .from("assigned_templates")
@@ -417,10 +357,8 @@ const WorkoutTemplates = () => {
     }
   };
 
-  // Duplicate template
   const duplicateTemplate = async (template: WorkoutTemplate) => {
     try {
-      // Create new template
       const { data: newTemplate, error: templateError } = await supabase
         .from("workout_templates")
         .insert({
@@ -436,7 +374,6 @@ const WorkoutTemplates = () => {
         
       if (templateError) throw templateError;
       
-      // Get exercises from original template
       const { data: exercises, error: exercisesError } = await supabase
         .from("template_exercises")
         .select("*")
@@ -444,7 +381,6 @@ const WorkoutTemplates = () => {
         
       if (exercisesError) throw exercisesError;
       
-      // Insert exercises for new template
       if (exercises.length > 0) {
         const newExercises = exercises.map(ex => ({
           template_id: newTemplate.id,
@@ -462,7 +398,6 @@ const WorkoutTemplates = () => {
         if (insertError) throw insertError;
       }
       
-      // Add to local state
       const { data: fullTemplate, error: refreshError } = await supabase
         .from("workout_templates")
         .select(`
@@ -482,7 +417,16 @@ const WorkoutTemplates = () => {
         
       if (refreshError) throw refreshError;
       
-      setTemplates([{...fullTemplate, assignment_count: 0} as WorkoutTemplate, ...templates]);
+      const typedTemplate: WorkoutTemplate = {
+        ...fullTemplate,
+        assignment_count: 0,
+        template_exercises: fullTemplate.template_exercises?.map(ex => ({
+          ...ex,
+          exercise_id: ex.exercise?.id || ''
+        })) || []
+      };
+      
+      setTemplates([typedTemplate, ...templates]);
       toast.success("Template duplicato con successo");
     } catch (error) {
       console.error("Error duplicating template:", error);
@@ -591,10 +535,8 @@ const WorkoutTemplates = () => {
         </Dialog>
       </div>
       
-      {/* Dialog for adding exercises to a new template */}
       <Dialog open={isAddingExercises} onOpenChange={(open) => {
         if (!open && currentTemplate && templateExercises.length > 0) {
-          // Confirm before closing if there are exercises added
           if (window.confirm("Vuoi finalizzare il template?")) {
             finalizeTemplate();
           } else {
@@ -722,7 +664,6 @@ const WorkoutTemplates = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => {
               if (window.confirm("Sei sicuro di voler annullare? Tutti gli esercizi aggiunti andranno persi.")) {
-                // Delete the template if we cancel
                 if (currentTemplate) {
                   deleteTemplate(currentTemplate.id);
                 }
@@ -738,7 +679,6 @@ const WorkoutTemplates = () => {
         </DialogContent>
       </Dialog>
       
-      {/* Template Assignment Dialog */}
       <AssignTemplateDialog 
         open={isAssigningTemplate} 
         onOpenChange={setIsAssigningTemplate}
@@ -746,7 +686,6 @@ const WorkoutTemplates = () => {
         onAssigned={handleTemplateAssigned}
       />
       
-      {/* Template View Dialog */}
       <ViewTemplateDialog
         open={isViewingTemplate}
         onOpenChange={setIsViewingTemplate}

@@ -18,38 +18,7 @@ import { Button } from "@/components/ui/button";
 import { ExternalLink, Video } from "lucide-react";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
-
-interface Exercise {
-  id: string;
-  name: string;
-  description?: string;
-  video_url?: string;
-}
-
-interface TemplateExercise {
-  id: string;
-  exercise_id?: string;
-  exercise?: Exercise;
-  sets: number;
-  reps: string;
-  order_index: number;
-  notes?: string;
-}
-
-interface WorkoutTemplate {
-  id: string;
-  name: string;
-  category: string;
-  description?: string;
-  created_at: string;
-  created_by?: string;
-  user?: { full_name: string };
-  locked: boolean;
-  type?: string;
-  gym_id: string;
-  template_exercises?: TemplateExercise[];
-  assignment_count?: number;
-}
+import { WorkoutTemplate } from "@/types/workout";
 
 interface ViewTemplateDialogProps {
   open: boolean;

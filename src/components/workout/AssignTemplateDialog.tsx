@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { 
   Dialog, 
@@ -21,38 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-
-interface Exercise {
-  id: string;
-  name: string;
-  description?: string;
-  video_url?: string;
-}
-
-interface TemplateExercise {
-  id: string;
-  exercise_id: string;
-  exercise?: Exercise;
-  sets: number;
-  reps: string;
-  order_index: number;
-  notes?: string;
-}
-
-interface WorkoutTemplate {
-  id: string;
-  name: string;
-  category: string;
-  description?: string;
-  created_at: string;
-  created_by?: string;
-  user?: { full_name: string };
-  locked: boolean;
-  type?: string;
-  gym_id: string;
-  template_exercises?: TemplateExercise[];
-  assignment_count?: number;
-}
+import { WorkoutTemplate } from "@/types/workout";
 
 interface Client {
   id: string;
@@ -80,7 +48,6 @@ export function AssignTemplateDialog({
   const [deliveryChannel, setDeliveryChannel] = useState("whatsapp");
   const [notes, setNotes] = useState("");
 
-  // Fetch clients
   useEffect(() => {
     const fetchClients = async () => {
       if (!open) return;
@@ -114,13 +81,12 @@ export function AssignTemplateDialog({
     
     setLoading(true);
     try {
-      // Insert into assigned_templates
       const { error } = await supabase
         .from("assigned_templates")
         .insert({
           template_id: template.id,
           client_id: selectedClient,
-          assigned_by: "11111111-1111-1111-1111-111111111111", // Hardcoded for now
+          assigned_by: "11111111-1111-1111-1111-111111111111",
           delivery_channel: deliveryChannel,
           delivery_status: "sent",
           conversion_status: "pending",
@@ -129,13 +95,12 @@ export function AssignTemplateDialog({
         
       if (error) throw error;
       
-      // Log activity
       const selectedClientData = clients.find(c => c.id === selectedClient);
       await supabase.from("activity_logs").insert({
         action: "template_assigned",
         target_id: template.id,
         target_type: "workout_template",
-        user_id: "11111111-1111-1111-1111-111111111111", // Hardcoded for now
+        user_id: "11111111-1111-1111-1111-111111111111",
         gym_id: template.gym_id,
         notes: `Template '${template.name}' assegnato al cliente ${selectedClientData?.first_name} ${selectedClientData?.last_name}`,
       });
@@ -144,7 +109,6 @@ export function AssignTemplateDialog({
       onAssigned();
       onOpenChange(false);
       
-      // Reset form
       setSelectedClient("");
       setDeliveryChannel("whatsapp");
       setNotes("");
