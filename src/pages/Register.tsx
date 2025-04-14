@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -16,10 +17,9 @@ const Register = () => {
     gymName: "",
     clientVolume: "",
     trainerCount: "",
-    trialCount: "",
-    hasFollowup: true,
-    followupDays: "7",
-    saleMode: "both"
+    address: "",
+    phone: "",
+    socialLink: ""
   });
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState(1);
@@ -37,12 +37,76 @@ const Register = () => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulazione registrazione (da sostituire con registrazione reale)
-    setTimeout(() => {
+    try {
+      // Register the user with Supabase
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            full_name: formData.fullName
+          }
+        }
+      });
+
+      if (authError) throw authError;
+
+      if (authData.user) {
+        // Create a new gym
+        const { data: gymData, error: gymError } = await supabase
+          .from('gyms')
+          .insert([
+            {
+              name: formData.gymName,
+              address: formData.address,
+              phone: formData.phone,
+              website: formData.socialLink
+            }
+          ])
+          .select('id')
+          .single();
+
+        if (gymError) throw gymError;
+
+        // Update the user record with gym_id and role = 'admin'
+        const { error: userError } = await supabase
+          .from('users')
+          .update({
+            gym_id: gymData.id,
+            role: 'admin'
+          })
+          .eq('id', authData.user.id);
+
+        if (userError) throw userError;
+
+        // Create initial gym settings
+        const { error: settingsError } = await supabase
+          .from('gym_settings')
+          .insert([
+            {
+              gym_id: gymData.id,
+              max_trials_per_client: 1,
+              enable_auto_followup: true,
+              days_to_first_followup: 7,
+              days_to_active_confirmation: 30,
+              template_sent_by: 'both',
+              template_viewable_by_client: true,
+              allow_template_duplication: true,
+              default_trainer_assignment_logic: 'manual'
+            }
+          ]);
+
+        if (settingsError) throw settingsError;
+
+        toast.success("Registrazione completata con successo");
+        navigate("/dashboard");
+      }
+    } catch (error: any) {
+      console.error("Registration error:", error);
+      toast.error(error.message || "Errore durante la registrazione");
+    } finally {
       setIsLoading(false);
-      toast.success("Registrazione completata con successo");
-      navigate("/dashboard");
-    }, 1500);
+    }
   };
 
   const nextStep = () => {
@@ -133,6 +197,38 @@ const Register = () => {
                   />
                 </div>
                 
+                <div className="space-y-2">
+                  <Label htmlFor="address">Indirizzo Palestra</Label>
+                  <Input
+                    id="address"
+                    placeholder="Via Roma 123, Milano"
+                    value={formData.address}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Contatto Telefonico</Label>
+                  <Input
+                    id="phone"
+                    placeholder="+39 123 456 7890"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="socialLink">Link Social (opzionale)</Label>
+                  <Input
+                    id="socialLink"
+                    placeholder="https://instagram.com/tuapalestra"
+                    value={formData.socialLink}
+                    onChange={handleChange}
+                  />
+                </div>
+                
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="clientVolume">Numero Clienti</Label>
@@ -144,10 +240,10 @@ const Register = () => {
                         <SelectValue placeholder="Seleziona" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="<100">Meno di 100</SelectItem>
-                        <SelectItem value="100-300">100-300</SelectItem>
-                        <SelectItem value="300-500">300-500</SelectItem>
-                        <SelectItem value="500+">Più di 500</SelectItem>
+                        <SelectItem value="<500">Meno di 500</SelectItem>
+                        <SelectItem value="500-1500">500-1500</SelectItem>
+                        <SelectItem value="1500-3000">1500-3000</SelectItem>
+                        <SelectItem value=">3000">Più di 3000</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -164,51 +260,6 @@ const Register = () => {
                       required
                     />
                   </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="trialCount">Prove Gratuite Mensili</Label>
-                    <Input
-                      id="trialCount"
-                      type="number"
-                      min="0"
-                      placeholder="20"
-                      value={formData.trialCount}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="followupDays">Giorni per Follow-up</Label>
-                    <Input
-                      id="followupDays"
-                      type="number"
-                      min="1"
-                      placeholder="7"
-                      value={formData.followupDays}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="saleMode">Metodo di Vendita PT</Label>
-                  <Select 
-                    onValueChange={(value) => handleSelectChange("saleMode", value)}
-                    defaultValue={formData.saleMode}
-                  >
-                    <SelectTrigger id="saleMode">
-                      <SelectValue placeholder="Seleziona" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="package">Pacchetti</SelectItem>
-                      <SelectItem value="custom">Schede Personalizzate</SelectItem>
-                      <SelectItem value="both">Entrambi</SelectItem>
-                    </SelectContent>
-                  </Select>
                 </div>
                 
                 <div className="flex space-x-4 pt-4">

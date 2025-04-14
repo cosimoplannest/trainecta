@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Save, Settings } from "lucide-react";
+import { Loader2, Save, Settings, Building, Phone, Link as LinkIcon } from "lucide-react";
 import { 
   Select,
   SelectContent,
@@ -17,11 +18,21 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
 
 type TemplateSentBy = "trainer" | "system" | "both";
+type SaleMethod = "package" | "custom" | "both";
 
 type FormValues = {
   name: string;
+  address: string;
+  city: string;
+  postal_code: string;
+  country: string;
+  phone: string;
+  email: string;
+  website: string;
   max_trials_per_client: number;
   enable_auto_followup: boolean;
   days_to_first_followup: number;
@@ -30,6 +41,7 @@ type FormValues = {
   template_viewable_by_client: boolean;
   allow_template_duplication: boolean;
   default_trainer_assignment_logic: string;
+  sale_methods: string[];
 };
 
 export function GymSettings() {
@@ -42,6 +54,13 @@ export function GymSettings() {
   const form = useForm<FormValues>({
     defaultValues: {
       name: "",
+      address: "",
+      city: "",
+      postal_code: "",
+      country: "",
+      phone: "",
+      email: "",
+      website: "",
       max_trials_per_client: 1,
       enable_auto_followup: true,
       days_to_first_followup: 7,
@@ -50,6 +69,7 @@ export function GymSettings() {
       template_viewable_by_client: true,
       allow_template_duplication: true,
       default_trainer_assignment_logic: "manual",
+      sale_methods: ["both"],
     },
   });
 
@@ -92,7 +112,7 @@ export function GymSettings() {
       try {
         const { data: gymData, error: gymError } = await supabase
           .from("gyms")
-          .select("name")
+          .select("*")
           .eq("id", userGymId)
           .single();
 
@@ -115,31 +135,36 @@ export function GymSettings() {
           return "both";
         };
 
+        // Determine sale methods from template_sent_by
+        let saleMethods: string[] = ["both"];
+        if (settingsData?.template_sent_by === "package") {
+          saleMethods = ["package"];
+        } else if (settingsData?.template_sent_by === "custom") {
+          saleMethods = ["custom"];
+        }
+
+        form.reset({
+          name: gymData?.name || "",
+          address: gymData?.address || "",
+          city: gymData?.city || "",
+          postal_code: gymData?.postal_code || "",
+          country: gymData?.country || "",
+          phone: gymData?.phone || "",
+          email: gymData?.email || "",
+          website: gymData?.website || "",
+          max_trials_per_client: settingsData?.max_trials_per_client || 1,
+          enable_auto_followup: settingsData?.enable_auto_followup || true,
+          days_to_first_followup: settingsData?.days_to_first_followup || 7,
+          days_to_active_confirmation: settingsData?.days_to_active_confirmation || 30,
+          template_sent_by: normalizeTemplateSentBy(settingsData?.template_sent_by),
+          template_viewable_by_client: settingsData?.template_viewable_by_client || true,
+          allow_template_duplication: settingsData?.allow_template_duplication || true,
+          default_trainer_assignment_logic: settingsData?.default_trainer_assignment_logic || "manual",
+          sale_methods: saleMethods,
+        });
+
         if (settingsData) {
           setGymSettingsId(settingsData.id);
-          form.reset({
-            name: gymData?.name || "",
-            max_trials_per_client: settingsData.max_trials_per_client || 1,
-            enable_auto_followup: settingsData.enable_auto_followup || true,
-            days_to_first_followup: settingsData.days_to_first_followup || 7,
-            days_to_active_confirmation: settingsData.days_to_active_confirmation || 30,
-            template_sent_by: normalizeTemplateSentBy(settingsData.template_sent_by),
-            template_viewable_by_client: settingsData.template_viewable_by_client || true,
-            allow_template_duplication: settingsData.allow_template_duplication || true,
-            default_trainer_assignment_logic: settingsData.default_trainer_assignment_logic || "manual",
-          });
-        } else {
-          form.reset({
-            name: gymData?.name || "",
-            max_trials_per_client: 1,
-            enable_auto_followup: true,
-            days_to_first_followup: 7,
-            days_to_active_confirmation: 30,
-            template_sent_by: "both",
-            template_viewable_by_client: true,
-            allow_template_duplication: true,
-            default_trainer_assignment_logic: "manual",
-          });
         }
       } catch (error) {
         console.error("Error fetching gym settings:", error);
@@ -169,9 +194,29 @@ export function GymSettings() {
     setSaving(true);
 
     try {
+      // Determine template_sent_by based on sale_methods
+      let templateSentBy: TemplateSentBy = "both";
+      if (data.sale_methods.length === 1) {
+        if (data.sale_methods[0] === "package") {
+          templateSentBy = "trainer";
+        } else if (data.sale_methods[0] === "custom") {
+          templateSentBy = "system";
+        }
+      }
+
+      // Update gym data
       const { error: gymError } = await supabase
         .from("gyms")
-        .update({ name: data.name })
+        .update({ 
+          name: data.name,
+          address: data.address,
+          city: data.city,
+          postal_code: data.postal_code,
+          country: data.country,
+          phone: data.phone,
+          email: data.email,
+          website: data.website
+        })
         .eq("id", gymId);
 
       if (gymError) throw gymError;
@@ -182,7 +227,7 @@ export function GymSettings() {
         enable_auto_followup: data.enable_auto_followup,
         days_to_first_followup: data.days_to_first_followup,
         days_to_active_confirmation: data.days_to_active_confirmation,
-        template_sent_by: data.template_sent_by,
+        template_sent_by: templateSentBy,
         template_viewable_by_client: data.template_viewable_by_client,
         allow_template_duplication: data.allow_template_duplication,
         default_trainer_assignment_logic: data.default_trainer_assignment_logic,
@@ -235,6 +280,7 @@ export function GymSettings() {
       <Tabs defaultValue="general" className="w-full">
         <TabsList className="mb-6">
           <TabsTrigger value="general">Generali</TabsTrigger>
+          <TabsTrigger value="contact">Contatti</TabsTrigger>
           <TabsTrigger value="operational">Operative</TabsTrigger>
           <TabsTrigger value="advanced">Avanzate</TabsTrigger>
         </TabsList>
@@ -275,7 +321,7 @@ export function GymSettings() {
                     name="max_trials_per_client"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Numero Massimo di Prove Gratuite</FormLabel>
+                        <FormLabel>Numero Totale di Prove Gratuite</FormLabel>
                         <FormControl>
                           <Input 
                             type="number" 
@@ -285,7 +331,125 @@ export function GymSettings() {
                           />
                         </FormControl>
                         <FormDescription>
-                          Numero massimo di prove gratuite che un cliente può fare
+                          Numero di prove gratuite disponibili per la tua palestra
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="contact">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Building className="h-5 w-5" />
+                    Informazioni di Contatto
+                  </CardTitle>
+                  <CardDescription>
+                    Gestisci gli indirizzi e i dettagli di contatto della palestra
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="address"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Indirizzo</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Via Roma 123" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="city"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Città</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Milano" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="postal_code"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>CAP</FormLabel>
+                          <FormControl>
+                            <Input placeholder="20100" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="country"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Paese</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Italia" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Telefono</FormLabel>
+                        <FormControl>
+                          <Input placeholder="+39 123 456 7890" {...field} icon={<Phone className="h-4 w-4" />} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input placeholder="info@palestra.it" type="email" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="website"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Link Social/Website</FormLabel>
+                        <FormControl>
+                          <Input placeholder="https://www.instagram.com/tuapalestra" {...field} icon={<LinkIcon className="h-4 w-4" />} />
+                        </FormControl>
+                        <FormDescription>
+                          Link al sito web o ai social media della palestra
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -325,27 +489,29 @@ export function GymSettings() {
                     )}
                   />
 
-                  <FormField
-                    control={form.control}
-                    name="days_to_first_followup"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Giorni per il Primo Follow-up</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="number" 
-                            min={1}
-                            {...field}
-                            onChange={(e) => field.onChange(parseInt(e.target.value))}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          Numero di giorni prima del primo follow-up dopo una prova
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  {form.watch("enable_auto_followup") && (
+                    <FormField
+                      control={form.control}
+                      name="days_to_first_followup"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Giorni per il Primo Follow-up</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              min={1}
+                              {...field}
+                              onChange={(e) => field.onChange(parseInt(e.target.value))}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Numero di giorni prima del primo follow-up dopo una prova
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
 
                   <FormField
                     control={form.control}
@@ -363,6 +529,76 @@ export function GymSettings() {
                         </FormControl>
                         <FormDescription>
                           Giorni dopo i quali un cliente viene considerato attivo
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="sale_methods"
+                    render={() => (
+                      <FormItem>
+                        <FormLabel>Metodo di Vendita Personal Trainer</FormLabel>
+                        <div className="space-y-2">
+                          <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <Checkbox 
+                                checked={form.watch("sale_methods").includes("package")}
+                                onCheckedChange={(checked) => {
+                                  const current = [...form.watch("sale_methods")];
+                                  if (checked) {
+                                    if (!current.includes("package")) {
+                                      form.setValue("sale_methods", [...current, "package"]);
+                                    }
+                                  } else {
+                                    form.setValue("sale_methods", current.filter(v => v !== "package"));
+                                  }
+                                }}
+                              />
+                            </FormControl>
+                            <FormLabel className="font-normal">Pacchetti personal</FormLabel>
+                          </FormItem>
+                          <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <Checkbox 
+                                checked={form.watch("sale_methods").includes("custom")}
+                                onCheckedChange={(checked) => {
+                                  const current = [...form.watch("sale_methods")];
+                                  if (checked) {
+                                    if (!current.includes("custom")) {
+                                      form.setValue("sale_methods", [...current, "custom"]);
+                                    }
+                                  } else {
+                                    form.setValue("sale_methods", current.filter(v => v !== "custom"));
+                                  }
+                                }}
+                              />
+                            </FormControl>
+                            <FormLabel className="font-normal">Schede personalizzate</FormLabel>
+                          </FormItem>
+                          <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <Checkbox 
+                                checked={form.watch("sale_methods").includes("both")}
+                                onCheckedChange={(checked) => {
+                                  const current = [...form.watch("sale_methods")];
+                                  if (checked) {
+                                    if (!current.includes("both")) {
+                                      form.setValue("sale_methods", [...current, "both"]);
+                                    }
+                                  } else {
+                                    form.setValue("sale_methods", current.filter(v => v !== "both"));
+                                  }
+                                }}
+                              />
+                            </FormControl>
+                            <FormLabel className="font-normal">Entrambi</FormLabel>
+                          </FormItem>
+                        </div>
+                        <FormDescription>
+                          Seleziona i metodi di vendita PT supportati dalla palestra
                         </FormDescription>
                         <FormMessage />
                       </FormItem>

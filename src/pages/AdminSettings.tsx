@@ -4,10 +4,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GymSettings } from "@/components/admin/GymSettings";
 import { UserRoleManagement } from "@/components/admin/UserRoleManagement";
 import { ContractManagement } from "@/components/admin/ContractManagement";
+import { UserManagement } from "@/components/admin/UserManagement";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Navigate } from "react-router-dom";
+import { Settings, Users, FileText, Shield } from "lucide-react";
 
 const AdminSettings = () => {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
@@ -68,13 +70,30 @@ const AdminSettings = () => {
       
       <Tabs defaultValue="gym-settings" className="w-full">
         <TabsList className="mb-6">
-          <TabsTrigger value="gym-settings">Impostazioni Palestra</TabsTrigger>
-          <TabsTrigger value="user-roles">Gestione Ruoli Utente</TabsTrigger>
-          <TabsTrigger value="contracts">Gestione Contratti</TabsTrigger>
+          <TabsTrigger value="gym-settings" className="flex items-center gap-1">
+            <Settings className="h-4 w-4" />
+            Impostazioni Palestra
+          </TabsTrigger>
+          <TabsTrigger value="user-management" className="flex items-center gap-1">
+            <Users className="h-4 w-4" />
+            Gestione Utenti
+          </TabsTrigger>
+          <TabsTrigger value="user-roles" className="flex items-center gap-1">
+            <Shield className="h-4 w-4" />
+            Gestione Ruoli
+          </TabsTrigger>
+          <TabsTrigger value="contracts" className="flex items-center gap-1">
+            <FileText className="h-4 w-4" />
+            Gestione Contratti
+          </TabsTrigger>
         </TabsList>
         
         <TabsContent value="gym-settings">
           <GymSettings />
+        </TabsContent>
+        
+        <TabsContent value="user-management">
+          <UserManagement />
         </TabsContent>
         
         <TabsContent value="user-roles">
