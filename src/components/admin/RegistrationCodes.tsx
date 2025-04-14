@@ -155,10 +155,11 @@ export function RegistrationCodes() {
     try {
       const code = generateRegistrationCode();
       
+      // Cast the role string to the app_role enum type expected by Supabase
       const newCode = {
         gym_id: gymId,
         code,
-        role: newCodeRole,
+        role: newCodeRole as "admin" | "operator" | "trainer" | "assistant" | "instructor",
         active: true,
         created_by: user?.id,
         expires_at: newCodeExpires ? new Date(addDays(new Date(), expireDays)).toISOString() : null
