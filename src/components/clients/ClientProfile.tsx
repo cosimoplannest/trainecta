@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ChevronLeft, User, Calendar, Phone, Mail, Info, Clock, Edit, Users } from "lucide-react";
+import { ChevronLeft, User, Calendar, Phone, Mail, Info, Clock, Edit, Users, Video } from "lucide-react";
 import { format } from "date-fns";
 import { AssignTrainer } from "./AssignTrainer";
 import { it } from "date-fns/locale";
@@ -37,10 +37,37 @@ interface ClientActivity {
 interface AssignedTemplate {
   id: string;
   assigned_at: string;
-  workout_template: { name: string; type: string; category: string } | null;
+  workout_template: { 
+    id: string;
+    name: string; 
+    type: string; 
+    category: string;
+    template_exercises?: {
+      id: string;
+      sets: number;
+      reps: string;
+      exercise: {
+        id: string;
+        name: string;
+        video_url?: string;
+      }
+    }[]
+  } | null;
   assigned_by_user: { full_name: string } | null;
   delivery_status: string;
+  delivery_channel: string;
   conversion_status: string | null;
+  notes: string | null;
+}
+
+interface ClientFollowup {
+  id: string;
+  created_at: string;
+  sent_at: string;
+  type: string;
+  notes: string | null;
+  trainer?: { full_name: string } | null;
+  outcome: string | null;
 }
 
 const ClientProfile = () => {
@@ -50,7 +77,9 @@ const ClientProfile = () => {
   const [client, setClient] = useState<ClientData | null>(null);
   const [activities, setActivities] = useState<ClientActivity[]>([]);
   const [templates, setTemplates] = useState<AssignedTemplate[]>([]);
+  const [followups, setFollowups] = useState<ClientFollowup[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTemplate, setActiveTemplate] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchClientData = async () => {
@@ -94,8 +123,25 @@ const ClientProfile = () => {
             id,
             assigned_at,
             delivery_status,
+            delivery_channel,
             conversion_status,
-            workout_template:workout_templates(name, type, category),
+            notes,
+            workout_template:workout_templates(
+              id,
+              name, 
+              type, 
+              category,
+              template_exercises(
+                id,
+                sets,
+                reps,
+                exercise:exercises(
+                  id,
+                  name,
+                  video_url
+                )
+              )
+            ),
             assigned_by_user:users!assigned_templates_assigned_by_fkey(full_name)
           `)
           .eq("client_id", id)
@@ -103,6 +149,24 @@ const ClientProfile = () => {
           
         if (templatesError) throw templatesError;
         setTemplates(templatesData);
+        
+        // Fetch client followups
+        const { data: followupsData, error: followupsError } = await supabase
+          .from("client_followups")
+          .select(`
+            id,
+            created_at,
+            sent_at,
+            type,
+            notes,
+            outcome,
+            trainer:users!client_followups_trainer_id_fkey(full_name)
+          `)
+          .eq("client_id", id)
+          .order("sent_at", { ascending: false });
+          
+        if (followupsError) throw followupsError;
+        setFollowups(followupsData);
         
       } catch (error) {
         console.error("Error fetching client data:", error);
@@ -140,6 +204,14 @@ const ClientProfile = () => {
       };
       
       fetchClientData();
+    }
+  };
+
+  const toggleTemplateDetails = (templateId: string) => {
+    if (activeTemplate === templateId) {
+      setActiveTemplate(null);
+    } else {
+      setActiveTemplate(templateId);
     }
   };
 
@@ -284,12 +356,137 @@ const ClientProfile = () => {
         </div>
         
         <div className="lg:col-span-3">
-          <Tabs defaultValue="activities" className="space-y-6">
+          <Tabs defaultValue="templates" className="space-y-6">
             <TabsList>
-              <TabsTrigger value="activities">Attività</TabsTrigger>
               <TabsTrigger value="templates">Schede Assegnate</TabsTrigger>
+              <TabsTrigger value="activities">Attività</TabsTrigger>
               <TabsTrigger value="followups">Followup</TabsTrigger>
             </TabsList>
+            
+            <TabsContent value="templates" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Schede Assegnate</CardTitle>
+                  <CardDescription>Schede di allenamento assegnate al cliente</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {templates.length > 0 ? (
+                    <div className="space-y-4">
+                      {templates.map((template) => (
+                        <div key={template.id}>
+                          <div 
+                            className="flex items-start gap-4 pb-4 border-b cursor-pointer"
+                            onClick={() => toggleTemplateDetails(template.id)}
+                          >
+                            <div className="flex-1">
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <p className="font-medium">
+                                    {template.workout_template?.name || "Scheda senza nome"}
+                                  </p>
+                                  <div className="flex items-center gap-2 mt-1">
+                                    <span className="text-xs bg-muted px-2 py-0.5 rounded-full">
+                                      {template.workout_template?.type || "Tipo non specificato"}
+                                    </span>
+                                    <span className="text-xs bg-muted px-2 py-0.5 rounded-full">
+                                      {template.workout_template?.category || "Categoria non specificata"}
+                                    </span>
+                                  </div>
+                                </div>
+                                <p className="text-sm text-muted-foreground">
+                                  {format(new Date(template.assigned_at), "d MMM yyyy", { locale: it })}
+                                </p>
+                              </div>
+                              <div className="flex items-center gap-2 mt-2">
+                                <span className={`text-xs px-2 py-0.5 rounded-full ${
+                                  template.conversion_status === "converted" 
+                                    ? "bg-green-100 text-green-800" 
+                                    : template.conversion_status === "not_converted"
+                                    ? "bg-red-100 text-red-800"
+                                    : "bg-amber-100 text-amber-800"
+                                }`}>
+                                  {template.conversion_status === "converted" 
+                                    ? "Convertito" 
+                                    : template.conversion_status === "not_converted"
+                                    ? "Non Convertito"
+                                    : "In attesa"}
+                                </span>
+                                <span className={`text-xs px-2 py-0.5 rounded-full ${
+                                  template.delivery_status === "delivered" 
+                                    ? "bg-blue-100 text-blue-800" 
+                                    : "bg-gray-100 text-gray-800"
+                                }`}>
+                                  {template.delivery_status === "delivered" ? "Consegnato" : "Non consegnato"}
+                                </span>
+                                <span className="text-xs px-2 py-0.5 rounded-full bg-violet-100 text-violet-800">
+                                  {template.delivery_channel === "whatsapp" ? "WhatsApp" : "Email"}
+                                </span>
+                              </div>
+                              {template.assigned_by_user && (
+                                <p className="text-sm text-muted-foreground mt-2">
+                                  Assegnato da: {template.assigned_by_user.full_name}
+                                </p>
+                              )}
+                              {template.notes && (
+                                <p className="text-sm text-muted-foreground mt-1">
+                                  Note: {template.notes}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                          
+                          {/* Template Details Section */}
+                          {activeTemplate === template.id && template.workout_template?.template_exercises && (
+                            <div className="mt-4 mb-6 pl-4 border-l-2 border-muted">
+                              <h4 className="text-sm font-medium mb-2">Dettaglio Esercizi</h4>
+                              <div className="border rounded-md overflow-hidden">
+                                <table className="w-full text-sm">
+                                  <thead className="bg-muted">
+                                    <tr>
+                                      <th className="px-4 py-2 text-left">Esercizio</th>
+                                      <th className="px-4 py-2 text-center">Serie</th>
+                                      <th className="px-4 py-2 text-center">Ripetizioni</th>
+                                      <th className="px-4 py-2 text-right">Video</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {template.workout_template.template_exercises.map((exercise) => (
+                                      <tr key={exercise.id} className="border-t border-muted">
+                                        <td className="px-4 py-2">{exercise.exercise.name}</td>
+                                        <td className="px-4 py-2 text-center">{exercise.sets}</td>
+                                        <td className="px-4 py-2 text-center">{exercise.reps}</td>
+                                        <td className="px-4 py-2 text-right">
+                                          {exercise.exercise.video_url ? (
+                                            <a 
+                                              href={exercise.exercise.video_url} 
+                                              target="_blank" 
+                                              rel="noopener noreferrer"
+                                              className="text-blue-500 inline-flex items-center gap-1"
+                                            >
+                                              <Video className="h-4 w-4" />
+                                            </a>
+                                          ) : (
+                                            <span className="text-muted-foreground">-</span>
+                                          )}
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      Nessuna scheda assegnata a questo cliente
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
             
             <TabsContent value="activities" className="space-y-4">
               <Card>
@@ -334,61 +531,47 @@ const ClientProfile = () => {
               </Card>
             </TabsContent>
             
-            <TabsContent value="templates" className="space-y-4">
+            <TabsContent value="followups" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Schede Assegnate</CardTitle>
-                  <CardDescription>Schede di allenamento assegnate al cliente</CardDescription>
+                  <CardTitle>Followup Programmati</CardTitle>
+                  <CardDescription>Contatti programmati con il cliente</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {templates.length > 0 ? (
+                  {followups.length > 0 ? (
                     <div className="space-y-4">
-                      {templates.map((template) => (
-                        <div key={template.id} className="flex items-start gap-4 pb-4 border-b last:border-0">
+                      {followups.map((followup) => (
+                        <div key={followup.id} className="flex items-start gap-4 pb-4 border-b last:border-0">
                           <div className="flex-1">
                             <div className="flex justify-between items-start">
                               <div>
                                 <p className="font-medium">
-                                  {template.workout_template?.name || "Scheda senza nome"}
+                                  Followup via {followup.type === "whatsapp" 
+                                    ? "WhatsApp" 
+                                    : followup.type === "call" 
+                                    ? "Chiamata"
+                                    : followup.type === "email"
+                                    ? "Email"
+                                    : followup.type === "in_app"
+                                    ? "App"
+                                    : followup.type}
                                 </p>
-                                <div className="flex items-center gap-2 mt-1">
-                                  <span className="text-xs bg-muted px-2 py-0.5 rounded-full">
-                                    {template.workout_template?.type || "Tipo non specificato"}
-                                  </span>
-                                  <span className="text-xs bg-muted px-2 py-0.5 rounded-full">
-                                    {template.workout_template?.category || "Categoria non specificata"}
-                                  </span>
-                                </div>
+                                {followup.notes && (
+                                  <p className="text-sm text-muted-foreground mt-1">{followup.notes}</p>
+                                )}
                               </div>
                               <p className="text-sm text-muted-foreground">
-                                {format(new Date(template.assigned_at), "d MMM yyyy", { locale: it })}
+                                {format(new Date(followup.sent_at), "d MMM yyyy", { locale: it })}
                               </p>
                             </div>
-                            <div className="flex items-center gap-2 mt-2">
-                              <span className={`text-xs px-2 py-0.5 rounded-full ${
-                                template.conversion_status === "converted" 
-                                  ? "bg-green-100 text-green-800" 
-                                  : template.conversion_status === "not_converted"
-                                  ? "bg-red-100 text-red-800"
-                                  : "bg-amber-100 text-amber-800"
-                              }`}>
-                                {template.conversion_status === "converted" 
-                                  ? "Convertito" 
-                                  : template.conversion_status === "not_converted"
-                                  ? "Non Convertito"
-                                  : "In attesa"}
-                              </span>
-                              <span className={`text-xs px-2 py-0.5 rounded-full ${
-                                template.delivery_status === "delivered" 
-                                  ? "bg-blue-100 text-blue-800" 
-                                  : "bg-gray-100 text-gray-800"
-                              }`}>
-                                {template.delivery_status === "delivered" ? "Consegnato" : "Non consegnato"}
-                              </span>
-                            </div>
-                            {template.assigned_by_user && (
-                              <p className="text-sm text-muted-foreground mt-2">
-                                Assegnato da: {template.assigned_by_user.full_name}
+                            {followup.trainer && (
+                              <p className="text-sm text-muted-foreground mt-1">
+                                Da: {followup.trainer.full_name}
+                              </p>
+                            )}
+                            {followup.outcome && (
+                              <p className="text-sm font-medium mt-2">
+                                Esito: {followup.outcome}
                               </p>
                             )}
                           </div>
@@ -397,23 +580,9 @@ const ClientProfile = () => {
                     </div>
                   ) : (
                     <div className="text-center py-8 text-muted-foreground">
-                      Nessuna scheda assegnata a questo cliente
+                      Nessun followup registrato per questo cliente
                     </div>
                   )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="followups" className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Followup Programmati</CardTitle>
-                  <CardDescription>Contatti programmati con il cliente</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center py-8 text-muted-foreground">
-                    Funzionalità in arrivo
-                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
