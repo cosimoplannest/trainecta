@@ -5,7 +5,7 @@ import { GymSettings } from "@/components/admin/GymSettings";
 import { UserRoleManagement } from "@/components/admin/UserRoleManagement";
 import { ContractManagement } from "@/components/admin/ContractManagement";
 import { UserManagement } from "@/components/admin/UserManagement";
-import { RegistrationCodes } from "@/components/admin/RegistrationCodes";
+import { RegistrationCodes } from "@/components/admin/registration-codes";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
