@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { supabase } from "@/integrations/supabase/client";
@@ -418,7 +417,13 @@ export function GymSettings() {
                       <FormItem>
                         <FormLabel>Telefono</FormLabel>
                         <FormControl>
-                          <Input placeholder="+39 123 456 7890" {...field} icon={<Phone className="h-4 w-4" />} />
+                          <div className="relative">
+                            <Input 
+                              placeholder="+39 123 456 7890" 
+                              {...field}
+                            />
+                            <Phone className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -446,7 +451,13 @@ export function GymSettings() {
                       <FormItem>
                         <FormLabel>Link Social/Website</FormLabel>
                         <FormControl>
-                          <Input placeholder="https://www.instagram.com/tuapalestra" {...field} icon={<LinkIcon className="h-4 w-4" />} />
+                          <div className="relative">
+                            <Input 
+                              placeholder="https://www.instagram.com/tuapalestra" 
+                              {...field}
+                            />
+                            <LinkIcon className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                          </div>
                         </FormControl>
                         <FormDescription>
                           Link al sito web o ai social media della palestra
