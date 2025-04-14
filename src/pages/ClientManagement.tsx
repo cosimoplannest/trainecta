@@ -1,15 +1,19 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Users } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import ClientList from "@/components/clients/ClientList";
 import AddClientForm from "@/components/clients/AddClientForm";
 
 const ClientManagement = () => {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState("list");
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const tabFromUrl = searchParams.get("tab");
+  const [activeTab, setActiveTab] = useState(tabFromUrl === "add" ? "add" : "list");
 
   const handleClientAdded = () => {
     toast({
@@ -17,6 +21,16 @@ const ClientManagement = () => {
       description: "Il cliente è stato aggiunto con successo.",
     });
     setActiveTab("list");
+    navigate("/client-management");
+  };
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    if (value === "add") {
+      navigate("/client-management?tab=add");
+    } else {
+      navigate("/client-management");
+    }
   };
 
   return (
@@ -28,7 +42,7 @@ const ClientManagement = () => {
         </p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         <div className="flex items-center justify-between">
           <TabsList>
             <TabsTrigger value="list" className="flex items-center gap-2">

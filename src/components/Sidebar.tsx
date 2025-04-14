@@ -12,7 +12,7 @@ import {
   Menu
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useMobile } from "../hooks/use-mobile";
+import { useIsMobile } from "../hooks/use-mobile";
 
 interface SidebarProps {
   className?: string;
@@ -20,7 +20,7 @@ interface SidebarProps {
 
 export default function Sidebar({ className }: SidebarProps) {
   const [isOpen, setOpen] = useState(false);
-  const { isMobile } = useMobile();
+  const { isMobile } = useIsMobile();
   const { pathname } = useLocation();
 
   const handleLogout = () => {

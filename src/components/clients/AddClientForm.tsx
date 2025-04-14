@@ -1,6 +1,6 @@
 
-import { useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
@@ -84,7 +84,7 @@ const AddClientForm = ({ onClientAdded }: AddClientFormProps) => {
   });
 
   // Fetch trainers and subscriptions when component mounts
-  useState(() => {
+  useEffect(() => {
     const fetchTrainers = async () => {
       try {
         const { data, error } = await supabase
@@ -126,6 +126,9 @@ const AddClientForm = ({ onClientAdded }: AddClientFormProps) => {
         joined_at: data.joined_at.toISOString(),
         subscription_id: data.subscription_id || null,
         assigned_to: data.assigned_to || null,
+        // Add the required gym_id field - using a hardcoded value for now
+        // In a real app, this would come from user context or similar
+        gym_id: "11111111-1111-1111-1111-111111111111"
       };
 
       const { error } = await supabase.from("clients").insert(formattedData);

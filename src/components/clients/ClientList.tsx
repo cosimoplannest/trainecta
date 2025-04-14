@@ -55,7 +55,8 @@ const ClientList = () => {
         .select(`
           *,
           assigned_to_user:users!clients_assigned_to_fkey(id, full_name)
-        `);
+        `)
+        .eq("gym_id", "11111111-1111-1111-1111-111111111111"); // Match with the hardcoded gym_id in AddClientForm
 
       // Apply filters if provided
       if (search) {
