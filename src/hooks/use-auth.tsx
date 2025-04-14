@@ -100,33 +100,48 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      console.log("Attempting sign in for:", email);
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
+        console.error("Sign in error:", error);
         toast({
           title: "Errore di accesso",
           description: error.message,
           variant: "destructive",
         });
-        return;
+        throw error;
       }
 
-      // The user, role and status will be set by the onAuthStateChange event
-      toast({
-        title: "Accesso effettuato",
-        description: "Benvenuto in Trainecta",
-      });
+      console.log("Sign in successful:", data);
       
-      // Navigation will be handled by Dashboard component based on role and status
+      // If we got here, login was successful
+      if (data.user) {
+        console.log("User authenticated:", data.user);
+        
+        // Get user role and status
+        const userData = await fetchUserData(data.user.id);
+        console.log("User data after login:", userData);
+        
+        toast({
+          title: "Accesso effettuato",
+          description: "Benvenuto in Trainecta",
+        });
+        
+        // Let the auth state change propagate and handle navigation
+      }
     } catch (error: any) {
+      console.error("Login error:", error);
       toast({
         title: "Errore",
         description: error.message || "Errore durante l'accesso",
         variant: "destructive",
       });
+      throw error;
     }
   };
 

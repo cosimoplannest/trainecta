@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link, Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -28,32 +29,51 @@ const Login = () => {
     try {
       if (!email || !password) {
         setError("Inserisci email e password.");
+        setIsLoading(false);
         return;
       }
 
+      // Log login attempt
+      console.log(`Login attempt: ${email}`);
+
       await signIn(email, password);
+      
+      // If we get here without errors, the login was successful
+      console.log("Login successful, waiting for auth state to update");
+      
+      // Note: We're not navigating here. The redirect will happen via the
+      // useEffect below or the conditional render logic that follows
     } catch (err: any) {
+      console.error("Login error in handleSubmit:", err);
       setError(err.message || "Si è verificato un errore durante l'accesso.");
-      toast({
-        title: "Errore di accesso",
-        description: err.message,
-        variant: "destructive",
-      });
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Log auth state for debugging
+  useEffect(() => {
+    console.log("Auth state in Login component:", { user, loading, userRole, userStatus });
+  }, [user, loading, userRole, userStatus]);
+
   // If user is authenticated, redirect based on role
   if (!loading && user) {
+    console.log("User is authenticated, redirecting...");
+    
+    // Redirect path based on status and role
+    let redirectPath = "/dashboard";
+    
     if (userStatus === 'pending_approval') {
-      return <Navigate to="/dashboard" replace />;
+      console.log("User pending approval, redirecting to dashboard");
     } else if (userRole) {
-      return <Navigate to={`/dashboard/${userRole}`} replace />;
+      console.log(`User has role ${userRole}, redirecting to dashboard/${userRole}`);
+      redirectPath = `/dashboard/${userRole}`;
+    } else {
+      console.log("User authenticated but no role/status yet, redirecting to dashboard");
     }
-    // If user exists but we're still checking role/status, navigate to dashboard
-    // that will handle further redirection
-    return <Navigate to="/dashboard" replace />;
+    
+    console.log(`Redirecting to: ${redirectPath}`);
+    return <Navigate to={redirectPath} replace />;
   }
 
   return (
