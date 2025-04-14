@@ -1,3 +1,4 @@
+
 import {
   BarChart2,
   Dumbbell,
@@ -22,8 +23,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/use-auth";
 
 interface SidebarProps {
-  loading: boolean;
-  profile: {
+  loading?: boolean;
+  profile?: {
     id: string;
     full_name: string;
     avatar_url: string;
@@ -31,7 +32,7 @@ interface SidebarProps {
   } | null;
 }
 
-export function Sidebar({ loading, profile }: SidebarProps) {
+export function Sidebar({ loading = false, profile = null }: SidebarProps) {
   const { signOut } = useAuth();
 
   const mainLinks = [
