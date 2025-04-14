@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -428,7 +427,7 @@ const WorkoutTemplates = () => {
           name: `${template.name} (Copia)`,
           category: template.category,
           description: template.description,
-          type: template.type,
+          type: template.type as WorkoutType,
           gym_id: template.gym_id,
           locked: false
         })
@@ -483,7 +482,7 @@ const WorkoutTemplates = () => {
         
       if (refreshError) throw refreshError;
       
-      setTemplates([{...fullTemplate, assignment_count: 0}, ...templates]);
+      setTemplates([{...fullTemplate, assignment_count: 0} as WorkoutTemplate, ...templates]);
       toast.success("Template duplicato con successo");
     } catch (error) {
       console.error("Error duplicating template:", error);

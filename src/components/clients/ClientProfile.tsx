@@ -424,11 +424,6 @@ const ClientProfile = () => {
                                   Assegnato da: {template.assigned_by_user.full_name}
                                 </p>
                               )}
-                              {template.notes && (
-                                <p className="text-sm text-muted-foreground mt-1">
-                                  Note: {template.notes}
-                                </p>
-                              )}
                             </div>
                           </div>
                           
