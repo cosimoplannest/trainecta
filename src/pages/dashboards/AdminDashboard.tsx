@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Shield, Settings as SettingsIcon, ArrowUpRight, LineChart } from "lucide-react";
+import { Users, Shield, Settings as SettingsIcon, ArrowUpRight, LineChart, Key } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
@@ -97,14 +97,14 @@ const AdminDashboard = () => {
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Button className="w-full justify-start" asChild>
-                    <Link to="/admin-settings?tab=codes">
-                      <Shield className="mr-2 h-4 w-4" />
+                    <Link to="/admin-settings?tab=registration-codes">
+                      <Key className="mr-2 h-4 w-4" />
                       Codici di Registrazione
                     </Link>
                   </Button>
                   
                   <Button className="w-full justify-start" asChild>
-                    <Link to="/admin-settings?tab=users">
+                    <Link to="/admin-settings?tab=user-management">
                       <Users className="mr-2 h-4 w-4" />
                       Gestione Utenti
                     </Link>

@@ -5,16 +5,20 @@ import { GymSettings } from "@/components/admin/GymSettings";
 import { UserRoleManagement } from "@/components/admin/UserRoleManagement";
 import { ContractManagement } from "@/components/admin/ContractManagement";
 import { UserManagement } from "@/components/admin/UserManagement";
+import { RegistrationCodes } from "@/components/admin/RegistrationCodes";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Navigate } from "react-router-dom";
-import { Settings, Users, FileText, Shield } from "lucide-react";
+import { Navigate, useLocation } from "react-router-dom";
+import { Settings, Users, FileText, Shield, Key } from "lucide-react";
 
 const AdminSettings = () => {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const defaultTab = searchParams.get('tab') || 'gym-settings';
 
   useEffect(() => {
     const checkAdminRole = async () => {
@@ -68,7 +72,7 @@ const AdminSettings = () => {
     <div className="container mx-auto py-6">
       <h1 className="mb-6 text-3xl font-bold">Configurazioni Admin</h1>
       
-      <Tabs defaultValue="gym-settings" className="w-full">
+      <Tabs defaultValue={defaultTab} className="w-full">
         <TabsList className="mb-6">
           <TabsTrigger value="gym-settings" className="flex items-center gap-1">
             <Settings className="h-4 w-4" />
@@ -86,6 +90,10 @@ const AdminSettings = () => {
             <FileText className="h-4 w-4" />
             Gestione Contratti
           </TabsTrigger>
+          <TabsTrigger value="registration-codes" className="flex items-center gap-1">
+            <Key className="h-4 w-4" />
+            Codici Registrazione
+          </TabsTrigger>
         </TabsList>
         
         <TabsContent value="gym-settings">
@@ -102,6 +110,10 @@ const AdminSettings = () => {
         
         <TabsContent value="contracts">
           <ContractManagement />
+        </TabsContent>
+        
+        <TabsContent value="registration-codes">
+          <RegistrationCodes />
         </TabsContent>
       </Tabs>
     </div>
