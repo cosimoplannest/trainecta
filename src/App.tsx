@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import WorkoutTemplates from "./pages/WorkoutTemplates";
+import ClientManagement from "./pages/ClientManagement";
 import Layout from "./components/Layout";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
           <Route path="/workout-templates" element={<Layout><WorkoutTemplates /></Layout>} />
+          <Route path="/client-management" element={<Layout><ClientManagement /></Layout>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

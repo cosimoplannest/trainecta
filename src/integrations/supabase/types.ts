@@ -248,11 +248,15 @@ export type Database = {
           created_at: string
           email: string | null
           first_name: string
+          gender: string | null
           gym_id: string
           id: string
           internal_notes: string | null
+          joined_at: string | null
           last_name: string
           phone: string | null
+          source: string | null
+          subscription_id: string | null
           subscription_type: string | null
           updated_at: string
         }
@@ -262,11 +266,15 @@ export type Database = {
           created_at?: string
           email?: string | null
           first_name: string
+          gender?: string | null
           gym_id: string
           id?: string
           internal_notes?: string | null
+          joined_at?: string | null
           last_name: string
           phone?: string | null
+          source?: string | null
+          subscription_id?: string | null
           subscription_type?: string | null
           updated_at?: string
         }
@@ -276,11 +284,15 @@ export type Database = {
           created_at?: string
           email?: string | null
           first_name?: string
+          gender?: string | null
           gym_id?: string
           id?: string
           internal_notes?: string | null
+          joined_at?: string | null
           last_name?: string
           phone?: string | null
+          source?: string | null
+          subscription_id?: string | null
           subscription_type?: string | null
           updated_at?: string
         }
@@ -297,6 +309,13 @@ export type Database = {
             columns: ["gym_id"]
             isOneToOne: false
             referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clients_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
             referencedColumns: ["id"]
           },
         ]
