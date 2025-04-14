@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,16 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { contractTypes, durations } from "./constants";
-import { ContractFormData } from "./types";
-
-interface ContractDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSubmit: (data: ContractFormData) => Promise<void>;
-  isEditing: boolean;
-  initialData: ContractFormData;
-  resetForm: () => void;
-}
+import { ContractDialogProps, ContractFormData } from "./types";
 
 export function ContractDialog({
   open,

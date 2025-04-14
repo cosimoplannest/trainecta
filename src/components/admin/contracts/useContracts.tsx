@@ -1,13 +1,14 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { ContractFormData, Contract } from "./types";
+import { ContractFormData, Contract, UseContractsResult } from "./types";
 import * as contractsApi from "./api";
 
-export function useContracts() {
+export function useContracts(): UseContractsResult {
   const [contracts, setContracts] = useState<Contract[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
   const [currentContract, setCurrentContract] = useState<Contract | null>(null);
   const [formData, setFormData] = useState<ContractFormData>({
     name: "",
@@ -20,7 +21,7 @@ export function useContracts() {
   
   const { toast } = useToast();
 
-  const fetchContracts = useCallback(async () => {
+  const fetchContracts = useCallback(async (): Promise<void> => {
     setLoading(true);
     try {
       const data = await contractsApi.fetchContracts();
@@ -41,7 +42,7 @@ export function useContracts() {
     fetchContracts();
   }, [fetchContracts]);
 
-  const resetForm = useCallback(() => {
+  const resetForm = useCallback((): void => {
     setFormData({
       name: "",
       description: "",
@@ -54,7 +55,7 @@ export function useContracts() {
     setCurrentContract(null);
   }, []);
 
-  const openEditDialog = useCallback((contract: Contract) => {
+  const openEditDialog = useCallback((contract: Contract): void => {
     setCurrentContract(contract);
     
     // Map duration_days back to the form value
@@ -72,7 +73,7 @@ export function useContracts() {
     setDialogOpen(true);
   }, []);
 
-  const handleSubmit = useCallback(async (formData: ContractFormData) => {
+  const handleSubmit = useCallback(async (formData: ContractFormData): Promise<void> => {
     try {
       if (isEditing && currentContract) {
         await contractsApi.updateContract(currentContract.id, formData);
@@ -99,7 +100,7 @@ export function useContracts() {
     }
   }, [isEditing, currentContract, toast, fetchContracts]);
 
-  const handleDeleteContract = useCallback(async (id: string) => {
+  const handleDeleteContract = useCallback(async (id: string): Promise<void> => {
     if (!confirm("Sei sicuro di voler eliminare questo contratto?")) return;
 
     try {

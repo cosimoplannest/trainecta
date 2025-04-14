@@ -1,16 +1,10 @@
+
 import { Loader2, Edit, Trash2 } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { formatDuration } from "./utils";
-import { Contract } from "./types";
-
-interface ContractListProps {
-  contracts: Contract[];
-  loading: boolean;
-  onEdit: (contract: Contract) => void;
-  onDelete: (id: string) => void;
-}
+import { ContractListProps } from "./types";
 
 export function ContractList({ contracts, loading, onEdit, onDelete }: ContractListProps) {
   return (
