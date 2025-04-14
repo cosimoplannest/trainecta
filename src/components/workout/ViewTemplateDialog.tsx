@@ -15,7 +15,7 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Video } from "lucide-react";
+import { ExternalLink, TrendingUp, Users, Video } from "lucide-react";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import { WorkoutTemplate, TemplateExercise, TemplateExerciseWithNestedExercise } from "@/types/workout";
@@ -87,6 +87,52 @@ export function ViewTemplateDialog({ open, onOpenChange, template }: ViewTemplat
               ))}
             </TableBody>
           </Table>
+        </div>
+        
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <div className="border rounded-md p-4 flex flex-col">
+            <div className="flex items-center text-sm font-medium mb-3">
+              <TrendingUp className="h-4 w-4 mr-2 text-primary" />
+              Statistiche di Utilizzo
+            </div>
+            <div className="flex flex-col space-y-2">
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Assegnazioni:</span>
+                <span className="text-sm font-medium">{template.assignment_count || 0}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Tasso di conversione:</span>
+                <span className="text-sm font-medium">30%</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Tempo medio follow-up:</span>
+                <span className="text-sm font-medium">3.5 giorni</span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="border rounded-md p-4 flex flex-col">
+            <div className="flex items-center text-sm font-medium mb-3">
+              <Users className="h-4 w-4 mr-2 text-primary" />
+              Utilizzo Trainer
+            </div>
+            <div className="flex flex-col space-y-2">
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Trainer principale:</span>
+                <span className="text-sm font-medium">Trainer Name</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">% senza follow-up:</span>
+                <span className="text-sm font-medium">15%</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Ultima assegnazione:</span>
+                <span className="text-sm font-medium">
+                  {template.assignment_count ? format(new Date(), "d MMM yyyy", { locale: it }) : '-'}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
         
         <div className="text-xs text-muted-foreground mt-2">

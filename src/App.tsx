@@ -12,6 +12,7 @@ import NotFound from "./pages/NotFound";
 import WorkoutTemplates from "./pages/WorkoutTemplates";
 import ClientManagement from "./pages/ClientManagement";
 import Statistics from "./pages/Statistics";
+import TrackingPage from "./pages/TrackingPage";
 import Layout from "./components/Layout";
 import ClientProfile from "./components/clients/ClientProfile";
 
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/client-management" element={<Layout><ClientManagement /></Layout>} />
           <Route path="/client/:id" element={<Layout><ClientProfile /></Layout>} />
           <Route path="/statistics" element={<Layout><Statistics /></Layout>} />
+          <Route path="/tracking" element={<Layout><TrackingPage /></Layout>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

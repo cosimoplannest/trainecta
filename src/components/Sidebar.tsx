@@ -1,119 +1,149 @@
-
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Link, useLocation } from "react-router-dom";
-import { 
-  Home,
-  BarChart3,
-  Users,
+import {
+  BarChart2,
   Dumbbell,
+  Home,
+  LineChart,
   Settings,
-  LogOut,
-  Menu
+  Users,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useIsMobile } from "../hooks/use-mobile";
+import { NavLink } from "react-router-dom";
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/hooks/use-auth";
 
 interface SidebarProps {
-  className?: string;
+  loading: boolean;
+  profile: {
+    id: string;
+    full_name: string;
+    avatar_url: string;
+    email: string;
+  } | null;
 }
 
-export default function Sidebar({ className }: SidebarProps) {
-  const [isOpen, setOpen] = useState(false);
-  const isMobile = useIsMobile();
-  const { pathname } = useLocation();
+export function Sidebar({ loading, profile }: SidebarProps) {
+  const { signOut } = useAuth();
 
-  const handleLogout = () => {
-    console.log("Logout");
-  };
+  const mainLinks = [
+    {
+      name: "Dashboard",
+      href: "/dashboard",
+      icon: Home,
+    },
+    {
+      name: "Workout Templates",
+      href: "/workout-templates",
+      icon: Dumbbell,
+    },
+    {
+      name: "Client Management",
+      href: "/client-management",
+      icon: Users,
+    },
+    {
+      name: "Statistics",
+      href: "/statistics",
+      icon: BarChart2,
+    },
+    {
+      name: "Tracking & Analysis",
+      href: "/tracking",
+      icon: LineChart,
+    }
+  ];
 
-  const navigation = [
-    { name: "Dashboard", href: "/dashboard", icon: Home },
-    { name: "Gestione Clienti", href: "/client-management", icon: Users },
-    { name: "Schede Allenamento", href: "/workout-templates", icon: Dumbbell },
-    { name: "Statistiche", href: "/statistics", icon: BarChart3 },
-    { name: "Impostazioni", href: "/settings", icon: Settings },
+  const secondaryLinks = [
+    {
+      name: "Settings",
+      href: "/settings",
+      icon: Settings,
+    },
   ];
 
   return (
-    <>
-      <nav
-        className={cn(
-          "bg-background z-30 flex flex-col h-screen border-r shadow-sm transition-all duration-300",
-          isOpen ? "w-72" : "w-20",
-          className
-        )}
-      >
-        <div className="flex justify-end p-3 pb-2 border-b">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setOpen(!isOpen)}
-            className="rounded-full hover:bg-muted"
-          >
-            <Menu className="h-6 w-6" />
-          </Button>
+    <div className="flex h-full max-w-60 flex-col border-r bg-secondary">
+      <ScrollArea className="flex-1 space-y-4 p-4">
+        <div className="flex flex-col items-center space-y-2">
+          {loading ? (
+            <Skeleton className="h-12 w-12 rounded-full" />
+          ) : (
+            <Avatar>
+              <AvatarImage src={profile?.avatar_url || ""} alt="Avatar" />
+              <AvatarFallback>{profile?.full_name?.charAt(0)}</AvatarFallback>
+            </Avatar>
+          )}
+          {loading ? (
+            <Skeleton className="h-4 w-32" />
+          ) : (
+            <p className="text-sm font-semibold">{profile?.full_name}</p>
+          )}
+          {loading ? (
+            <Skeleton className="h-4 w-32" />
+          ) : (
+            <p className="text-xs text-muted-foreground">{profile?.email}</p>
+          )}
         </div>
-        <div className="flex flex-col flex-1 overflow-y-auto">
-          <ul className="space-y-2 p-2">
-            {navigation.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <li key={item.name}>
-                  <Link
-                    to={item.href}
-                    className={cn(
-                      "flex items-center p-2 rounded-lg transition-all group hover:bg-muted",
-                      isActive ? "bg-muted text-primary" : "text-muted-foreground"
-                    )}
-                  >
-                    <item.icon className="h-5 w-5 mr-3 shrink-0" />
-                    <span
-                      className={cn(
-                        "whitespace-nowrap transition-opacity",
-                        isOpen ? "opacity-100" : "opacity-0"
-                      )}
-                    >
-                      {item.name}
-                    </span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-        <div className="border-t p-4">
-          <Button
-            variant="ghost"
-            className={cn(
-              "flex items-center w-full justify-start text-muted-foreground",
-              isOpen ? "px-3" : "px-0 py-3 justify-center"
-            )}
-            onClick={handleLogout}
-          >
-            <LogOut
-              className={cn(
-                "h-5 w-5",
-                isOpen ? "mr-2" : "mx-auto"
-              )}
-            />
-            <span
-              className={cn(
-                "transition-opacity",
-                isOpen ? "opacity-100" : "opacity-0"
-              )}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="w-full justify-start">
+              My Account
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-40" align="start">
+            <DropdownMenuItem>Settings</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => {
+                signOut();
+              }}
             >
-              Logout
-            </span>
-          </Button>
+              Log out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <div className="space-y-1">
+          {mainLinks.map((link) => (
+            <NavLink
+              key={link.name}
+              to={link.href}
+              className={({ isActive }) =>
+                `flex items-center space-x-2 rounded-md p-2 text-sm font-medium hover:underline ${
+                  isActive ? "bg-accent text-accent-foreground" : ""
+                }`
+              }
+            >
+              <link.icon className="h-4 w-4" />
+              <span>{link.name}</span>
+            </NavLink>
+          ))}
         </div>
-      </nav>
-      {isMobile && isOpen && (
-        <div
-          className="fixed inset-0 bg-black/80 z-20"
-          onClick={() => setOpen(false)}
-        ></div>
-      )}
-    </>
+        <div className="mt-4 space-y-1">
+          {secondaryLinks.map((link) => (
+            <NavLink
+              key={link.name}
+              to={link.href}
+              className={({ isActive }) =>
+                `flex items-center space-x-2 rounded-md p-2 text-sm font-medium hover:underline ${
+                  isActive ? "bg-accent text-accent-foreground" : ""
+                }`
+              }
+            >
+              <link.icon className="h-4 w-4" />
+              <span>{link.name}</span>
+            </NavLink>
+          ))}
+        </div>
+      </ScrollArea>
+    </div>
   );
 }
