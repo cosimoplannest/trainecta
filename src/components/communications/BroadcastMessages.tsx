@@ -34,6 +34,7 @@ import { format } from "date-fns";
 import { CalendarIcon, LoaderCircle, Megaphone, Plus } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { it } from "date-fns/locale";
+import { Database } from "@/integrations/supabase/types";
 
 type FormValues = {
   title: string;
@@ -42,12 +43,14 @@ type FormValues = {
   expiryDate?: Date;
 };
 
+type AppRole = Database["public"]["Enums"]["app_role"];
+
 const roleOptions = [
-  { id: "trainer", label: "Trainers" },
-  { id: "assistant", label: "Assistenti di sala" },
-  { id: "instructor", label: "Istruttori" },
-  { id: "operator", label: "Operatori" },
-  { id: "admin", label: "Amministratori" },
+  { id: "trainer" as AppRole, label: "Trainers" },
+  { id: "assistant" as AppRole, label: "Assistenti di sala" },
+  { id: "instructor" as AppRole, label: "Istruttori" },
+  { id: "operator" as AppRole, label: "Operatori" },
+  { id: "admin" as AppRole, label: "Amministratori" },
 ];
 
 export function BroadcastMessages() {
@@ -56,7 +59,7 @@ export function BroadcastMessages() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [messages, setMessages] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const [selectedRoles, setSelectedRoles] = useState<AppRole[]>([]);
 
   const form = useForm<FormValues>({
     defaultValues: {
@@ -97,7 +100,7 @@ export function BroadcastMessages() {
     }
   };
 
-  const handleRoleToggle = (role: string) => {
+  const handleRoleToggle = (role: AppRole) => {
     setSelectedRoles((prev) => 
       prev.includes(role) 
         ? prev.filter(r => r !== role) 
@@ -114,7 +117,7 @@ export function BroadcastMessages() {
         title: data.title,
         content: data.content,
         sent_by: user.id,
-        target_role: data.targetRoles.length === 0 ? null : data.targetRoles[0],
+        target_role: selectedRoles.length === 0 ? null : selectedRoles[0] as AppRole,
         gym_id: "00000000-0000-0000-0000-000000000000", // Replace with actual gym ID from context
       });
 

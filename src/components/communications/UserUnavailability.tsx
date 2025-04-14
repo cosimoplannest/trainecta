@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "@/hooks/use-auth";
@@ -42,6 +41,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { it } from "date-fns/locale";
+import { Database } from "@/integrations/supabase/types";
 
 type FormValues = {
   reason: string;
@@ -51,12 +51,15 @@ type FormValues = {
   documentFile?: FileList;
 };
 
+type UnavailabilityReason = Database["public"]["Enums"]["unavailability_reason"];
+type AppRole = Database["public"]["Enums"]["app_role"];
+
 const reasonOptions = [
-  { value: "illness", label: "Malattia" },
-  { value: "injury", label: "Infortunio" },
-  { value: "vacation", label: "Ferie" },
-  { value: "personal", label: "Motivi personali" },
-  { value: "other", label: "Altro" },
+  { value: "illness" as UnavailabilityReason, label: "Malattia" },
+  { value: "injury" as UnavailabilityReason, label: "Infortunio" },
+  { value: "vacation" as UnavailabilityReason, label: "Ferie" },
+  { value: "personal" as UnavailabilityReason, label: "Motivi personali" },
+  { value: "other" as UnavailabilityReason, label: "Altro" },
 ];
 
 export function UserUnavailability() {
@@ -153,13 +156,13 @@ export function UserUnavailability() {
       
       const { error } = await supabase.from("user_unavailability").insert({
         user_id: user.id,
-        user_role: "trainer", // This should be dynamically set based on actual user role
-        reason: data.reason,
+        user_role: "trainer" as AppRole,
+        reason: data.reason as UnavailabilityReason,
         start_date: data.startDate.toISOString(),
         end_date: data.endDate.toISOString(),
         notes: data.notes || null,
         document_url: documentUrl,
-        gym_id: "00000000-0000-0000-0000-000000000000", // Replace with actual gym ID from context
+        gym_id: "00000000-0000-0000-0000-000000000000",
       });
 
       if (error) throw error;
@@ -397,7 +400,7 @@ export function UserUnavailability() {
                   <TableCell>
                     {item.document_url ? (
                       <a
-                        href={`${supabase.storageUrl}/storage/v1/object/public/documents/${item.document_url}`}
+                        href={`https://nvzgwtgexahpnenjnhgr.supabase.co/storage/v1/object/public/documents/${item.document_url}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-primary hover:underline inline-flex items-center"
