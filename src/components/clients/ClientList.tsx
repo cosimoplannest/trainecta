@@ -1,248 +1,221 @@
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { Input } from "@/components/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Search, UserPlus, RefreshCw } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { it } from "date-fns/locale";
-
-interface Client {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone: string;
-  gender: string;
-  joined_at: string;
-  source: string;
-  assigned_to: string;
-  trainer_name?: string;
-}
+import { Search, User, MoreHorizontal, Edit, Trash, FileText } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Link, useNavigate } from "react-router-dom";
+import { AssignTrainer } from "./AssignTrainer";
 
 const ClientList = () => {
-  const [clients, setClients] = useState<Client[]>([]);
-  const [trainers, setTrainers] = useState<{ id: string; full_name: string }[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [selectedTrainer, setSelectedTrainer] = useState<string | null>(null);
+  const [clients, setClients] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const fetchClients = async () => {
-    setIsLoading(true);
+  useEffect(() => {
+    const fetchClients = async () => {
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from("clients")
+          .select(`
+            *,
+            users(full_name)
+          `)
+          .order("last_name", { ascending: true });
+
+        if (error) throw error;
+        setClients(data);
+      } catch (error) {
+        console.error("Error fetching clients:", error);
+        toast({
+          title: "Errore",
+          description: "Impossibile caricare l'elenco dei clienti",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchClients();
+  }, [toast]);
+
+  const handleRefreshClients = async () => {
     try {
-      let query = supabase
+      setLoading(true);
+      const { data, error } = await supabase
         .from("clients")
         .select(`
           *,
-          assigned_to_user:users!clients_assigned_to_fkey(id, full_name)
+          users(full_name)
         `)
-        .eq("gym_id", "11111111-1111-1111-1111-111111111111"); // Match with the hardcoded gym_id in AddClientForm
-
-      // Apply filters if provided
-      if (search) {
-        query = query.or(
-          `first_name.ilike.%${search}%,last_name.ilike.%${search}%,email.ilike.%${search}%,phone.ilike.%${search}%`
-        );
-      }
-
-      if (selectedTrainer) {
-        query = query.eq("assigned_to", selectedTrainer);
-      }
-
-      const { data, error } = await query.order("created_at", { ascending: false });
+        .order("last_name", { ascending: true });
 
       if (error) throw error;
-
-      // Format the client data
-      const formattedClients = data.map((client) => ({
-        ...client,
-        trainer_name: client.assigned_to_user?.[0]?.full_name || "",
-      }));
-
-      setClients(formattedClients);
+      setClients(data);
+      toast({
+        title: "Aggiornato",
+        description: "Elenco clienti aggiornato con successo",
+      });
     } catch (error) {
-      console.error("Error fetching clients:", error);
+      console.error("Error refreshing clients:", error);
       toast({
         title: "Errore",
-        description: "Si è verificato un errore nel caricamento dei clienti.",
+        description: "Impossibile aggiornare l'elenco dei clienti",
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const fetchTrainers = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("users")
-        .select("id, full_name")
-        .eq("role", "trainer");
+  const filteredClients = clients.filter(client => {
+    const fullName = `${client.first_name} ${client.last_name}`.toLowerCase();
+    const query = searchQuery.toLowerCase();
+    return fullName.includes(query) || 
+           (client.email && client.email.toLowerCase().includes(query)) ||
+           (client.phone && client.phone.includes(query));
+  });
 
-      if (error) throw error;
-      setTrainers(data || []);
-    } catch (error) {
-      console.error("Error fetching trainers:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchTrainers();
-    fetchClients();
-  }, []);
-
-  // Refetch when search or trainer filter changes
-  useEffect(() => {
-    fetchClients();
-  }, [search, selectedTrainer]);
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value);
-  };
-
-  const handleTrainerFilter = (value: string) => {
-    setSelectedTrainer(value === "all" ? null : value);
-  };
-
-  const handleViewClient = (clientId: string) => {
-    // In the future, this will navigate to client detail page
-    toast({
-      title: "Visualizzazione cliente",
-      description: "Funzionalità in fase di sviluppo",
-    });
-  };
-
-  const handleRefresh = () => {
-    fetchClients();
+  const handleViewProfile = (clientId) => {
+    navigate(`/client/${clientId}`);
   };
 
   return (
     <Card>
-      <CardContent className="p-6">
-        <div className="flex flex-col space-y-4">
-          <div className="flex flex-col md:flex-row justify-between gap-4">
-            <div className="relative w-full md:w-1/3">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Cerca cliente..."
-                className="pl-8"
-                value={search}
-                onChange={handleSearch}
-              />
-            </div>
-            <div className="flex flex-row gap-3">
-              <Select onValueChange={handleTrainerFilter} defaultValue="all">
-                <SelectTrigger className="w-full md:w-[200px]">
-                  <SelectValue placeholder="Filtra per trainer" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tutti i trainer</SelectItem>
-                  {trainers.map((trainer) => (
-                    <SelectItem key={trainer.id} value={trainer.id}>
-                      {trainer.full_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button variant="outline" onClick={handleRefresh}>
-                <RefreshCw className="h-4 w-4" />
-              </Button>
-              <Button onClick={() => navigate("/client-management?tab=add")}>
-                <UserPlus className="h-4 w-4 mr-2" />
-                Nuovo
-              </Button>
-            </div>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle>Elenco Clienti</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="flex items-center justify-between pb-4">
+          <div className="relative max-w-sm">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Cerca cliente..."
+              className="pl-8 max-w-sm"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={handleRefreshClients}
+            disabled={loading}
+          >
+            {loading ? "Caricamento..." : "Aggiorna"}
+          </Button>
+        </div>
 
-          {isLoading ? (
-            <div className="flex justify-center py-8">
-              <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
-            </div>
-          ) : (
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nome</TableHead>
-                    <TableHead>Contatti</TableHead>
-                    <TableHead className="hidden md:table-cell">Trainer</TableHead>
-                    <TableHead className="hidden md:table-cell">Iscritto da</TableHead>
-                    <TableHead className="hidden md:table-cell">Origine</TableHead>
-                    <TableHead className="text-right">Azioni</TableHead>
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Cliente</TableHead>
+                <TableHead>Contatto</TableHead>
+                <TableHead>Iscrizione</TableHead>
+                <TableHead>Trainer</TableHead>
+                <TableHead>Azioni</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center py-10">
+                    <div className="flex flex-col items-center justify-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-2"></div>
+                      <span className="text-muted-foreground">Caricamento clienti...</span>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : filteredClients.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center py-10">
+                    <div className="flex flex-col items-center justify-center">
+                      <User className="h-10 w-10 text-muted-foreground/50 mb-2" />
+                      <span className="text-muted-foreground">Nessun cliente trovato</span>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredClients.map((client) => (
+                  <TableRow key={client.id}>
+                    <TableCell>
+                      <div className="font-medium">
+                        {client.first_name} {client.last_name}
+                      </div>
+                      {client.gender && (
+                        <div className="text-sm text-muted-foreground">
+                          {client.gender === 'male' ? 'Uomo' : client.gender === 'female' ? 'Donna' : client.gender}
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {client.email && (
+                        <div className="text-sm">{client.email}</div>
+                      )}
+                      {client.phone && (
+                        <div className="text-sm text-muted-foreground">{client.phone}</div>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {client.joined_at && (
+                        <Badge variant="outline" className="font-normal">
+                          Dal {format(new Date(client.joined_at), "dd/MM/yyyy")}
+                        </Badge>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {client.users?.full_name ? (
+                        <div className="text-sm">{client.users.full_name}</div>
+                      ) : (
+                        <div className="text-sm text-muted-foreground">Non assegnato</div>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => handleViewProfile(client.id)}
+                        >
+                          <FileText className="h-4 w-4" />
+                        </Button>
+                        
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem>
+                              <Edit className="mr-2 h-4 w-4" />
+                              <span>Modifica</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <Trash className="mr-2 h-4 w-4" />
+                              <span>Elimina</span>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {clients.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
-                        Nessun cliente trovato.
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    clients.map((client) => (
-                      <TableRow key={client.id}>
-                        <TableCell>
-                          <div className="font-medium">
-                            {client.first_name} {client.last_name}
-                          </div>
-                          <div className="text-xs text-muted-foreground md:hidden">
-                            {client.trainer_name || "Non assegnato"}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-sm">
-                            {client.email || <span className="text-muted-foreground">No email</span>}
-                          </div>
-                          <div className="text-sm">
-                            {client.phone || <span className="text-muted-foreground">No tel</span>}
-                          </div>
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          {client.trainer_name || "Non assegnato"}
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          {client.joined_at
-                            ? format(new Date(client.joined_at), "dd/MM/yyyy", { locale: it })
-                            : "N/A"}
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          {client.source || "Non specificato"}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button
-                            variant="ghost"
-                            onClick={() => handleViewClient(client.id)}
-                          >
-                            Dettagli
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          )}
+                ))
+              )}
+            </TableBody>
+          </Table>
         </div>
       </CardContent>
     </Card>
