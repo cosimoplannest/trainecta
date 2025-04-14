@@ -6,13 +6,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { Exercise, TemplateExercise } from "@/types/workout";
+import { Exercise, TemplateExercise, TemplateExerciseWithNestedExercise } from "@/types/workout";
 import { CreateExerciseDialog } from "./CreateExerciseDialog";
 
 interface AddExerciseFormProps {
   newExercise: Partial<TemplateExercise>;
   setNewExercise: (exercise: Partial<TemplateExercise>) => void;
-  templateExercises: TemplateExercise[];
+  templateExercises: TemplateExerciseWithNestedExercise[];
   exercises: Exercise[];
   onAddExercise: () => void;
   onExerciseAdded: (exercise: Exercise) => void;

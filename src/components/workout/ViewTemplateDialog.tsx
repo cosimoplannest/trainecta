@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { ExternalLink, Video } from "lucide-react";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
-import { WorkoutTemplate } from "@/types/workout";
+import { WorkoutTemplate, TemplateExercise, TemplateExerciseWithNestedExercise } from "@/types/workout";
 
 interface ViewTemplateDialogProps {
   open: boolean;
