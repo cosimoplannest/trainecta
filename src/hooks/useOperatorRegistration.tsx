@@ -22,11 +22,11 @@ export const useOperatorRegistration = ({ gymCode }: UseOperatorRegistrationProp
 
   const validateForm = () => {
     if (password !== confirmPassword) {
-      setValidationError("Le password non coincidono");
+      setValidationError("Passwords do not match");
       return false;
     }
     if (password.length < 6) {
-      setValidationError("La password deve contenere almeno 6 caratteri");
+      setValidationError("Password must be at least 6 characters long");
       return false;
     }
     setValidationError("");
@@ -47,7 +47,7 @@ export const useOperatorRegistration = ({ gymCode }: UseOperatorRegistrationProp
       });
 
       if (gymError || !gymData) {
-        toast.error("Codice di registrazione non valido o scaduto");
+        toast.error("Invalid or expired registration code");
         setIsLoading(false);
         return;
       }
@@ -57,17 +57,24 @@ export const useOperatorRegistration = ({ gymCode }: UseOperatorRegistrationProp
         registration_code: gymCode
       });
 
-      if (roleError || roleData !== 'operator') {
-        toast.error("Questo codice non è valido per la registrazione come operatore");
+      if (roleError) {
+        throw roleError;
+      }
+
+      if (roleData !== 'operator') {
+        toast.error("This code is not valid for operator registration");
         setIsLoading(false);
         return;
       }
 
-      // Register the user
+      console.log("Registering with role:", roleData);
+
+      // Register the user with explicit operator role
       const userData = {
         full_name: `${firstName} ${lastName}`,
-        role: 'operator',
-        gym_id: gymData
+        role: roleData, // Explicitly set the role from the code verification
+        gym_id: gymData,
+        status: 'pending_approval'
       };
 
       const { user, error } = await signUp(email, password, userData);
@@ -77,24 +84,12 @@ export const useOperatorRegistration = ({ gymCode }: UseOperatorRegistrationProp
       }
 
       if (user) {
-        // Create user profile with additional information
-        const { error: profileError } = await supabase
-          .from('users')
-          .update({
-            status: 'pending_approval'
-          })
-          .eq('id', user.id);
-
-        if (profileError) {
-          throw profileError;
-        }
-
-        toast.success("Registrazione completata con successo! Attendi l'approvazione dell'amministratore.");
+        toast.success("Registration successful! Please wait for admin approval.");
         navigate("/login");
       }
     } catch (error: any) {
       console.error("Registration error:", error);
-      toast.error(error.message || "Errore durante la registrazione");
+      toast.error(error.message || "Error during registration");
     } finally {
       setIsLoading(false);
     }

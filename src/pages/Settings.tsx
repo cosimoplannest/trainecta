@@ -29,10 +29,10 @@ const Settings = () => {
         if (error) throw error;
         setIsAdmin(data);
       } catch (error) {
-        console.error("Errore durante la verifica del ruolo admin:", error);
+        console.error("Error checking admin role:", error);
         toast({
-          title: "Errore",
-          description: "Non è stato possibile verificare i tuoi permessi",
+          title: "Error",
+          description: "Unable to verify your permissions",
           variant: "destructive",
         });
         setIsAdmin(false);
@@ -47,7 +47,7 @@ const Settings = () => {
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center">
-        <div className="h-16 w-16 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+        <Loader2 className="h-16 w-16 animate-spin text-primary" />
       </div>
     );
   }
@@ -55,8 +55,8 @@ const Settings = () => {
   // If user is not an admin, redirect to dashboard
   if (isAdmin === false) {
     toast({
-      title: "Accesso negato",
-      description: "Non hai i permessi per accedere a questa pagina",
+      title: "Access Denied",
+      description: "You don't have permission to access this page",
       variant: "destructive",
     });
     return <Navigate to="/dashboard" replace />;
@@ -64,7 +64,7 @@ const Settings = () => {
 
   return (
     <div className="container mx-auto py-6">
-      <h1 className="mb-6 text-3xl font-bold">Impostazioni</h1>
+      <h1 className="mb-6 text-3xl font-bold">Settings</h1>
       <GymSettings />
     </div>
   );
