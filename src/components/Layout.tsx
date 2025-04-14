@@ -1,6 +1,6 @@
 
 import { ReactNode, useState } from "react";
-import { Sidebar } from "./Sidebar";
+import { Sidebar } from "./sidebar";
 import Header from "./Header";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -15,7 +15,7 @@ const Layout = ({ children }: LayoutProps) => {
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background">
-      {sidebarVisible && <Sidebar />}
+      <Sidebar />
       
       <div className={cn(
         "flex flex-col flex-1 overflow-hidden transition-all duration-300",
