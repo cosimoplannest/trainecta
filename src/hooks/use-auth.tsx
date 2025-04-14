@@ -99,6 +99,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         title: "Accesso effettuato",
         description: "Benvenuto in Trainecta",
       });
+      
+      // Navigation will be handled by Dashboard component based on role
     } catch (error: any) {
       toast({
         title: "Errore",

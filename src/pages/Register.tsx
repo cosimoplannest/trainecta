@@ -6,18 +6,36 @@ import { RegistrationSteps } from "@/components/auth/RegistrationSteps";
 import { PersonalInfoForm } from "@/components/auth/PersonalInfoForm";
 import { GymInfoForm } from "@/components/auth/GymInfoForm";
 import { useGymRegistration } from "@/hooks/useGymRegistration";
+import { Loader2 } from "lucide-react";
 
 const Register = () => {
   const {
     formData,
     isLoading,
     step,
+    registrationComplete,
     handleChange,
     handleSelectChange,
     nextStep,
     prevStep,
     handleSubmit
   } = useGymRegistration();
+
+  if (registrationComplete) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-muted/40 p-4">
+        <div className="max-w-md w-full space-y-8 text-center">
+          <div className="flex flex-col items-center justify-center">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            <h2 className="mt-6 text-2xl font-semibold">Registrazione completata!</h2>
+            <p className="mt-2 text-muted-foreground">
+              Stiamo preparando la tua dashboard...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/40 p-4">

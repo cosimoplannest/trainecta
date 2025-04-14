@@ -12,43 +12,17 @@ interface RequireAuthProps {
 }
 
 const RequireAuth = ({ children, allowedRoles }: RequireAuthProps) => {
-  const { user, loading: authLoading } = useAuth();
+  const { user, userRole, loading: authLoading } = useAuth();
   const location = useLocation();
-  const [userRole, setUserRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUserRole = async () => {
-      if (!user) {
-        setLoading(false);
-        return;
-      }
+    // We're now getting userRole directly from useAuth
+    // This simplifies the loading check
+    setLoading(authLoading);
+  }, [authLoading]);
 
-      try {
-        const { data, error } = await supabase
-          .from("users")
-          .select("role")
-          .eq("id", user.id)
-          .single();
-
-        if (error) throw error;
-        setUserRole(data?.role || null);
-      } catch (error) {
-        console.error("Error fetching user role:", error);
-        toast({
-          title: "Errore",
-          description: "Non è stato possibile verificare i tuoi permessi",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserRole();
-  }, [user]);
-
-  if (authLoading || loading) {
+  if (loading) {
     return (
       <div className="flex h-screen items-center justify-center">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />

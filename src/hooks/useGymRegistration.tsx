@@ -31,6 +31,7 @@ export const useGymRegistration = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState(1);
+  const [registrationComplete, setRegistrationComplete] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -67,6 +68,9 @@ export const useGymRegistration = () => {
       }
 
       if (authData.user) {
+        // Show registration in progress message
+        setRegistrationComplete(true);
+        
         // Create a new gym with more robust error handling
         const { data: gymData, error: gymError } = await supabase
           .from('gyms')
@@ -88,6 +92,7 @@ export const useGymRegistration = () => {
           await supabase.auth.signOut();
           
           setIsLoading(false);
+          setRegistrationComplete(false);
           return;
         }
 
@@ -103,6 +108,7 @@ export const useGymRegistration = () => {
         if (userError) {
           toast.error("Errore nell'aggiornamento del profilo utente");
           setIsLoading(false);
+          setRegistrationComplete(false);
           return;
         }
 
@@ -124,15 +130,18 @@ export const useGymRegistration = () => {
         if (settingsError) {
           toast.error("Errore nell'impostazione delle configurazioni della palestra");
           setIsLoading(false);
+          setRegistrationComplete(false);
           return;
         }
 
         toast.success("Registrazione completata con successo");
-        navigate("/dashboard");
+        // Navigate directly to the admin dashboard
+        navigate("/dashboard/admin");
       }
     } catch (error: any) {
       console.error("Registration error:", error);
       toast.error(error.message || "Errore durante la registrazione");
+      setRegistrationComplete(false);
     } finally {
       setIsLoading(false);
     }
@@ -142,6 +151,7 @@ export const useGymRegistration = () => {
     formData,
     isLoading,
     step,
+    registrationComplete,
     handleChange,
     handleSelectChange,
     nextStep,

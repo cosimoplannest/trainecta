@@ -19,12 +19,10 @@ const Login = () => {
 
   useEffect(() => {
     // Redirect to appropriate dashboard based on role if user is already logged in
-    if (user && userRole) {
-      navigate(`/dashboard/${userRole}`);
-    } else if (user) {
-      navigate("/dashboard");
+    if (!loading && user && userRole) {
+      navigate(`/dashboard/${userRole}`, { replace: true });
     }
-  }, [user, userRole, navigate]);
+  }, [user, userRole, loading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,8 +48,8 @@ const Login = () => {
     );
   }
 
-  if (user) {
-    return <Navigate to={userRole ? `/dashboard/${userRole}` : "/dashboard"} replace />;
+  if (user && userRole) {
+    return <Navigate to={`/dashboard/${userRole}`} replace />;
   }
 
   return (
