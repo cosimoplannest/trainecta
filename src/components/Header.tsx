@@ -10,10 +10,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/hooks/use-auth";
 
 const Header = () => {
   const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { signOut } = useAuth();
 
   return (
     <header className="border-b px-4 py-3 flex items-center justify-between bg-background">
@@ -39,9 +42,11 @@ const Header = () => {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem>Profilo</DropdownMenuItem>
-            <DropdownMenuItem>Impostazioni</DropdownMenuItem>
+            <Link to="/settings">
+              <DropdownMenuItem>Impostazioni</DropdownMenuItem>
+            </Link>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Disconnetti</DropdownMenuItem>
+            <DropdownMenuItem onClick={signOut}>Disconnetti</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

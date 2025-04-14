@@ -16,6 +16,7 @@ import Statistics from "./pages/Statistics";
 import TrackingPage from "./pages/TrackingPage";
 import Communications from "./pages/Communications";
 import AdminSettings from "./pages/AdminSettings";
+import Settings from "./pages/Settings";
 import Layout from "./components/Layout";
 import ClientProfile from "./components/clients/ClientProfile";
 
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/tracking" element={<Layout><TrackingPage /></Layout>} />
             <Route path="/communications" element={<Layout><Communications /></Layout>} />
             <Route path="/admin-settings" element={<Layout><AdminSettings /></Layout>} />
+            <Route path="/settings" element={<Layout><Settings /></Layout>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
