@@ -11,6 +11,7 @@ type AuthContextType = {
   loading: boolean;
   user: any | null;
   userRole: string | null;
+  userStatus: string | null;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -18,23 +19,24 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<any | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [userStatus, setUserStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Fetch user role
-  const fetchUserRole = async (userId: string) => {
+  // Fetch user role and status
+  const fetchUserData = async (userId: string) => {
     try {
       const { data, error } = await supabase
         .from("users")
-        .select("role")
+        .select("role, status")
         .eq("id", userId)
         .single();
 
       if (error) throw error;
-      return data?.role || null;
+      return data;
     } catch (error) {
-      console.error("Error fetching user role:", error);
-      return null;
+      console.error("Error fetching user data:", error);
+      return { role: null, status: null };
     }
   };
 
@@ -47,8 +49,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         
         if (session) {
           setUser(session.user);
-          const role = await fetchUserRole(session.user.id);
-          setUserRole(role);
+          const userData = await fetchUserData(session.user.id);
+          setUserRole(userData?.role || null);
+          setUserStatus(userData?.status || null);
         }
       } catch (error) {
         console.error("Error checking auth session:", error);
@@ -65,10 +68,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       async (_event, session) => {
         setUser(session?.user ?? null);
         if (session?.user) {
-          const role = await fetchUserRole(session.user.id);
-          setUserRole(role);
+          const userData = await fetchUserData(session.user.id);
+          setUserRole(userData?.role || null);
+          setUserStatus(userData?.status || null);
         } else {
           setUserRole(null);
+          setUserStatus(null);
         }
         setLoading(false);
       }
@@ -94,13 +99,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return;
       }
 
-      // The user and role will be set by the onAuthStateChange event
+      // The user, role and status will be set by the onAuthStateChange event
       toast({
         title: "Accesso effettuato",
         description: "Benvenuto in Trainecta",
       });
       
-      // Navigation will be handled by Dashboard component based on role
+      // Navigation will be handled by Dashboard component based on role and status
     } catch (error: any) {
       toast({
         title: "Errore",
@@ -154,7 +159,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ signIn, signUp, signOut, loading, user, userRole }}>
+    <AuthContext.Provider value={{ 
+      signIn, 
+      signUp, 
+      signOut, 
+      loading, 
+      user, 
+      userRole,
+      userStatus
+    }}>
       {children}
     </AuthContext.Provider>
   );

@@ -11,18 +11,22 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 
 const Login = () => {
   const navigate = useNavigate();
-  const { signIn, user, userRole, loading } = useAuth();
+  const { signIn, user, userRole, userStatus, loading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    // Redirect to appropriate dashboard based on role if user is already logged in
-    if (!loading && user && userRole) {
-      navigate(`/dashboard/${userRole}`, { replace: true });
+    // Handle redirection based on user role and approval status
+    if (!loading && user) {
+      if (userStatus === 'pending_approval') {
+        navigate('/dashboard', { replace: true });
+      } else if (userRole) {
+        navigate(`/dashboard/${userRole}`, { replace: true });
+      }
     }
-  }, [user, userRole, loading, navigate]);
+  }, [user, userRole, userStatus, loading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,8 +52,12 @@ const Login = () => {
     );
   }
 
-  if (user && userRole) {
-    return <Navigate to={`/dashboard/${userRole}`} replace />;
+  if (user) {
+    if (userStatus === 'pending_approval') {
+      return <Navigate to="/dashboard" replace />;
+    } else if (userRole) {
+      return <Navigate to={`/dashboard/${userRole}`} replace />;
+    }
   }
 
   return (

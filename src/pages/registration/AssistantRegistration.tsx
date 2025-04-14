@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { AssistantForm } from "@/components/auth/AssistantForm";
+import { RoleRegistrationForm } from "@/components/auth/RoleRegistrationForm";
 import { Button } from "@/components/ui/button";
 import { Steps } from "@/components/ui/steps";
 
@@ -64,7 +64,7 @@ const AssistantRegistration = () => {
           <Steps currentStep={0} steps={steps} className="px-6" />
           
           <CardContent className="pt-4 space-y-4">
-            <AssistantForm
+            <RoleRegistrationForm
               firstName={firstName}
               lastName={lastName}
               email={email}
@@ -80,6 +80,8 @@ const AssistantRegistration = () => {
               setPassword={setPassword}
               setConfirmPassword={setConfirmPassword}
               handleSubmit={handleSubmit}
+              showPhoneField={true}
+              roleName="Assistente"
             />
           </CardContent>
           

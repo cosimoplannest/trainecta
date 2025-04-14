@@ -30,6 +30,10 @@ export const useAssistantRegistration = ({ gymCode }: UseAssistantRegistrationPr
       setValidationError("La password deve contenere almeno 6 caratteri");
       return false;
     }
+    if (!phone || phone.length < 8) {
+      setValidationError("Inserisci un numero di telefono valido");
+      return false;
+    }
     setValidationError("");
     return true;
   };

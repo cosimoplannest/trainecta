@@ -9,18 +9,41 @@ import { Loader2 } from "lucide-react";
 interface RequireAuthProps {
   children: ReactNode;
   allowedRoles?: string[];
+  requireApproval?: boolean;
 }
 
-const RequireAuth = ({ children, allowedRoles }: RequireAuthProps) => {
+const RequireAuth = ({ 
+  children, 
+  allowedRoles,
+  requireApproval = true
+}: RequireAuthProps) => {
   const { user, userRole, loading: authLoading } = useAuth();
   const location = useLocation();
   const [loading, setLoading] = useState(true);
+  const [isApproved, setIsApproved] = useState(true);
 
   useEffect(() => {
-    // We're now getting userRole directly from useAuth
-    // This simplifies the loading check
-    setLoading(authLoading);
-  }, [authLoading]);
+    const checkUserStatus = async () => {
+      if (user && requireApproval) {
+        try {
+          const { data, error } = await supabase
+            .from("users")
+            .select("status")
+            .eq("id", user.id)
+            .single();
+
+          if (error) throw error;
+          setIsApproved(data.status === 'active');
+        } catch (error) {
+          console.error("Error checking user status:", error);
+          setIsApproved(true); // Default to approved on error to avoid locking users out
+        }
+      }
+      setLoading(authLoading);
+    };
+
+    checkUserStatus();
+  }, [authLoading, user, requireApproval]);
 
   if (loading) {
     return (
@@ -33,6 +56,11 @@ const RequireAuth = ({ children, allowedRoles }: RequireAuthProps) => {
   // Not logged in
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  // User is not approved yet
+  if (requireApproval && !isApproved) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   // No role restrictions or user has allowed role
