@@ -7,12 +7,7 @@ import {
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-interface SidebarNavigationProps {
-  isCollapsed: boolean;
-  isAdmin: boolean;
-}
-
-export function SidebarNavigation({ isCollapsed, isAdmin }: SidebarNavigationProps) {
+export function SidebarNavigation() {
   const { userRole } = useAuth();
 
   // Define role-specific links
@@ -67,7 +62,7 @@ export function SidebarNavigation({ isCollapsed, isAdmin }: SidebarNavigationPro
   }
 
   return (
-    <nav className="space-y-1">
+    <nav className="space-y-1 p-2">
       {mainLinks.map((link) => (
         <TooltipProvider key={link.href} delayDuration={0}>
           <Tooltip>
@@ -76,23 +71,22 @@ export function SidebarNavigation({ isCollapsed, isAdmin }: SidebarNavigationPro
                 to={link.href}
                 className={({ isActive }) =>
                   cn(
-                    "flex items-center space-x-2 rounded-md py-2 text-sm font-medium transition-colors",
-                    isCollapsed ? "justify-center px-2" : "px-3",
+                    "flex items-center space-x-2 rounded-md py-2 text-sm font-medium transition-colors px-3",
                     isActive 
                       ? "bg-primary/10 text-primary hover:bg-primary/20" 
                       : "text-foreground hover:bg-muted hover:text-foreground"
                   )
                 }
               >
-                <link.icon className={cn("h-5 w-5", isCollapsed ? "flex-shrink-0" : "mr-2")} />
-                {!isCollapsed && <span>{link.name}</span>}
+                <link.icon className="h-5 w-5 flex-shrink-0" />
+                <span className="group-data-[state=collapsed]:hidden group-data-[collapsible=icon]:hidden">
+                  {link.name}
+                </span>
               </NavLink>
             </TooltipTrigger>
-            {isCollapsed && (
-              <TooltipContent side="right">
-                {link.name}
-              </TooltipContent>
-            )}
+            <TooltipContent side="right" className="group-data-[state=expanded]:hidden">
+              {link.name}
+            </TooltipContent>
           </Tooltip>
         </TooltipProvider>
       ))}

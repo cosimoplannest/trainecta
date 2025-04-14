@@ -1,58 +1,79 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
-interface SidebarProfileProps {
-  isCollapsed: boolean;
-  loading: boolean;
-  profile: {
+export function SidebarProfile() {
+  const { user, userRole } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<{
     id: string;
     full_name: string;
     avatar_url: string;
     email: string;
-  } | null;
-}
-
-export function SidebarProfile({ isCollapsed, loading, profile }: SidebarProfileProps) {
-  const { user, userRole } = useAuth();
+  } | null>(null);
+  
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+      
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('id, full_name, avatar_url, email')
+          .eq('id', user.id)
+          .single();
+        
+        if (error) throw error;
+        setProfile(data);
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchProfile();
+  }, [user]);
   
   return (
-    <div className="mb-5 flex items-center">
+    <div className="mb-5 flex items-center p-2">
       {loading ? (
         <Skeleton className="h-10 w-10 rounded-full" />
       ) : (
-        <Avatar className={cn("h-10 w-10", isCollapsed ? "mb-2" : "")}>
+        <Avatar className="h-10 w-10">
           <AvatarImage src={profile?.avatar_url || ""} alt="Avatar" />
           <AvatarFallback>{profile?.full_name?.charAt(0) || user?.user_metadata?.full_name?.charAt(0) || "U"}</AvatarFallback>
         </Avatar>
       )}
       
-      {!isCollapsed && (
-        <div className="ml-3 space-y-1 overflow-hidden">
-          {loading ? (
-            <>
-              <Skeleton className="h-4 w-20" />
-              <Skeleton className="h-3 w-24" />
-            </>
-          ) : (
-            <>
-              <p className="text-sm font-medium truncate">{profile?.full_name || user?.user_metadata?.full_name || "Utente"}</p>
-              <p className="text-xs text-muted-foreground truncate">{profile?.email || user?.email}</p>
-              {userRole && (
-                <span className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full inline-block">
-                  {userRole === 'admin' && "Amministratore"}
-                  {userRole === 'operator' && "Operatore"}
-                  {userRole === 'trainer' && "Trainer"}
-                  {userRole === 'assistant' && "Assistente"}
-                  {userRole === 'instructor' && "Istruttore"}
-                </span>
-              )}
-            </>
-          )}
-        </div>
-      )}
+      <div className="ml-3 space-y-1 overflow-hidden group-data-[state=collapsed]:hidden group-data-[collapsible=icon]:hidden">
+        {loading ? (
+          <>
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-3 w-24" />
+          </>
+        ) : (
+          <>
+            <p className="text-sm font-medium truncate">{profile?.full_name || user?.user_metadata?.full_name || "Utente"}</p>
+            <p className="text-xs text-muted-foreground truncate">{profile?.email || user?.email}</p>
+            {userRole && (
+              <span className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full inline-block">
+                {userRole === 'admin' && "Amministratore"}
+                {userRole === 'operator' && "Operatore"}
+                {userRole === 'trainer' && "Trainer"}
+                {userRole === 'assistant' && "Assistente"}
+                {userRole === 'instructor' && "Istruttore"}
+              </span>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }
