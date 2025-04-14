@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { supabase } from "@/integrations/supabase/client";
@@ -91,7 +90,6 @@ export function GymSettings() {
       }
 
       try {
-        // Fetch gym name
         const { data: gymData, error: gymError } = await supabase
           .from("gyms")
           .select("name")
@@ -100,7 +98,6 @@ export function GymSettings() {
 
         if (gymError) throw gymError;
 
-        // Fetch gym settings
         const { data: settingsData, error: settingsError } = await supabase
           .from("gym_settings")
           .select("*")
@@ -111,6 +108,13 @@ export function GymSettings() {
           throw settingsError;
         }
 
+        const normalizeTemplateSentBy = (value: string | null): TemplateSentBy => {
+          if (value === "trainer" || value === "system" || value === "both") {
+            return value;
+          }
+          return "both";
+        };
+
         if (settingsData) {
           setGymSettingsId(settingsData.id);
           form.reset({
@@ -119,13 +123,12 @@ export function GymSettings() {
             enable_auto_followup: settingsData.enable_auto_followup || true,
             days_to_first_followup: settingsData.days_to_first_followup || 7,
             days_to_active_confirmation: settingsData.days_to_active_confirmation || 30,
-            template_sent_by: settingsData.template_sent_by || "both",
+            template_sent_by: normalizeTemplateSentBy(settingsData.template_sent_by),
             template_viewable_by_client: settingsData.template_viewable_by_client || true,
             allow_template_duplication: settingsData.allow_template_duplication || true,
             default_trainer_assignment_logic: settingsData.default_trainer_assignment_logic || "manual",
           });
         } else {
-          // If no settings exist, use defaults with gym name
           form.reset({
             name: gymData?.name || "",
             max_trials_per_client: 1,
@@ -166,7 +169,6 @@ export function GymSettings() {
     setSaving(true);
 
     try {
-      // Update gym name
       const { error: gymError } = await supabase
         .from("gyms")
         .update({ name: data.name })
@@ -174,7 +176,6 @@ export function GymSettings() {
 
       if (gymError) throw gymError;
 
-      // Update or insert gym settings
       const settingsData = {
         gym_id: gymId,
         max_trials_per_client: data.max_trials_per_client,
@@ -189,7 +190,6 @@ export function GymSettings() {
 
       let settingsError;
       if (gymSettingsId) {
-        // Update existing settings
         const { error } = await supabase
           .from("gym_settings")
           .update(settingsData)
@@ -197,7 +197,6 @@ export function GymSettings() {
         
         settingsError = error;
       } else {
-        // Insert new settings
         const { error } = await supabase
           .from("gym_settings")
           .insert(settingsData);
