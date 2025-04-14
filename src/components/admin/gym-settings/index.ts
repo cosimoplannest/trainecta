@@ -1,0 +1,2 @@
+
+export { GymSettings } from "./GymSettings";

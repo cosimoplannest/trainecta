@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { GymSettings } from "@/components/admin/GymSettings";
+import { GymSettings } from "@/components/admin/gym-settings";
 import { UserRoleManagement } from "@/components/admin/UserRoleManagement";
 import { ContractManagement } from "@/components/admin/ContractManagement";
 import { UserManagement } from "@/components/admin/UserManagement";
