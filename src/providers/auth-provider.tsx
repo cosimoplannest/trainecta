@@ -14,64 +14,53 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check active sessions and set the user
-    const checkUser = async () => {
+    // First get current session
+    const initAuth = async () => {
       try {
-        console.log("AuthProvider: Checking current session");
-        setLoading(true);
-        
+        console.log("AuthProvider: Initial session check");
         const { data: { session } } = await supabase.auth.getSession();
         
         if (session) {
-          console.log("Active session found for user:", session.user.id);
+          console.log("AuthProvider: Found existing session:", session.user.id);
           setUser(session.user);
           
           // Fetch user role and status
           const userData = await fetchUserData(session.user.id);
           setUserRole(userData?.role || null);
           setUserStatus(userData?.status || null);
-          console.log("User state set:", { 
-            user: session.user.id, 
-            role: userData?.role, 
-            status: userData?.status 
-          });
         } else {
-          console.log("No active session found");
+          console.log("AuthProvider: No existing session");
           setUser(null);
           setUserRole(null);
           setUserStatus(null);
         }
       } catch (error) {
-        console.error("Error checking auth session:", error);
+        console.error("AuthProvider: Error during initialization:", error);
       } finally {
-        console.log("Auth initialization complete");
+        console.log("AuthProvider: Initialization complete, setting loading=false");
         setLoading(false);
       }
     };
 
-    // Call the function
-    checkUser();
+    // Initialize auth state
+    initAuth();
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        console.log("Auth state changed:", { 
-          event: _event, 
-          userId: session?.user?.id 
-        });
-        
-        setUser(session?.user ?? null);
+      async (event, session) => {
+        console.log("Auth state changed:", event, session?.user?.id);
         
         if (session?.user) {
-          console.log("Fetching user data after auth state change");
-          const userData = await fetchUserData(session.user.id);
-          setUserRole(userData?.role || null);
-          setUserStatus(userData?.status || null);
-          console.log("Updated user state:", { 
-            role: userData?.role, 
-            status: userData?.status 
-          });
+          setUser(session.user);
+          
+          // Fetch user data in a non-blocking way to avoid race conditions
+          setTimeout(async () => {
+            const userData = await fetchUserData(session.user.id);
+            setUserRole(userData?.role || null);
+            setUserStatus(userData?.status || null);
+          }, 0);
         } else {
+          setUser(null);
           setUserRole(null);
           setUserStatus(null);
         }
@@ -80,7 +69,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     // Cleanup on unmount
     return () => {
-      console.log("Auth provider unmounting, cleaning up subscription");
+      console.log("AuthProvider: Unmounting, cleaning up subscription");
       subscription.unsubscribe();
     };
   }, []);

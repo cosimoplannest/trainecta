@@ -46,26 +46,24 @@ const Login = () => {
 
       console.log(`Login attempt starting for: ${email}`);
       await signIn(email, password);
-      console.log("Login successful in component, waiting for auth state");
+      console.log("Login successful in component");
       
       // Note: We're not navigating here. The redirect will happen automatically
-      // through the conditional rendering below or the useEffect
+      // through the conditional rendering below
     } catch (err: any) {
       console.error("Login error in handleSubmit:", err);
       setError(err.message || "Si è verificato un errore durante l'accesso.");
       setIsLoggingIn(false);
     }
-    // We're not setting isLoggingIn to false here because we want to wait for the 
-    // auth state to update first, which will cause a re-render
   };
 
-  // Effect to reset the logging in state if auth loading completes
+  // Reset isLoggingIn when auth state changes
   useEffect(() => {
-    if (!loading && isLoggingIn && user) {
-      console.log("Auth loading complete and user exists, resetting isLoggingIn");
+    if (!loading && isLoggingIn) {
+      console.log("Auth loading complete, resetting isLoggingIn");
       setIsLoggingIn(false);
     }
-  }, [loading, user, isLoggingIn]);
+  }, [loading, isLoggingIn]);
 
   // If user is authenticated, redirect based on role
   if (!loading && user) {
@@ -87,8 +85,20 @@ const Login = () => {
     return <Navigate to={redirectPath} replace />;
   }
 
+  // Show a loading state while waiting for login to complete
+  if (isLoggingIn) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-muted/40">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          <p className="text-muted-foreground">Accesso in corso...</p>
+        </div>
+      </div>
+    );
+  }
+
   // Show a loading state while the auth context is initializing
-  if (loading && !isLoggingIn) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-muted/40">
         <div className="flex flex-col items-center gap-4">
