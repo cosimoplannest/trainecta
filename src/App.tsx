@@ -7,6 +7,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./hooks/use-auth";
 import LandingPage from "./pages/LandingPage";
 import Register from "./pages/Register";
+import GymRegistration from "./pages/GymRegistration";
+import JoinWithCode from "./pages/JoinWithCode";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
@@ -42,6 +44,8 @@ const App = () => (
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/gym-registration" element={<GymRegistration />} />
+            <Route path="/join/:code" element={<JoinWithCode />} />
             <Route path="/login" element={<Login />} />
             
             {/* Role-specific registration routes */}
