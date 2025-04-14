@@ -11,7 +11,7 @@ export function SidebarProfile() {
   const [profile, setProfile] = useState<{
     id: string;
     full_name: string;
-    avatar_url: string;
+    avatar_url?: string;
     email: string;
   } | null>(null);
   
@@ -24,13 +24,20 @@ export function SidebarProfile() {
       
       try {
         const { data, error } = await supabase
-          .from('profiles')
-          .select('id, full_name, avatar_url, email')
+          .from('users')
+          .select('id, full_name, email')
           .eq('id', user.id)
           .single();
         
         if (error) throw error;
-        setProfile(data);
+        
+        // Use the data from users table and fill in the avatar from user metadata
+        setProfile({
+          id: data.id,
+          full_name: data.full_name,
+          email: data.email,
+          avatar_url: user.user_metadata?.avatar_url
+        });
       } catch (error) {
         console.error("Error fetching profile:", error);
       } finally {
