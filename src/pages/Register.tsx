@@ -1,9 +1,9 @@
 
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
@@ -49,24 +49,36 @@ const Register = () => {
         }
       });
 
-      if (authError) throw authError;
+      if (authError) {
+        toast.error(authError.message || "Errore durante la registrazione");
+        setIsLoading(false);
+        return;
+      }
 
       if (authData.user) {
-        // Create a new gym
+        // Create a new gym with more robust error handling
         const { data: gymData, error: gymError } = await supabase
           .from('gyms')
-          .insert([
-            {
-              name: formData.gymName,
-              address: formData.address,
-              phone: formData.phone,
-              website: formData.socialLink
-            }
-          ])
+          .insert({
+            name: formData.gymName,
+            address: formData.address,
+            phone: formData.phone,
+            website: formData.socialLink,
+            email: formData.email
+          })
           .select('id')
           .single();
 
-        if (gymError) throw gymError;
+        if (gymError) {
+          // If gym creation fails, we want to handle this gracefully
+          toast.error("Errore nella creazione della palestra. Riprova più tardi.");
+          
+          // Optional: You might want to delete the user if gym creation fails
+          await supabase.auth.signOut();
+          
+          setIsLoading(false);
+          return;
+        }
 
         // Update the user record with gym_id and role = 'admin'
         const { error: userError } = await supabase
@@ -77,26 +89,32 @@ const Register = () => {
           })
           .eq('id', authData.user.id);
 
-        if (userError) throw userError;
+        if (userError) {
+          toast.error("Errore nell'aggiornamento del profilo utente");
+          setIsLoading(false);
+          return;
+        }
 
         // Create initial gym settings
         const { error: settingsError } = await supabase
           .from('gym_settings')
-          .insert([
-            {
-              gym_id: gymData.id,
-              max_trials_per_client: 1,
-              enable_auto_followup: true,
-              days_to_first_followup: 7,
-              days_to_active_confirmation: 30,
-              template_sent_by: 'both',
-              template_viewable_by_client: true,
-              allow_template_duplication: true,
-              default_trainer_assignment_logic: 'manual'
-            }
-          ]);
+          .insert({
+            gym_id: gymData.id,
+            max_trials_per_client: 1,
+            enable_auto_followup: true,
+            days_to_first_followup: 7,
+            days_to_active_confirmation: 30,
+            template_sent_by: 'both',
+            template_viewable_by_client: true,
+            allow_template_duplication: true,
+            default_trainer_assignment_logic: 'manual'
+          });
 
-        if (settingsError) throw settingsError;
+        if (settingsError) {
+          toast.error("Errore nell'impostazione delle configurazioni della palestra");
+          setIsLoading(false);
+          return;
+        }
 
         toast.success("Registrazione completata con successo");
         navigate("/dashboard");
