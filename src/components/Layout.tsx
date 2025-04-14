@@ -42,6 +42,10 @@ const Layout = ({ children }: LayoutProps) => {
   }
 
   // Only render layout if user is authenticated
+  if (!user) {
+    return null; // Don't render anything as we'll redirect to login in the useEffect
+  }
+
   return (
     <SidebarProvider defaultOpen>
       <div className="flex h-screen w-full overflow-hidden bg-background">

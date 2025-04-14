@@ -24,9 +24,9 @@ const Dashboard = () => {
 
           if (error) throw error;
           setApprovalPending(data.status === 'pending_approval');
+          setLoadingStatus(false);
         } catch (error) {
           console.error("Error checking approval status:", error);
-        } finally {
           setLoadingStatus(false);
         }
       } else {
@@ -49,8 +49,9 @@ const Dashboard = () => {
         console.log("User is pending approval, staying on dashboard");
       } else if (userRole) {
         // User has a role and is approved, navigate to role-specific dashboard
-        console.log(`Redirecting to /dashboard/${userRole}`);
-        navigate(`/dashboard/${userRole}`, { replace: true });
+        const dashboardPath = `/dashboard/${userRole}`;
+        console.log(`Redirecting to ${dashboardPath}`);
+        navigate(dashboardPath, { replace: true });
       } else if (user) {
         // User is logged in but has no role (edge case)
         console.log("User has no role, redirecting to login");

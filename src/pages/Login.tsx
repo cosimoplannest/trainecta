@@ -26,10 +26,13 @@ const Login = () => {
         console.log("User pending approval, redirecting to dashboard");
         navigate('/dashboard', { replace: true });
       } else if (userRole) {
-        console.log(`User has role ${userRole}, redirecting to dashboard/${userRole}`);
-        navigate(`/dashboard/${userRole}`, { replace: true });
+        const dashboardPath = `/dashboard/${userRole}`;
+        console.log(`User has role ${userRole}, redirecting to ${dashboardPath}`);
+        navigate(dashboardPath, { replace: true });
       } else {
         console.log("User has no role yet, waiting for role assignment");
+        // Redirect to generic dashboard that will handle further redirects
+        navigate('/dashboard', { replace: true });
       }
     }
   }, [user, userRole, userStatus, loading, navigate]);
@@ -64,6 +67,9 @@ const Login = () => {
     } else if (userRole) {
       return <Navigate to={`/dashboard/${userRole}`} replace />;
     }
+    // If user exists but we're still checking role/status, navigate to dashboard
+    // that will handle further redirection
+    return <Navigate to="/dashboard" replace />;
   }
 
   return (

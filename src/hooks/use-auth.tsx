@@ -27,19 +27,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const fetchUserData = async (userId: string) => {
     try {
       console.log("Fetching user data for ID:", userId);
-      const { data, error } = await supabase
+      const { data: userData, error: userError } = await supabase
         .from("users")
         .select("role, status")
         .eq("id", userId)
         .single();
 
-      if (error) {
-        console.error("Error fetching user data:", error);
+      if (userError) {
+        console.error("Error fetching user data:", userError);
         return { role: null, status: null };
       }
       
-      console.log("User data fetched:", data);
-      return data;
+      console.log("User data fetched:", userData);
+      return userData;
     } catch (error) {
       console.error("Error in fetchUserData:", error);
       return { role: null, status: null };
@@ -62,6 +62,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           console.log("User role and status set:", { role: userData?.role, status: userData?.status });
         } else {
           console.log("No active session found");
+          setUser(null);
+          setUserRole(null);
+          setUserStatus(null);
         }
       } catch (error) {
         console.error("Error checking auth session:", error);
