@@ -9,16 +9,847 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      activity_logs: {
+        Row: {
+          action: string
+          created_at: string
+          gym_id: string
+          id: string
+          notes: string | null
+          target_id: string | null
+          target_type: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          gym_id: string
+          id?: string
+          notes?: string | null
+          target_id?: string | null
+          target_type?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          gym_id?: string
+          id?: string
+          notes?: string | null
+          target_id?: string | null
+          target_type?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_logs_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assigned_templates: {
+        Row: {
+          assigned_at: string
+          assigned_by: string
+          client_id: string
+          conversion_status:
+            | Database["public"]["Enums"]["conversion_status"]
+            | null
+          created_at: string
+          delivery_channel: string
+          delivery_status: string
+          followup_done_at: string | null
+          followup_notes: string | null
+          followup_scheduled_at: string | null
+          id: string
+          template_id: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by: string
+          client_id: string
+          conversion_status?:
+            | Database["public"]["Enums"]["conversion_status"]
+            | null
+          created_at?: string
+          delivery_channel: string
+          delivery_status: string
+          followup_done_at?: string | null
+          followup_notes?: string | null
+          followup_scheduled_at?: string | null
+          id?: string
+          template_id: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string
+          client_id?: string
+          conversion_status?:
+            | Database["public"]["Enums"]["conversion_status"]
+            | null
+          created_at?: string
+          delivery_channel?: string
+          delivery_status?: string
+          followup_done_at?: string | null
+          followup_notes?: string | null
+          followup_scheduled_at?: string | null
+          id?: string
+          template_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assigned_templates_assigned_by_fkey"
+            columns: ["assigned_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assigned_templates_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assigned_templates_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "workout_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      broadcast_messages: {
+        Row: {
+          content: string
+          created_at: string
+          gym_id: string
+          id: string
+          priority: Database["public"]["Enums"]["message_priority"] | null
+          sent_at: string
+          sent_by: string
+          target_role: Database["public"]["Enums"]["app_role"] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          gym_id: string
+          id?: string
+          priority?: Database["public"]["Enums"]["message_priority"] | null
+          sent_at?: string
+          sent_by: string
+          target_role?: Database["public"]["Enums"]["app_role"] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          gym_id?: string
+          id?: string
+          priority?: Database["public"]["Enums"]["message_priority"] | null
+          sent_at?: string
+          sent_by?: string
+          target_role?: Database["public"]["Enums"]["app_role"] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "broadcast_messages_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "broadcast_messages_sent_by_fkey"
+            columns: ["sent_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_followups: {
+        Row: {
+          client_id: string
+          created_at: string
+          id: string
+          notes: string | null
+          outcome: string | null
+          purchase_confirmed: boolean | null
+          sent_at: string
+          trainer_id: string | null
+          type: Database["public"]["Enums"]["notification_type"]
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          outcome?: string | null
+          purchase_confirmed?: boolean | null
+          sent_at?: string
+          trainer_id?: string | null
+          type: Database["public"]["Enums"]["notification_type"]
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          outcome?: string | null
+          purchase_confirmed?: boolean | null
+          sent_at?: string
+          trainer_id?: string | null
+          type?: Database["public"]["Enums"]["notification_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_followups_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_followups_trainer_id_fkey"
+            columns: ["trainer_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clients: {
+        Row: {
+          assigned_to: string | null
+          birth_date: string | null
+          created_at: string
+          email: string | null
+          first_name: string
+          gym_id: string
+          id: string
+          internal_notes: string | null
+          last_name: string
+          phone: string | null
+          subscription_type: string | null
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          birth_date?: string | null
+          created_at?: string
+          email?: string | null
+          first_name: string
+          gym_id: string
+          id?: string
+          internal_notes?: string | null
+          last_name: string
+          phone?: string | null
+          subscription_type?: string | null
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          birth_date?: string | null
+          created_at?: string
+          email?: string | null
+          first_name?: string
+          gym_id?: string
+          id?: string
+          internal_notes?: string | null
+          last_name?: string
+          phone?: string | null
+          subscription_type?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clients_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clients_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exercises: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          gym_id: string
+          id: string
+          name: string
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          gym_id: string
+          id?: string
+          name: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          gym_id?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercises_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exercises_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gym_settings: {
+        Row: {
+          allow_template_duplication: boolean | null
+          created_at: string
+          days_to_active_confirmation: number | null
+          days_to_first_followup: number | null
+          default_trainer_assignment_logic: string | null
+          enable_auto_followup: boolean | null
+          gym_id: string
+          id: string
+          max_trials_per_client: number | null
+          template_sent_by: string | null
+          template_viewable_by_client: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          allow_template_duplication?: boolean | null
+          created_at?: string
+          days_to_active_confirmation?: number | null
+          days_to_first_followup?: number | null
+          default_trainer_assignment_logic?: string | null
+          enable_auto_followup?: boolean | null
+          gym_id: string
+          id?: string
+          max_trials_per_client?: number | null
+          template_sent_by?: string | null
+          template_viewable_by_client?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          allow_template_duplication?: boolean | null
+          created_at?: string
+          days_to_active_confirmation?: number | null
+          days_to_first_followup?: number | null
+          default_trainer_assignment_logic?: string | null
+          enable_auto_followup?: boolean | null
+          gym_id?: string
+          id?: string
+          max_trials_per_client?: number | null
+          template_sent_by?: string | null
+          template_viewable_by_client?: boolean | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gym_settings_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: true
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gyms: {
+        Row: {
+          address: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          email: string | null
+          id: string
+          logo_url: string | null
+          name: string
+          phone: string | null
+          postal_code: string | null
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          logo_url?: string | null
+          name: string
+          phone?: string | null
+          postal_code?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          logo_url?: string | null
+          name?: string
+          phone?: string | null
+          postal_code?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          auto_renewal: boolean | null
+          created_at: string
+          description: string | null
+          duration_days: number
+          gym_id: string
+          id: string
+          is_active: boolean | null
+          name: string
+          price: number | null
+          updated_at: string
+        }
+        Insert: {
+          auto_renewal?: boolean | null
+          created_at?: string
+          description?: string | null
+          duration_days: number
+          gym_id: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          price?: number | null
+          updated_at?: string
+        }
+        Update: {
+          auto_renewal?: boolean | null
+          created_at?: string
+          description?: string | null
+          duration_days?: number
+          gym_id?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          price?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      template_exercises: {
+        Row: {
+          created_at: string
+          exercise_id: string
+          id: string
+          notes: string | null
+          order_index: number
+          reps: string
+          rest_time: number | null
+          sets: number
+          template_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          exercise_id: string
+          id?: string
+          notes?: string | null
+          order_index: number
+          reps: string
+          rest_time?: number | null
+          sets: number
+          template_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          exercise_id?: string
+          id?: string
+          notes?: string | null
+          order_index?: number
+          reps?: string
+          rest_time?: number | null
+          sets?: number
+          template_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "template_exercises_exercise_id_fkey"
+            columns: ["exercise_id"]
+            isOneToOne: false
+            referencedRelation: "exercises"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "template_exercises_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "workout_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trial_questionnaires: {
+        Row: {
+          client_id: string
+          compiled_by_role: Database["public"]["Enums"]["app_role"]
+          created_at: string
+          custom_reason: string | null
+          future_interest: boolean | null
+          id: string
+          purchased: boolean
+          reason_not_purchased: string | null
+          trainer_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          compiled_by_role: Database["public"]["Enums"]["app_role"]
+          created_at?: string
+          custom_reason?: string | null
+          future_interest?: boolean | null
+          id?: string
+          purchased: boolean
+          reason_not_purchased?: string | null
+          trainer_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          compiled_by_role?: Database["public"]["Enums"]["app_role"]
+          created_at?: string
+          custom_reason?: string | null
+          future_interest?: boolean | null
+          id?: string
+          purchased?: boolean
+          reason_not_purchased?: string | null
+          trainer_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trial_questionnaires_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trial_questionnaires_trainer_id_fkey"
+            columns: ["trainer_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          gym_id: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          gym_id?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          gym_id?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_unavailability: {
+        Row: {
+          created_at: string
+          document_url: string | null
+          end_date: string
+          gym_id: string
+          id: string
+          notes: string | null
+          reason: Database["public"]["Enums"]["unavailability_reason"]
+          start_date: string
+          updated_at: string
+          user_id: string
+          user_role: Database["public"]["Enums"]["app_role"]
+        }
+        Insert: {
+          created_at?: string
+          document_url?: string | null
+          end_date: string
+          gym_id: string
+          id?: string
+          notes?: string | null
+          reason: Database["public"]["Enums"]["unavailability_reason"]
+          start_date: string
+          updated_at?: string
+          user_id: string
+          user_role: Database["public"]["Enums"]["app_role"]
+        }
+        Update: {
+          created_at?: string
+          document_url?: string | null
+          end_date?: string
+          gym_id?: string
+          id?: string
+          notes?: string | null
+          reason?: Database["public"]["Enums"]["unavailability_reason"]
+          start_date?: string
+          updated_at?: string
+          user_id?: string
+          user_role?: Database["public"]["Enums"]["app_role"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_unavailability_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_unavailability_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          gym_id: string | null
+          id: string
+          registration_date: string
+          role: Database["public"]["Enums"]["app_role"]
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name: string
+          gym_id?: string | null
+          id: string
+          registration_date?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          gym_id?: string | null
+          id?: string
+          registration_date?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "users_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workout_templates: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          gym_id: string
+          id: string
+          is_default: boolean | null
+          locked: boolean | null
+          name: string
+          type: Database["public"]["Enums"]["workout_type"] | null
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          gym_id: string
+          id?: string
+          is_default?: boolean | null
+          locked?: boolean | null
+          name: string
+          type?: Database["public"]["Enums"]["workout_type"] | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          gym_id?: string
+          id?: string
+          is_default?: boolean | null
+          locked?: boolean | null
+          name?: string
+          type?: Database["public"]["Enums"]["workout_type"] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workout_templates_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workout_templates_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      belongs_to_same_gym: {
+        Args: { user_id: string; gym_id: string }
+        Returns: boolean
+      }
+      get_user_gym_id: {
+        Args: { user_id: string }
+        Returns: string
+      }
+      get_user_role: {
+        Args: { user_id: string }
+        Returns: string
+      }
+      is_admin: {
+        Args: { user_id: string }
+        Returns: boolean
+      }
+      is_operator: {
+        Args: { user_id: string }
+        Returns: boolean
+      }
+      is_trainer: {
+        Args: { user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "operator" | "trainer" | "assistant" | "instructor"
+      conversion_status: "converted" | "not_converted" | "undecided" | "pending"
+      message_priority: "normal" | "urgent"
+      notification_type: "call" | "email" | "in_app" | "whatsapp" | "sms"
+      unavailability_reason:
+        | "illness"
+        | "injury"
+        | "vacation"
+        | "personal"
+        | "other"
+      workout_type:
+        | "full_body"
+        | "upper_body"
+        | "lower_body"
+        | "push"
+        | "pull"
+        | "legs"
+        | "core"
+        | "cardio"
+        | "circuit"
+        | "arms"
+        | "shoulders"
+        | "back"
+        | "chest"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -133,6 +964,33 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "operator", "trainer", "assistant", "instructor"],
+      conversion_status: ["converted", "not_converted", "undecided", "pending"],
+      message_priority: ["normal", "urgent"],
+      notification_type: ["call", "email", "in_app", "whatsapp", "sms"],
+      unavailability_reason: [
+        "illness",
+        "injury",
+        "vacation",
+        "personal",
+        "other",
+      ],
+      workout_type: [
+        "full_body",
+        "upper_body",
+        "lower_body",
+        "push",
+        "pull",
+        "legs",
+        "core",
+        "cardio",
+        "circuit",
+        "arms",
+        "shoulders",
+        "back",
+        "chest",
+      ],
+    },
   },
 } as const
