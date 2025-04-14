@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GymSettings } from "@/components/admin/GymSettings";
 import { UserRoleManagement } from "@/components/admin/UserRoleManagement";
+import { ContractManagement } from "@/components/admin/ContractManagement";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -69,6 +70,7 @@ const AdminSettings = () => {
         <TabsList className="mb-6">
           <TabsTrigger value="gym-settings">Impostazioni Palestra</TabsTrigger>
           <TabsTrigger value="user-roles">Gestione Ruoli Utente</TabsTrigger>
+          <TabsTrigger value="contracts">Gestione Contratti</TabsTrigger>
         </TabsList>
         
         <TabsContent value="gym-settings">
@@ -77,6 +79,10 @@ const AdminSettings = () => {
         
         <TabsContent value="user-roles">
           <UserRoleManagement />
+        </TabsContent>
+        
+        <TabsContent value="contracts">
+          <ContractManagement />
         </TabsContent>
       </Tabs>
     </div>

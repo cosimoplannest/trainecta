@@ -567,6 +567,120 @@ export type Database = {
           },
         ]
       }
+      trainer_contracts: {
+        Row: {
+          contract_type: Database["public"]["Enums"]["contract_type"]
+          created_at: string
+          end_date: string | null
+          file_url: string | null
+          gym_id: string
+          id: string
+          monthly_fee: number | null
+          notes: string | null
+          percentage: number | null
+          start_date: string
+          trainer_id: string
+          updated_at: string
+        }
+        Insert: {
+          contract_type: Database["public"]["Enums"]["contract_type"]
+          created_at?: string
+          end_date?: string | null
+          file_url?: string | null
+          gym_id: string
+          id?: string
+          monthly_fee?: number | null
+          notes?: string | null
+          percentage?: number | null
+          start_date: string
+          trainer_id: string
+          updated_at?: string
+        }
+        Update: {
+          contract_type?: Database["public"]["Enums"]["contract_type"]
+          created_at?: string
+          end_date?: string | null
+          file_url?: string | null
+          gym_id?: string
+          id?: string
+          monthly_fee?: number | null
+          notes?: string | null
+          percentage?: number | null
+          start_date?: string
+          trainer_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trainer_contracts_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trainer_contracts_trainer_id_fkey"
+            columns: ["trainer_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trainer_insurance: {
+        Row: {
+          created_at: string
+          end_date: string
+          file_url: string | null
+          gym_id: string
+          id: string
+          notes: string | null
+          policy_number: string | null
+          start_date: string
+          trainer_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          end_date: string
+          file_url?: string | null
+          gym_id: string
+          id?: string
+          notes?: string | null
+          policy_number?: string | null
+          start_date: string
+          trainer_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string
+          file_url?: string | null
+          gym_id?: string
+          id?: string
+          notes?: string | null
+          policy_number?: string | null
+          start_date?: string
+          trainer_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trainer_insurance_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trainer_insurance_trainer_id_fkey"
+            columns: ["trainer_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trial_questionnaires: {
         Row: {
           client_id: string
@@ -846,6 +960,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "operator" | "trainer" | "assistant" | "instructor"
+      contract_type: "collaboration" | "vat_fixed_fee" | "vat_percentage"
       conversion_status: "converted" | "not_converted" | "undecided" | "pending"
       message_priority: "normal" | "urgent"
       notification_type: "call" | "email" | "in_app" | "whatsapp" | "sms"
@@ -985,6 +1100,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "operator", "trainer", "assistant", "instructor"],
+      contract_type: ["collaboration", "vat_fixed_fee", "vat_percentage"],
       conversion_status: ["converted", "not_converted", "undecided", "pending"],
       message_priority: ["normal", "urgent"],
       notification_type: ["call", "email", "in_app", "whatsapp", "sms"],
