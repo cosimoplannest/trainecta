@@ -10,14 +10,24 @@ export interface Exercise {
   video_url?: string;
 }
 
-export interface TemplateExercise {
+// Base template exercise interface with properties common to both local and API responses
+export interface BaseTemplateExercise {
   id: string;
-  exercise_id: string;
-  exercise?: Exercise;
   sets: number;
   reps: string;
   order_index: number;
   notes?: string;
+}
+
+// Template exercise interface for creating/sending data to API
+export interface TemplateExercise extends BaseTemplateExercise {
+  exercise_id: string;
+  exercise?: Exercise;
+}
+
+// Template exercise interface as returned from the API
+export interface TemplateExerciseWithNestedExercise extends BaseTemplateExercise {
+  exercise: Exercise;
 }
 
 export interface WorkoutTemplate {
@@ -31,7 +41,7 @@ export interface WorkoutTemplate {
   locked: boolean;
   type?: WorkoutType;
   gym_id: string;
-  template_exercises?: TemplateExercise[];
+  template_exercises?: (TemplateExercise | TemplateExerciseWithNestedExercise)[];
   assignment_count?: number;
   is_default?: boolean;
   updated_at?: string;

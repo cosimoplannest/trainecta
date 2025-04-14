@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { WorkoutTemplate, Exercise, TemplateExercise, WorkoutType } from "@/types/workout";
+import { WorkoutTemplate, Exercise, TemplateExercise, WorkoutType, TemplateExerciseWithNestedExercise } from "@/types/workout";
 import { supabase } from "@/integrations/supabase/client";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
@@ -33,7 +33,7 @@ const WorkoutTemplates = () => {
   });
   
   const [currentTemplate, setCurrentTemplate] = useState<WorkoutTemplate | null>(null);
-  const [templateExercises, setTemplateExercises] = useState<TemplateExercise[]>([]);
+  const [templateExercises, setTemplateExercises] = useState<TemplateExerciseWithNestedExercise[]>([]);
   const [isViewingTemplate, setIsViewingTemplate] = useState(false);
   const [isAssigningTemplate, setIsAssigningTemplate] = useState(false);
 
@@ -80,7 +80,7 @@ const WorkoutTemplates = () => {
           })
         );
 
-        setTemplates(templatesWithCounts);
+        setTemplates(templatesWithCounts as WorkoutTemplate[]);
 
         const { data: exercisesData, error: exercisesError } = await supabase
           .from("exercises")
@@ -162,14 +162,13 @@ const WorkoutTemplates = () => {
           reps, 
           order_index,
           notes,
-          exercise_id,
           exercise:exercises(id, name, description, video_url)
         `)
         .single();
 
       if (error) throw error;
       
-      setTemplateExercises([...templateExercises, data as TemplateExercise]);
+      setTemplateExercises([...templateExercises, data as TemplateExerciseWithNestedExercise]);
       
       // Reset the form except for sets and reps
       setNewExercise({
@@ -216,7 +215,7 @@ const WorkoutTemplates = () => {
       if (error) throw error;
       
       // Update the templates list with the new template
-      setTemplates(templates.map(t => t.id === data.id ? { ...data, assignment_count: 0 } : t));
+      setTemplates(templates.map(t => t.id === data.id ? { ...data, assignment_count: 0 } as WorkoutTemplate : t));
       setCurrentTemplate(null);
       setTemplateExercises([]);
       setIsAddingExercises(false);
@@ -256,14 +255,19 @@ const WorkoutTemplates = () => {
       if (error) throw error;
       
       if (template.template_exercises && template.template_exercises.length > 0) {
-        const exercisesToInsert = template.template_exercises.map(ex => ({
-          template_id: data.id,
-          exercise_id: ex.exercise_id,
-          sets: ex.sets,
-          reps: ex.reps,
-          order_index: ex.order_index,
-          notes: ex.notes
-        }));
+        const exercisesToInsert = template.template_exercises.map(ex => {
+          // Handle both types of template exercises
+          const exerciseId = 'exercise_id' in ex ? ex.exercise_id : ex.exercise.id;
+          
+          return {
+            template_id: data.id,
+            exercise_id: exerciseId,
+            sets: ex.sets,
+            reps: ex.reps,
+            order_index: ex.order_index,
+            notes: ex.notes
+          };
+        });
         
         const { error: exercisesError } = await supabase
           .from("template_exercises")
@@ -292,7 +296,7 @@ const WorkoutTemplates = () => {
         
       if (fetchError) throw fetchError;
       
-      setTemplates([{ ...updatedTemplate, assignment_count: 0 }, ...templates]);
+      setTemplates([{ ...updatedTemplate, assignment_count: 0 } as WorkoutTemplate, ...templates]);
       toast.success("Template duplicato con successo");
     } catch (error) {
       console.error("Error duplicating template:", error);
