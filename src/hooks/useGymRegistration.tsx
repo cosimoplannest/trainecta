@@ -135,8 +135,12 @@ export const useGymRegistration = () => {
         }
 
         toast.success("Registrazione completata con successo");
-        // Navigate directly to the admin dashboard
-        navigate("/dashboard/admin");
+        
+        // Navigate to the dashboard instead of directly to admin dashboard
+        // The Dashboard component will handle the role-based redirection
+        setTimeout(() => {
+          navigate("/dashboard");
+        }, 2000); // Short delay to allow auth state to update
       }
     } catch (error: any) {
       console.error("Registration error:", error);
