@@ -19,6 +19,16 @@ import AdminSettings from "./pages/AdminSettings";
 import Settings from "./pages/Settings";
 import Layout from "./components/Layout";
 import ClientProfile from "./components/clients/ClientProfile";
+import RequireAuth from "./components/auth/RequireAuth";
+import TrainerRegistration from "./pages/registration/TrainerRegistration";
+import OperatorRegistration from "./pages/registration/OperatorRegistration";
+import AssistantRegistration from "./pages/registration/AssistantRegistration";
+import InstructorRegistration from "./pages/registration/InstructorRegistration";
+import AdminDashboard from "./pages/dashboards/AdminDashboard";
+import OperatorDashboard from "./pages/dashboards/OperatorDashboard";
+import TrainerDashboard from "./pages/dashboards/TrainerDashboard";
+import AssistantDashboard from "./pages/dashboards/AssistantDashboard";
+import InstructorDashboard from "./pages/dashboards/InstructorDashboard";
 
 const queryClient = new QueryClient();
 
@@ -33,15 +43,82 @@ const App = () => (
             <Route path="/" element={<LandingPage />} />
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
+            
+            {/* Role-specific registration routes */}
+            <Route path="/trainer-registration/:gymCode" element={<TrainerRegistration />} />
+            <Route path="/operator-registration/:gymCode" element={<OperatorRegistration />} />
+            <Route path="/assistant-registration/:gymCode" element={<AssistantRegistration />} />
+            <Route path="/instructor-registration/:gymCode" element={<InstructorRegistration />} />
+            
+            {/* Role-specific dashboards */}
             <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
-            <Route path="/workout-templates" element={<Layout><WorkoutTemplates /></Layout>} />
-            <Route path="/client-management" element={<Layout><ClientManagement /></Layout>} />
-            <Route path="/client/:id" element={<Layout><ClientProfile /></Layout>} />
-            <Route path="/statistics" element={<Layout><Statistics /></Layout>} />
-            <Route path="/tracking" element={<Layout><TrackingPage /></Layout>} />
-            <Route path="/communications" element={<Layout><Communications /></Layout>} />
-            <Route path="/admin-settings" element={<Layout><AdminSettings /></Layout>} />
-            <Route path="/settings" element={<Layout><Settings /></Layout>} />
+            <Route path="/dashboard/admin" element={
+              <RequireAuth allowedRoles={['admin']}>
+                <Layout><AdminDashboard /></Layout>
+              </RequireAuth>
+            } />
+            <Route path="/dashboard/operator" element={
+              <RequireAuth allowedRoles={['operator']}>
+                <Layout><OperatorDashboard /></Layout>
+              </RequireAuth>
+            } />
+            <Route path="/dashboard/trainer" element={
+              <RequireAuth allowedRoles={['trainer']}>
+                <Layout><TrainerDashboard /></Layout>
+              </RequireAuth>
+            } />
+            <Route path="/dashboard/assistant" element={
+              <RequireAuth allowedRoles={['assistant']}>
+                <Layout><AssistantDashboard /></Layout>
+              </RequireAuth>
+            } />
+            <Route path="/dashboard/instructor" element={
+              <RequireAuth allowedRoles={['instructor']}>
+                <Layout><InstructorDashboard /></Layout>
+              </RequireAuth>
+            } />
+            
+            {/* Protected routes with role-based access */}
+            <Route path="/workout-templates" element={
+              <RequireAuth allowedRoles={['admin', 'trainer']}>
+                <Layout><WorkoutTemplates /></Layout>
+              </RequireAuth>
+            } />
+            <Route path="/client-management" element={
+              <RequireAuth allowedRoles={['admin', 'operator', 'trainer']}>
+                <Layout><ClientManagement /></Layout>
+              </RequireAuth>
+            } />
+            <Route path="/client/:id" element={
+              <RequireAuth allowedRoles={['admin', 'operator', 'trainer']}>
+                <Layout><ClientProfile /></Layout>
+              </RequireAuth>
+            } />
+            <Route path="/statistics" element={
+              <RequireAuth allowedRoles={['admin', 'operator']}>
+                <Layout><Statistics /></Layout>
+              </RequireAuth>
+            } />
+            <Route path="/tracking" element={
+              <RequireAuth allowedRoles={['admin', 'trainer']}>
+                <Layout><TrackingPage /></Layout>
+              </RequireAuth>
+            } />
+            <Route path="/communications" element={
+              <RequireAuth allowedRoles={['admin', 'operator', 'trainer']}>
+                <Layout><Communications /></Layout>
+              </RequireAuth>
+            } />
+            <Route path="/admin-settings" element={
+              <RequireAuth allowedRoles={['admin']}>
+                <Layout><AdminSettings /></Layout>
+              </RequireAuth>
+            } />
+            <Route path="/settings" element={
+              <RequireAuth>
+                <Layout><Settings /></Layout>
+              </RequireAuth>
+            } />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

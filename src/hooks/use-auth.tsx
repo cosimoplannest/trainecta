@@ -6,17 +6,37 @@ import { toast } from "@/hooks/use-toast";
 
 type AuthContextType = {
   signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, userData: any) => Promise<{user: any, error: any}>;
   signOut: () => Promise<void>;
   loading: boolean;
   user: any | null;
+  userRole: string | null;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<any | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  // Fetch user role
+  const fetchUserRole = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("users")
+        .select("role")
+        .eq("id", userId)
+        .single();
+
+      if (error) throw error;
+      return data?.role || null;
+    } catch (error) {
+      console.error("Error fetching user role:", error);
+      return null;
+    }
+  };
 
   useEffect(() => {
     // Check active sessions and set the user
@@ -27,6 +47,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         
         if (session) {
           setUser(session.user);
+          const role = await fetchUserRole(session.user.id);
+          setUserRole(role);
         }
       } catch (error) {
         console.error("Error checking auth session:", error);
@@ -40,8 +62,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      async (_event, session) => {
         setUser(session?.user ?? null);
+        if (session?.user) {
+          const role = await fetchUserRole(session.user.id);
+          setUserRole(role);
+        } else {
+          setUserRole(null);
+        }
         setLoading(false);
       }
     );
@@ -66,13 +94,47 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return;
       }
 
-      navigate("/dashboard");
+      // The user and role will be set by the onAuthStateChange event
+      toast({
+        title: "Accesso effettuato",
+        description: "Benvenuto in Trainecta",
+      });
     } catch (error: any) {
       toast({
         title: "Errore",
         description: error.message || "Errore durante l'accesso",
         variant: "destructive",
       });
+    }
+  };
+
+  const signUp = async (email: string, password: string, userData: any) => {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: userData,
+        },
+      });
+
+      if (error) {
+        toast({
+          title: "Errore di registrazione",
+          description: error.message,
+          variant: "destructive",
+        });
+        return { user: null, error };
+      }
+
+      return { user: data.user, error: null };
+    } catch (error: any) {
+      toast({
+        title: "Errore",
+        description: error.message || "Errore durante la registrazione",
+        variant: "destructive",
+      });
+      return { user: null, error };
     }
   };
 
@@ -90,7 +152,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ signIn, signOut, loading, user }}>
+    <AuthContext.Provider value={{ signIn, signUp, signOut, loading, user, userRole }}>
       {children}
     </AuthContext.Provider>
   );

@@ -8,6 +8,9 @@ import {
   Settings,
   Shield,
   Users,
+  Calendar,
+  Clock,
+  Ticket,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
@@ -37,7 +40,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ loading = false, profile = null }: SidebarProps) {
-  const { signOut, user } = useAuth();
+  const { signOut, user, userRole } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
@@ -60,10 +63,11 @@ export function Sidebar({ loading = false, profile = null }: SidebarProps) {
     checkAdminRole();
   }, [user]);
 
-  const mainLinks = [
+  // Define role-specific links
+  const adminLinks = [
     {
       name: "Dashboard",
-      href: "/dashboard",
+      href: "/dashboard/admin",
       icon: Home,
     },
     {
@@ -93,6 +97,116 @@ export function Sidebar({ loading = false, profile = null }: SidebarProps) {
     }
   ];
 
+  const operatorLinks = [
+    {
+      name: "Dashboard",
+      href: "/dashboard/operator",
+      icon: Home,
+    },
+    {
+      name: "Gestione Clienti",
+      href: "/client-management",
+      icon: Users,
+    },
+    {
+      name: "Statistiche",
+      href: "/statistics",
+      icon: BarChart2,
+    },
+    {
+      name: "Comunicazione",
+      href: "/communications",
+      icon: MessageSquare,
+    }
+  ];
+
+  const trainerLinks = [
+    {
+      name: "Dashboard",
+      href: "/dashboard/trainer",
+      icon: Home,
+    },
+    {
+      name: "Schede Allenamento",
+      href: "/workout-templates",
+      icon: Dumbbell,
+    },
+    {
+      name: "Gestione Clienti",
+      href: "/client-management",
+      icon: Users,
+    },
+    {
+      name: "Monitoraggio & Analisi",
+      href: "/tracking",
+      icon: LineChart,
+    },
+    {
+      name: "Comunicazione",
+      href: "/communications",
+      icon: MessageSquare,
+    }
+  ];
+
+  const assistantLinks = [
+    {
+      name: "Dashboard",
+      href: "/dashboard/assistant",
+      icon: Home,
+    },
+    {
+      name: "Turni Sala",
+      href: "/dashboard/assistant?tab=schedule",
+      icon: Clock,
+    },
+    {
+      name: "Membri",
+      href: "/dashboard/assistant?tab=members",
+      icon: Users,
+    },
+    {
+      name: "Indisponibilità",
+      href: "/communications",
+      icon: Calendar,
+    }
+  ];
+
+  const instructorLinks = [
+    {
+      name: "Dashboard",
+      href: "/dashboard/instructor",
+      icon: Home,
+    },
+    {
+      name: "Corsi",
+      href: "/dashboard/instructor?tab=courses",
+      icon: Ticket,
+    },
+    {
+      name: "Calendario",
+      href: "/dashboard/instructor?tab=schedule",
+      icon: Calendar,
+    },
+    {
+      name: "Indisponibilità",
+      href: "/communications",
+      icon: Calendar,
+    }
+  ];
+
+  // Select links based on role
+  let mainLinks = adminLinks; // Default to admin links
+  
+  if (userRole === 'operator') {
+    mainLinks = operatorLinks;
+  } else if (userRole === 'trainer') {
+    mainLinks = trainerLinks;
+  } else if (userRole === 'assistant') {
+    mainLinks = assistantLinks;
+  } else if (userRole === 'instructor') {
+    mainLinks = instructorLinks;
+  }
+
   const secondaryLinks = [
     {
       name: "Impostazioni",
@@ -119,18 +233,29 @@ export function Sidebar({ loading = false, profile = null }: SidebarProps) {
           ) : (
             <Avatar>
               <AvatarImage src={profile?.avatar_url || ""} alt="Avatar" />
-              <AvatarFallback>{profile?.full_name?.charAt(0)}</AvatarFallback>
+              <AvatarFallback>{profile?.full_name?.charAt(0) || user?.user_metadata?.full_name?.charAt(0) || "U"}</AvatarFallback>
             </Avatar>
           )}
           {loading ? (
             <Skeleton className="h-4 w-32" />
           ) : (
-            <p className="text-sm font-semibold">{profile?.full_name}</p>
+            <p className="text-sm font-semibold">{profile?.full_name || user?.user_metadata?.full_name || "Utente"}</p>
           )}
           {loading ? (
             <Skeleton className="h-4 w-32" />
           ) : (
-            <p className="text-xs text-muted-foreground">{profile?.email}</p>
+            <div className="flex flex-col items-center">
+              <p className="text-xs text-muted-foreground">{profile?.email || user?.email}</p>
+              {userRole && (
+                <span className="mt-1 text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">
+                  {userRole === 'admin' && "Amministratore"}
+                  {userRole === 'operator' && "Operatore"}
+                  {userRole === 'trainer' && "Trainer"}
+                  {userRole === 'assistant' && "Assistente"}
+                  {userRole === 'instructor' && "Istruttore"}
+                </span>
+              )}
+            </div>
           )}
         </div>
         <DropdownMenu>
@@ -140,7 +265,9 @@ export function Sidebar({ loading = false, profile = null }: SidebarProps) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-40" align="start">
-            <DropdownMenuItem>Impostazioni</DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <NavLink to="/settings">Impostazioni</NavLink>
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {

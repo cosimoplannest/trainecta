@@ -368,6 +368,47 @@ export type Database = {
           },
         ]
       }
+      gym_registration_codes: {
+        Row: {
+          active: boolean | null
+          code: string
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          gym_id: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Insert: {
+          active?: boolean | null
+          code: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          gym_id: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Update: {
+          active?: boolean | null
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          gym_id?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gym_registration_codes_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       gym_settings: {
         Row: {
           allow_template_duplication: boolean | null
@@ -465,6 +506,77 @@ export type Database = {
           website?: string | null
         }
         Relationships: []
+      }
+      instructor_specialties: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          gym_id: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          gym_id: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          gym_id?: string
+          id?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "instructor_specialties_gym_id_fkey"
+            columns: ["gym_id"]
+            isOneToOne: false
+            referencedRelation: "gyms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      instructor_specialty_links: {
+        Row: {
+          created_at: string
+          id: string
+          specialty_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          specialty_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          specialty_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "instructor_specialty_links_specialty_id_fkey"
+            columns: ["specialty_id"]
+            isOneToOne: false
+            referencedRelation: "instructor_specialties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "instructor_specialty_links_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       subscriptions: {
         Row: {
@@ -936,6 +1048,14 @@ export type Database = {
       belongs_to_same_gym: {
         Args: { user_id: string; gym_id: string }
         Returns: boolean
+      }
+      get_gym_id_from_code: {
+        Args: { registration_code: string }
+        Returns: string
+      }
+      get_role_from_code: {
+        Args: { registration_code: string }
+        Returns: Database["public"]["Enums"]["app_role"]
       }
       get_user_gym_id: {
         Args: { user_id: string }
