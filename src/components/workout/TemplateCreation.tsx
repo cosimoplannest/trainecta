@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { WorkoutTemplate, TemplateExerciseWithNestedExercise, Exercise } from '@/types/workout';
 import { useWorkoutTemplates } from '@/hooks/use-workout-templates';
 import { CreateTemplateForm } from '@/components/workout/CreateTemplateForm';
@@ -10,12 +10,19 @@ interface TemplateCreationProps {
 }
 
 export const TemplateCreation: React.FC<TemplateCreationProps> = ({ onComplete }) => {
-  const { createTemplate, addExerciseToTemplate, finalizeTemplate } = useWorkoutTemplates();
+  const { createTemplate, addExerciseToTemplate, finalizeTemplate, exercises: availableExercises } = useWorkoutTemplates();
   const [isCreatingTemplate, setIsCreatingTemplate] = useState(true);
   const [isAddingExercises, setIsAddingExercises] = useState(false);
   const [currentTemplate, setCurrentTemplate] = useState<WorkoutTemplate | null>(null);
   const [templateExercises, setTemplateExercises] = useState<TemplateExerciseWithNestedExercise[]>([]);
   const [exercises, setExercises] = useState<Exercise[]>([]);
+
+  // Set initial exercises from the useWorkoutTemplates hook
+  useEffect(() => {
+    if (availableExercises && availableExercises.length > 0) {
+      setExercises(availableExercises);
+    }
+  }, [availableExercises]);
 
   const [newTemplate, setNewTemplate] = useState<Partial<WorkoutTemplate>>({
     name: "",
@@ -103,3 +110,4 @@ export const TemplateCreation: React.FC<TemplateCreationProps> = ({ onComplete }
     </>
   );
 };
+
