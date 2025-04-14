@@ -28,7 +28,7 @@ interface Exercise {
 
 interface TemplateExercise {
   id: string;
-  exercise_id: string;
+  exercise_id?: string;
   exercise?: Exercise;
   sets: number;
   reps: string;

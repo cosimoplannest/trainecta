@@ -44,6 +44,9 @@ import { CreateExerciseDialog } from "@/components/workout/CreateExerciseDialog"
 import { AssignTemplateDialog } from "@/components/workout/AssignTemplateDialog";
 import { ViewTemplateDialog } from "@/components/workout/ViewTemplateDialog";
 
+// Define workout type enum
+type WorkoutType = 'full_body' | 'upper_body' | 'lower_body' | 'push' | 'pull' | 'legs' | 'core' | 'cardio' | 'circuit' | 'arms' | 'shoulders' | 'back' | 'chest';
+
 // Interfaces
 interface Exercise {
   id: string;
@@ -54,7 +57,7 @@ interface Exercise {
 
 interface TemplateExercise {
   id: string;
-  exercise_id: string;
+  exercise_id?: string;
   exercise?: Exercise;
   sets: number;
   reps: string;
@@ -71,10 +74,12 @@ interface WorkoutTemplate {
   created_by?: string;
   user?: { full_name: string };
   locked: boolean;
-  type?: string;
+  type?: WorkoutType | string;
   gym_id: string;
   template_exercises?: TemplateExercise[];
   assignment_count?: number;
+  is_default?: boolean;
+  updated_at?: string;
 }
 
 const WorkoutTemplates = () => {
@@ -142,7 +147,7 @@ const WorkoutTemplates = () => {
             return {
               ...template,
               assignment_count: count || 0
-            };
+            } as WorkoutTemplate;
           })
         );
 
@@ -193,7 +198,7 @@ const WorkoutTemplates = () => {
           name: newTemplate.name,
           category: newTemplate.category,
           description: newTemplate.description,
-          type: newTemplate.type || "full_body",
+          type: newTemplate.type as WorkoutType || "full_body",
           gym_id: "11111111-1111-1111-1111-111111111111", // Hardcoded for now
           locked: false, // Set to false initially to allow adding exercises
         })
@@ -203,7 +208,7 @@ const WorkoutTemplates = () => {
       if (error) throw error;
       
       // Set as current template and move to adding exercises
-      setCurrentTemplate(data);
+      setCurrentTemplate(data as WorkoutTemplate);
       setIsCreatingTemplate(false);
       setIsAddingExercises(true);
       toast.success("Template creato con successo. Ora aggiungi gli esercizi.");
@@ -341,7 +346,7 @@ const WorkoutTemplates = () => {
       if (refreshError) throw refreshError;
       
       // Update local state
-      setTemplates(templates.map(t => t.id === data.id ? {...data, assignment_count: 0} : t));
+      setTemplates(templates.map(t => t.id === data.id ? {...data, assignment_count: 0} as WorkoutTemplate : t));
       
       toast.success("Template finalizzato con successo");
     } catch (error) {

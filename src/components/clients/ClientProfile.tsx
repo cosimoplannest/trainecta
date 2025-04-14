@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -57,7 +56,6 @@ interface AssignedTemplate {
   delivery_status: string;
   delivery_channel: string;
   conversion_status: string | null;
-  notes: string | null;
 }
 
 interface ClientFollowup {
@@ -125,7 +123,6 @@ const ClientProfile = () => {
             delivery_status,
             delivery_channel,
             conversion_status,
-            notes,
             workout_template:workout_templates(
               id,
               name, 
