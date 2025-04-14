@@ -6,6 +6,7 @@ import {
   LineChart,
   MessageSquare,
   Settings,
+  Shield,
   Users,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
@@ -22,6 +23,8 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/use-auth";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SidebarProps {
   loading?: boolean;
@@ -34,7 +37,28 @@ interface SidebarProps {
 }
 
 export function Sidebar({ loading = false, profile = null }: SidebarProps) {
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const checkAdminRole = async () => {
+      if (!user) return;
+
+      try {
+        const { data, error } = await supabase.rpc('is_admin', {
+          user_id: user.id
+        });
+
+        if (error) throw error;
+        setIsAdmin(!!data);
+      } catch (error) {
+        console.error("Error checking admin role:", error);
+        setIsAdmin(false);
+      }
+    };
+
+    checkAdminRole();
+  }, [user]);
 
   const mainLinks = [
     {
@@ -76,6 +100,15 @@ export function Sidebar({ loading = false, profile = null }: SidebarProps) {
       icon: Settings,
     },
   ];
+
+  // Add Admin Settings link if user is admin
+  if (isAdmin) {
+    secondaryLinks.unshift({
+      name: "Admin",
+      href: "/admin-settings",
+      icon: Shield,
+    });
+  }
 
   return (
     <div className="flex h-full max-w-60 flex-col border-r bg-secondary">
