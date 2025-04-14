@@ -1,7 +1,5 @@
-
 import { supabase } from "@/integrations/supabase/client";
-import { ContractFormData } from "./ContractDialog";
-import { Contract } from "./ContractList";
+import { ContractFormData, Contract } from "./types";
 
 /**
  * Fetches all contracts from the database
@@ -20,17 +18,15 @@ export async function fetchContracts(): Promise<Contract[]> {
  * Creates a new contract in the database
  */
 export async function createContract(formData: ContractFormData): Promise<void> {
-  // Map form data to table structure
   const durationDays = parseInt(formData.duration) || 30;
   
-  // Create an object that matches the subscriptions table schema
   const dataToSubmit = {
     name: formData.name.trim(),
     description: formData.description.trim(),
     price: parseFloat(formData.price) || 0,
     duration_days: durationDays,
     is_active: formData.status === "active",
-    gym_id: "11111111-1111-1111-1111-111111111111", // Example hardcoded ID
+    gym_id: "11111111-1111-1111-1111-111111111111",
   };
 
   const { error } = await supabase
@@ -44,10 +40,8 @@ export async function createContract(formData: ContractFormData): Promise<void> 
  * Updates an existing contract in the database
  */
 export async function updateContract(contractId: string, formData: ContractFormData): Promise<void> {
-  // Map form data to table structure
   const durationDays = parseInt(formData.duration) || 30;
   
-  // Create an object that matches the subscriptions table schema
   const dataToSubmit = {
     name: formData.name.trim(),
     description: formData.description.trim(),

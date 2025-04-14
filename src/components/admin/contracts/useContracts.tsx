@@ -1,8 +1,6 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { ContractFormData } from "./ContractDialog";
-import { Contract } from "./ContractList";
+import { ContractFormData, Contract } from "./types";
 import * as contractsApi from "./api";
 
 export function useContracts() {
