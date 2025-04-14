@@ -243,11 +243,14 @@ export type Database = {
       }
       clients: {
         Row: {
+          address: string | null
           assigned_to: string | null
           birth_date: string | null
           created_at: string
           email: string | null
           first_name: string
+          fiscal_code: string | null
+          fitness_level: string | null
           gender: string | null
           gym_id: string
           id: string
@@ -255,17 +258,25 @@ export type Database = {
           joined_at: string | null
           last_name: string
           phone: string | null
+          preferred_time: string | null
+          primary_goal: string | null
           source: string | null
+          subscription_duration: string | null
+          subscription_end_date: string | null
           subscription_id: string | null
+          subscription_start_date: string | null
           subscription_type: string | null
           updated_at: string
         }
         Insert: {
+          address?: string | null
           assigned_to?: string | null
           birth_date?: string | null
           created_at?: string
           email?: string | null
           first_name: string
+          fiscal_code?: string | null
+          fitness_level?: string | null
           gender?: string | null
           gym_id: string
           id?: string
@@ -273,17 +284,25 @@ export type Database = {
           joined_at?: string | null
           last_name: string
           phone?: string | null
+          preferred_time?: string | null
+          primary_goal?: string | null
           source?: string | null
+          subscription_duration?: string | null
+          subscription_end_date?: string | null
           subscription_id?: string | null
+          subscription_start_date?: string | null
           subscription_type?: string | null
           updated_at?: string
         }
         Update: {
+          address?: string | null
           assigned_to?: string | null
           birth_date?: string | null
           created_at?: string
           email?: string | null
           first_name?: string
+          fiscal_code?: string | null
+          fitness_level?: string | null
           gender?: string | null
           gym_id?: string
           id?: string
@@ -291,8 +310,13 @@ export type Database = {
           joined_at?: string | null
           last_name?: string
           phone?: string | null
+          preferred_time?: string | null
+          primary_goal?: string | null
           source?: string | null
+          subscription_duration?: string | null
+          subscription_end_date?: string | null
           subscription_id?: string | null
+          subscription_start_date?: string | null
           subscription_type?: string | null
           updated_at?: string
         }
