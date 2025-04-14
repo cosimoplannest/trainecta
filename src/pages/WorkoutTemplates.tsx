@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { WorkoutTemplate, Exercise, TemplateExercise, WorkoutType, TemplateExerciseWithNestedExercise } from "@/types/workout";
@@ -14,16 +13,19 @@ import { AddExerciseForm } from "@/components/workout/AddExerciseForm";
 import { CreateExerciseDialog } from "@/components/workout/CreateExerciseDialog";
 import { AssignTemplateDialog } from "@/components/workout/AssignTemplateDialog";
 import { ViewTemplateDialog } from "@/components/workout/ViewTemplateDialog";
+import { useAuth } from "@/hooks/use-auth";
 
 const WorkoutTemplates = () => {
   const navigate = useNavigate();
   const { toast: uiToast } = useToast();
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [isCreatingTemplate, setIsCreatingTemplate] = useState(false);
   const [isAddingExercises, setIsAddingExercises] = useState(false);
   const [templates, setTemplates] = useState<WorkoutTemplate[]>([]);
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userGymId, setUserGymId] = useState<string | null>(null);
   
   const [newTemplate, setNewTemplate] = useState<Partial<WorkoutTemplate>>({
     name: "",
@@ -45,6 +47,39 @@ const WorkoutTemplates = () => {
   });
 
   useEffect(() => {
+    const fetchUserGymId = async () => {
+      if (!user) return;
+
+      try {
+        const { data, error } = await supabase
+          .from("users")
+          .select("gym_id")
+          .eq("id", user.id)
+          .maybeSingle();
+
+        if (error) throw error;
+        
+        if (data && data.gym_id) {
+          setUserGymId(data.gym_id);
+        } else {
+          console.error("User does not have an associated gym");
+          uiToast({
+            title: "Error",
+            description: "User does not have an associated gym",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching user gym ID:", error);
+      }
+    };
+
+    fetchUserGymId();
+  }, [user, uiToast]);
+
+  useEffect(() => {
+    if (!userGymId) return;
+    
     const fetchData = async () => {
       setLoading(true);
       try {
@@ -62,6 +97,7 @@ const WorkoutTemplates = () => {
               exercise:exercises(id, name, description, video_url)
             )
           `)
+          .eq("gym_id", userGymId)
           .order("created_at", { ascending: false });
 
         if (templatesError) throw templatesError;
@@ -85,6 +121,7 @@ const WorkoutTemplates = () => {
         const { data: exercisesData, error: exercisesError } = await supabase
           .from("exercises")
           .select("*")
+          .eq("gym_id", userGymId)
           .order("name");
 
         if (exercisesError) throw exercisesError;
@@ -92,8 +129,8 @@ const WorkoutTemplates = () => {
       } catch (error) {
         console.error("Error fetching data:", error);
         uiToast({
-          title: "Errore",
-          description: "Impossibile caricare i dati",
+          title: "Error",
+          description: "Unable to load data",
           variant: "destructive",
         });
       } finally {
@@ -102,7 +139,7 @@ const WorkoutTemplates = () => {
     };
 
     fetchData();
-  }, [uiToast]);
+  }, [userGymId, uiToast]);
 
   const filteredTemplates = templates.filter(
     (template) =>
@@ -112,7 +149,12 @@ const WorkoutTemplates = () => {
 
   const createTemplate = async () => {
     if (!newTemplate.name || !newTemplate.category) {
-      toast.error("Inserisci nome e categoria");
+      toast.error("Please enter a name and category");
+      return;
+    }
+
+    if (!userGymId) {
+      toast.error("No gym associated with your account");
       return;
     }
     
@@ -124,7 +166,8 @@ const WorkoutTemplates = () => {
           category: newTemplate.category,
           description: newTemplate.description,
           type: newTemplate.type as WorkoutType,
-          gym_id: "11111111-1111-1111-1111-111111111111",
+          gym_id: userGymId,
+          created_by: user?.id,
           locked: false
         })
         .select()
@@ -135,10 +178,10 @@ const WorkoutTemplates = () => {
       setCurrentTemplate(data as WorkoutTemplate);
       setIsCreatingTemplate(false);
       setIsAddingExercises(true);
-      toast.success("Template creato con successo. Ora aggiungi gli esercizi.");
+      toast.success("Template created successfully. Now add exercises.");
     } catch (error) {
       console.error("Error creating template:", error);
-      toast.error("Errore durante la creazione del template");
+      toast.error("Error creating template. Please try again.");
     }
   };
 
@@ -170,7 +213,6 @@ const WorkoutTemplates = () => {
       
       setTemplateExercises([...templateExercises, data as TemplateExerciseWithNestedExercise]);
       
-      // Reset the form except for sets and reps
       setNewExercise({
         ...newExercise,
         exercise_id: "",
@@ -193,7 +235,6 @@ const WorkoutTemplates = () => {
   const handleFinishTemplate = async () => {
     if (!currentTemplate) return;
     
-    // Refresh the templates list
     try {
       const { data, error } = await supabase
         .from("workout_templates")
@@ -214,16 +255,15 @@ const WorkoutTemplates = () => {
         
       if (error) throw error;
       
-      // Update the templates list with the new template
       setTemplates(templates.map(t => t.id === data.id ? { ...data, assignment_count: 0 } as WorkoutTemplate : t));
       setCurrentTemplate(null);
       setTemplateExercises([]);
       setIsAddingExercises(false);
       
-      toast.success("Template completato con successo");
+      toast.success("Template completed successfully");
     } catch (error) {
       console.error("Error finalizing template:", error);
-      toast.error("Errore durante il completamento del template");
+      toast.error("Error during template completion");
     }
   };
   
@@ -238,6 +278,11 @@ const WorkoutTemplates = () => {
   };
   
   const handleDuplicateTemplate = async (template: WorkoutTemplate) => {
+    if (!userGymId) {
+      toast.error("No gym associated with your account");
+      return;
+    }
+    
     try {
       const { data, error } = await supabase
         .from("workout_templates")
@@ -246,7 +291,8 @@ const WorkoutTemplates = () => {
           category: template.category,
           description: template.description,
           type: template.type,
-          gym_id: "11111111-1111-1111-1111-111111111111",
+          gym_id: userGymId,
+          created_by: user?.id,
           locked: false
         })
         .select()
@@ -256,7 +302,6 @@ const WorkoutTemplates = () => {
       
       if (template.template_exercises && template.template_exercises.length > 0) {
         const exercisesToInsert = template.template_exercises.map(ex => {
-          // Handle both types of template exercises
           const exerciseId = 'exercise_id' in ex ? ex.exercise_id : ex.exercise.id;
           
           return {
@@ -276,7 +321,6 @@ const WorkoutTemplates = () => {
         if (exercisesError) throw exercisesError;
       }
       
-      // Refresh the templates list
       const { data: updatedTemplate, error: fetchError } = await supabase
         .from("workout_templates")
         .select(`
@@ -297,22 +341,20 @@ const WorkoutTemplates = () => {
       if (fetchError) throw fetchError;
       
       setTemplates([{ ...updatedTemplate, assignment_count: 0 } as WorkoutTemplate, ...templates]);
-      toast.success("Template duplicato con successo");
+      toast.success("Template duplicated successfully");
     } catch (error) {
       console.error("Error duplicating template:", error);
-      toast.error("Errore durante la duplicazione del template");
+      toast.error("Error duplicating template");
     }
   };
   
   const handleEditTemplate = (template: WorkoutTemplate) => {
-    // Will be implemented in future versions
-    toast.info("Funzionalità di modifica in arrivo nelle prossime versioni");
+    toast.info("Functionality for editing in future versions");
   };
   
   const handleDeleteTemplate = async (template: WorkoutTemplate) => {
-    if (confirm(`Sei sicuro di voler eliminare il template "${template.name}"?`)) {
+    if (confirm(`Are you sure you want to delete the template "${template.name}"?`)) {
       try {
-        // First delete all exercises from the template
         if (template.template_exercises && template.template_exercises.length > 0) {
           const { error: exercisesError } = await supabase
             .from("template_exercises")
@@ -322,7 +364,6 @@ const WorkoutTemplates = () => {
           if (exercisesError) throw exercisesError;
         }
         
-        // Then delete the template
         const { error } = await supabase
           .from("workout_templates")
           .delete()
@@ -331,16 +372,15 @@ const WorkoutTemplates = () => {
         if (error) throw error;
         
         setTemplates(templates.filter(t => t.id !== template.id));
-        toast.success("Template eliminato con successo");
+        toast.success("Template deleted successfully");
       } catch (error) {
         console.error("Error deleting template:", error);
-        toast.error("Errore durante l'eliminazione del template");
+        toast.error("Error during template deletion");
       }
     }
   };
   
   const handleTemplateAssigned = async () => {
-    // Update the assignment count for the current template
     if (!currentTemplate) return;
     
     const updatedTemplates = templates.map(t => 
