@@ -32,7 +32,7 @@ type PendingUserType = {
   email: string;
   role: string;
   registration_date: string;
-  phone?: string;
+  // Note: phone field removed as it doesn't exist in the users table
 };
 
 export function PendingApprovals() {
@@ -79,9 +79,10 @@ export function PendingApprovals() {
       }
 
       try {
+        // Modified query to not select the phone field
         const { data, error } = await supabase
           .from("users")
-          .select("id, full_name, email, role, registration_date, phone")
+          .select("id, full_name, email, role, registration_date")
           .eq("gym_id", userGymId)
           .eq("status", "pending_approval")
           .order("registration_date", { ascending: false });
