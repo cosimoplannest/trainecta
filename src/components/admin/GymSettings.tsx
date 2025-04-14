@@ -11,6 +11,15 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, Save, Settings } from "lucide-react";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
+
+type TemplateSentBy = "trainer" | "system" | "both";
 
 type FormValues = {
   name: string;
@@ -18,7 +27,7 @@ type FormValues = {
   enable_auto_followup: boolean;
   days_to_first_followup: number;
   days_to_active_confirmation: number;
-  template_sent_by: "trainer" | "system" | "both";
+  template_sent_by: TemplateSentBy;
   template_viewable_by_client: boolean;
   allow_template_duplication: boolean;
   default_trainer_assignment_logic: string;
@@ -379,17 +388,21 @@ export function GymSettings() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Invio Schede Workout</FormLabel>
-                        <FormControl>
-                          <select
-                            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                            value={field.value}
-                            onChange={field.onChange}
-                          >
-                            <option value="trainer">Solo Trainer</option>
-                            <option value="system">Solo Sistema</option>
-                            <option value="both">Entrambi</option>
-                          </select>
-                        </FormControl>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Seleziona chi può inviare le schede" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="trainer">Solo Trainer</SelectItem>
+                            <SelectItem value="system">Solo Sistema</SelectItem>
+                            <SelectItem value="both">Entrambi</SelectItem>
+                          </SelectContent>
+                        </Select>
                         <FormDescription>
                           Chi può inviare le schede di workout ai clienti
                         </FormDescription>
