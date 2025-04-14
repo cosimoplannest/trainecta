@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Save } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
@@ -11,29 +11,48 @@ import { GeneralSettings } from "./GeneralSettings";
 import { ContactSettings } from "./ContactSettings";
 import { OperationalSettings } from "./OperationalSettings";
 import { AdvancedSettings } from "./AdvancedSettings";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export function GymSettings() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [loadAttempts, setLoadAttempts] = useState(0);
+  const maxAttempts = 3;
   
   const {
     form,
     gymId,
     gymSettingsId,
     fetchSettings,
-    saveSettings
+    saveSettings,
+    fetchError,
+    saveError
   } = useGymSettingsForm();
 
   useEffect(() => {
     const loadSettings = async () => {
+      if (loadAttempts >= maxAttempts) {
+        setLoading(false);
+        return;
+      }
+      
       setLoading(true);
-      await fetchSettings(user);
-      setLoading(false);
+      try {
+        await fetchSettings(user);
+      } catch (error) {
+        console.error("Error in loadSettings:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     loadSettings();
-  }, [user, fetchSettings]);
+  }, [user, fetchSettings, loadAttempts]);
+
+  const handleRetry = () => {
+    setLoadAttempts(prev => prev + 1);
+  };
 
   const onSubmit = async (data: any) => {
     setSaving(true);
@@ -47,7 +66,7 @@ export function GymSettings() {
       console.error("Error saving gym settings:", error);
       toast({
         title: "Errore",
-        description: "Non è stato possibile salvare le impostazioni della palestra",
+        description: saveError || "Non è stato possibile salvare le impostazioni della palestra",
         variant: "destructive",
       });
     } finally {
@@ -57,8 +76,31 @@ export function GymSettings() {
 
   if (loading) {
     return (
-      <div className="flex justify-center p-10">
+      <div className="flex flex-col items-center justify-center p-10 space-y-4">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <p className="text-muted-foreground">Caricamento impostazioni...</p>
+      </div>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <div className="p-6">
+        <Alert variant="destructive" className="mb-6">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Errore di caricamento</AlertTitle>
+          <AlertDescription>{fetchError}</AlertDescription>
+        </Alert>
+        <Button onClick={handleRetry} disabled={loading}>
+          {loading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Riprovo...
+            </>
+          ) : (
+            "Riprova"
+          )}
+        </Button>
       </div>
     );
   }

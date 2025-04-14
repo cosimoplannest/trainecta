@@ -14,6 +14,8 @@ import {
 export function useGymSettingsForm() {
   const [gymId, setGymId] = useState<string | null>(null);
   const [gymSettingsId, setGymSettingsId] = useState<string | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
   
   const form = useForm<GymSettingsFormValues>({
     defaultValues: {
@@ -39,11 +41,15 @@ export function useGymSettingsForm() {
 
   const fetchSettings = async (user: User | null) => {
     if (!user) return;
+    setFetchError(null);
 
     try {
       // Get the gym ID for the user
       const userGymId = await fetchUserGymId(user.id);
-      if (!userGymId) return;
+      if (!userGymId) {
+        setFetchError("Non è stato possibile trovare la palestra associata all'utente");
+        return;
+      }
       
       setGymId(userGymId);
 
@@ -76,22 +82,24 @@ export function useGymSettingsForm() {
         email: gymData?.email || "",
         website: gymData?.website || "",
         max_trials_per_client: gymSettingsData?.max_trials_per_client || 1,
-        enable_auto_followup: gymSettingsData?.enable_auto_followup || true,
+        enable_auto_followup: gymSettingsData?.enable_auto_followup ?? true,
         days_to_first_followup: gymSettingsData?.days_to_first_followup || 7,
         days_to_active_confirmation: gymSettingsData?.days_to_active_confirmation || 30,
         template_sent_by: normalizeTemplateSentBy(gymSettingsData?.template_sent_by),
-        template_viewable_by_client: gymSettingsData?.template_viewable_by_client || true,
-        allow_template_duplication: gymSettingsData?.allow_template_duplication || true,
+        template_viewable_by_client: gymSettingsData?.template_viewable_by_client ?? true,
+        allow_template_duplication: gymSettingsData?.allow_template_duplication ?? true,
         default_trainer_assignment_logic: gymSettingsData?.default_trainer_assignment_logic || "manual",
         sale_methods: saleMethods,
       });
     } catch (error) {
       console.error("Error fetching gym settings:", error);
+      setFetchError("Si è verificato un errore durante il caricamento delle impostazioni");
     }
   };
 
   const saveSettings = async (data: GymSettingsFormValues) => {
     if (!gymId) return;
+    setSaveError(null);
     
     try {
       // Update gym data
@@ -99,8 +107,10 @@ export function useGymSettingsForm() {
       
       // Update gym settings
       await updateGymSettings(gymId, gymSettingsId, data);
+      return true;
     } catch (error) {
       console.error("Error saving gym settings:", error);
+      setSaveError("Si è verificato un errore durante il salvataggio delle impostazioni");
       throw error;
     }
   };
@@ -110,7 +120,9 @@ export function useGymSettingsForm() {
     gymId,
     gymSettingsId,
     fetchSettings,
-    saveSettings
+    saveSettings,
+    fetchError,
+    saveError
   };
 }
 
