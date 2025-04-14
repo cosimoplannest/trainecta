@@ -1,4 +1,3 @@
-
 import {
   BarChart2,
   Dumbbell,
@@ -18,7 +17,7 @@ import {
   HelpCircle,
   Search,
 } from "lucide-react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, Link, useLocation } from "react-router-dom";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -76,13 +75,11 @@ export function Sidebar({ loading = false, profile = null }: SidebarProps) {
 
     checkAdminRole();
 
-    // Close mobile sidebar when route changes
     if (isMobile) {
       setIsMobileSidebarOpen(false);
     }
   }, [user, location.pathname]);
 
-  // Define role-specific links
   const adminLinks = [
     {
       name: "Dashboard",
@@ -213,9 +210,8 @@ export function Sidebar({ loading = false, profile = null }: SidebarProps) {
     }
   ];
 
-  // Select links based on role
-  let mainLinks = adminLinks; // Default to admin links
-  
+  let mainLinks = adminLinks;
+
   if (userRole === 'operator') {
     mainLinks = operatorLinks;
   } else if (userRole === 'trainer') {
@@ -234,7 +230,6 @@ export function Sidebar({ loading = false, profile = null }: SidebarProps) {
     },
   ];
 
-  // Add Admin Settings link if user is admin
   if (isAdmin) {
     secondaryLinks.unshift({
       name: "Admin",
@@ -243,7 +238,6 @@ export function Sidebar({ loading = false, profile = null }: SidebarProps) {
     });
   }
 
-  // Determine sidebar visibility and style based on state
   const sidebarClass = cn(
     "flex flex-col border-r bg-secondary transition-all duration-300",
     isCollapsed ? "w-16" : "w-64",
@@ -262,7 +256,6 @@ export function Sidebar({ loading = false, profile = null }: SidebarProps) {
     }
   };
 
-  // Mobile sidebar overlay
   const MobileOverlay = () => (
     isMobile && isMobileSidebarOpen && (
       <div 
@@ -272,7 +265,6 @@ export function Sidebar({ loading = false, profile = null }: SidebarProps) {
     )
   );
 
-  // Mobile toggle button (visible when sidebar is closed)
   const MobileToggle = () => (
     isMobile && !isMobileSidebarOpen && (
       <Button 
@@ -318,11 +310,7 @@ export function Sidebar({ loading = false, profile = null }: SidebarProps) {
             </div>
           )}
           
-          {/* User Profile Section */}
-          <div className={cn(
-            "mb-5 flex items-center",
-            isCollapsed ? "flex-col" : "px-2 py-3 bg-muted/50 rounded-lg"
-          )}>
+          <div className="mb-5 flex items-center">
             {loading ? (
               <Skeleton className="h-10 w-10 rounded-full" />
             ) : (
@@ -359,7 +347,6 @@ export function Sidebar({ loading = false, profile = null }: SidebarProps) {
           </div>
 
           <div className="space-y-4">
-            {/* Main Links */}
             <nav className="space-y-1">
               {mainLinks.map((link) => (
                 <TooltipProvider key={link.href} delayDuration={0}>
@@ -391,7 +378,6 @@ export function Sidebar({ loading = false, profile = null }: SidebarProps) {
               ))}
             </nav>
 
-            {/* Secondary Links */}
             <div className="pt-4">
               <div className={cn(
                 "mb-2",
@@ -431,7 +417,6 @@ export function Sidebar({ loading = false, profile = null }: SidebarProps) {
                   </TooltipProvider>
                 ))}
 
-                {/* Help Link */}
                 <TooltipProvider delayDuration={0}>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -459,7 +444,6 @@ export function Sidebar({ loading = false, profile = null }: SidebarProps) {
                   </Tooltip>
                 </TooltipProvider>
 
-                {/* Logout Button */}
                 <TooltipProvider delayDuration={0}>
                   <Tooltip>
                     <TooltipTrigger asChild>
