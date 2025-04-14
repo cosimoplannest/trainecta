@@ -1,5 +1,6 @@
 
 import { PendingApprovals } from "@/components/admin/PendingApprovals";
+import { RegistrationCodes } from "@/components/admin/RegistrationCodes";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -18,7 +19,8 @@ import {
   CalendarCheck,
   AreaChart,
   Activity,
-  Clock
+  Clock,
+  Key
 } from "lucide-react";
 
 const AdminDashboard = () => {
@@ -196,6 +198,11 @@ const AdminDashboard = () => {
             )}
           </TabsTrigger>
           
+          <TabsTrigger value="registration-codes" className="flex items-center gap-1">
+            <Key className="h-4 w-4" />
+            Codici Registrazione
+          </TabsTrigger>
+          
           <TabsTrigger value="calendar" className="flex items-center gap-1">
             <CalendarCheck className="h-4 w-4" />
             Calendario
@@ -210,6 +217,10 @@ const AdminDashboard = () => {
         
         <TabsContent value="approvals" className="space-y-4 mt-6">
           <PendingApprovals />
+        </TabsContent>
+        
+        <TabsContent value="registration-codes" className="space-y-4 mt-6">
+          <RegistrationCodes />
         </TabsContent>
         
         <TabsContent value="calendar" className="space-y-4 mt-6">
