@@ -50,16 +50,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Check active sessions and set the user
     const checkUser = async () => {
       try {
+        console.log("AuthProvider: Checking current session");
         setLoading(true);
+        
         const { data: { session } } = await supabase.auth.getSession();
         
         if (session) {
-          console.log("Active session found for user:", session.user);
+          console.log("Active session found for user:", session.user.id);
           setUser(session.user);
+          
+          // Fetch user role and status
           const userData = await fetchUserData(session.user.id);
           setUserRole(userData?.role || null);
           setUserStatus(userData?.status || null);
-          console.log("User role and status set:", { role: userData?.role, status: userData?.status });
+          console.log("User state set:", { 
+            user: session.user.id, 
+            role: userData?.role, 
+            status: userData?.status 
+          });
         } else {
           console.log("No active session found");
           setUser(null);
@@ -69,6 +77,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       } catch (error) {
         console.error("Error checking auth session:", error);
       } finally {
+        console.log("Auth initialization complete");
         setLoading(false);
       }
     };
@@ -79,28 +88,39 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
-        console.log("Auth state changed:", { event: _event, user: session?.user });
+        console.log("Auth state changed:", { 
+          event: _event, 
+          userId: session?.user?.id 
+        });
+        
         setUser(session?.user ?? null);
+        
         if (session?.user) {
+          console.log("Fetching user data after auth state change");
           const userData = await fetchUserData(session.user.id);
           setUserRole(userData?.role || null);
           setUserStatus(userData?.status || null);
-          console.log("Updated user role and status:", { role: userData?.role, status: userData?.status });
+          console.log("Updated user state:", { 
+            role: userData?.role, 
+            status: userData?.status 
+          });
         } else {
           setUserRole(null);
           setUserStatus(null);
         }
-        setLoading(false);
       }
     );
 
     // Cleanup on unmount
-    return () => subscription.unsubscribe();
+    return () => {
+      console.log("Auth provider unmounting, cleaning up subscription");
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {
     try {
-      console.log("Attempting sign in for:", email);
+      console.log("SignIn: Attempting login for:", email);
       
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -108,7 +128,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
 
       if (error) {
-        console.error("Sign in error:", error);
+        console.error("SignIn: Error during login:", error.message);
         toast({
           title: "Errore di accesso",
           description: error.message,
@@ -117,25 +137,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         throw error;
       }
 
-      console.log("Sign in successful:", data);
+      console.log("SignIn: Login successful, user:", data.user?.id);
       
       // If we got here, login was successful
       if (data.user) {
-        console.log("User authenticated:", data.user);
-        
-        // Get user role and status
-        const userData = await fetchUserData(data.user.id);
-        console.log("User data after login:", userData);
-        
+        // Show success toast
         toast({
           title: "Accesso effettuato",
           description: "Benvenuto in Trainecta",
         });
         
-        // Let the auth state change propagate and handle navigation
+        // Note: The auth state change listener will handle updating the user,
+        // role, and status in the state
+        console.log("SignIn: Auth state change will handle the rest");
       }
     } catch (error: any) {
-      console.error("Login error:", error);
+      console.error("SignIn: Caught error:", error.message);
       toast({
         title: "Errore",
         description: error.message || "Errore durante l'accesso",
@@ -177,9 +194,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signOut = async () => {
     try {
+      console.log("Signing out user");
       await supabase.auth.signOut();
       navigate("/login");
     } catch (error: any) {
+      console.error("Error during sign out:", error);
       toast({
         title: "Errore",
         description: error.message || "Errore durante il logout",

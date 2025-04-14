@@ -12,7 +12,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const { signIn, user, loading, userRole, userStatus } = useAuth();
   const navigate = useNavigate();
 
@@ -21,40 +21,51 @@ const Login = () => {
     setError(null);
   }, [email, password]);
 
+  // For debugging - log auth state changes
+  useEffect(() => {
+    console.log("Auth state in Login component:", { 
+      user: user?.id, 
+      loading, 
+      userRole, 
+      userStatus, 
+      isLoggingIn 
+    });
+  }, [user, loading, userRole, userStatus, isLoggingIn]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError(null); // Clear any previous errors
+    setIsLoggingIn(true);
+    setError(null);
 
     try {
       if (!email || !password) {
         setError("Inserisci email e password.");
-        setIsLoading(false);
+        setIsLoggingIn(false);
         return;
       }
 
-      // Log login attempt
-      console.log(`Login attempt: ${email}`);
-
+      console.log(`Login attempt starting for: ${email}`);
       await signIn(email, password);
+      console.log("Login successful in component, waiting for auth state");
       
-      // If we get here without errors, the login was successful
-      console.log("Login successful, waiting for auth state to update");
-      
-      // Note: We're not navigating here. The redirect will happen via the
-      // useEffect below or the conditional render logic that follows
+      // Note: We're not navigating here. The redirect will happen automatically
+      // through the conditional rendering below or the useEffect
     } catch (err: any) {
       console.error("Login error in handleSubmit:", err);
       setError(err.message || "Si è verificato un errore durante l'accesso.");
-    } finally {
-      setIsLoading(false);
+      setIsLoggingIn(false);
     }
+    // We're not setting isLoggingIn to false here because we want to wait for the 
+    // auth state to update first, which will cause a re-render
   };
 
-  // Log auth state for debugging
+  // Effect to reset the logging in state if auth loading completes
   useEffect(() => {
-    console.log("Auth state in Login component:", { user, loading, userRole, userStatus });
-  }, [user, loading, userRole, userStatus]);
+    if (!loading && isLoggingIn && user) {
+      console.log("Auth loading complete and user exists, resetting isLoggingIn");
+      setIsLoggingIn(false);
+    }
+  }, [loading, user, isLoggingIn]);
 
   // If user is authenticated, redirect based on role
   if (!loading && user) {
@@ -74,6 +85,18 @@ const Login = () => {
     
     console.log(`Redirecting to: ${redirectPath}`);
     return <Navigate to={redirectPath} replace />;
+  }
+
+  // Show a loading state while the auth context is initializing
+  if (loading && !isLoggingIn) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-muted/40">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          <p className="text-muted-foreground">Preparazione...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -99,6 +122,7 @@ const Login = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                disabled={isLoggingIn}
               />
             </div>
             
@@ -115,6 +139,7 @@ const Login = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                disabled={isLoggingIn}
               />
             </div>
             
@@ -122,8 +147,8 @@ const Login = () => {
               <p className="text-destructive text-sm">{error}</p>
             )}
             
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? (
+            <Button type="submit" className="w-full" disabled={isLoggingIn}>
+              {isLoggingIn ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Accesso in corso...
