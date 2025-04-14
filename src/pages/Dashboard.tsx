@@ -39,7 +39,7 @@ const Dashboard = () => {
         // Get free trials (clients without subscriptions)
         const { data: freeTrialsData, error: trialsError } = await supabase
           .from('trial_questionnaires')
-          .select('count(*)', { count: 'exact' })
+          .select('*', { count: 'exact' })
           .eq('purchased', false);
           
         if (trialsError) throw trialsError;
@@ -111,7 +111,7 @@ const Dashboard = () => {
         // Update state with fetched data
         setStats({
           totalClients: clientCount || 0,
-          freeTrials: freeTrialsData[0]?.count || 0,
+          freeTrials: freeTrialsData.length || 0, // Changed from freeTrialsData[0]?.count to length
           assignedTemplates: templatesCount || 0,
           conversionRate: Math.round(conversionRate) || 0,
           clientsChange: 12, // Hardcoded for now, would need historical data
@@ -332,3 +332,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
