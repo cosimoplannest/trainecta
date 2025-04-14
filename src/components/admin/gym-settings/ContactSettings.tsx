@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building, Phone, Link as LinkIcon } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
-import { GymSettingsFormValues } from "./use-gym-settings";
+import { GymSettingsFormValues } from "./types";
 
 interface ContactSettingsProps {
   form: UseFormReturn<GymSettingsFormValues>;

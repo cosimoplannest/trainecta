@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { UseFormReturn } from "react-hook-form";
-import { GymSettingsFormValues } from "./use-gym-settings";
+import { GymSettingsFormValues } from "./types";
 
 interface AdvancedSettingsProps {
   form: UseFormReturn<GymSettingsFormValues>;

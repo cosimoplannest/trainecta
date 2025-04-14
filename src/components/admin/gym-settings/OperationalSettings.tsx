@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { UseFormReturn } from "react-hook-form";
-import { GymSettingsFormValues } from "./use-gym-settings";
+import { GymSettingsFormValues } from "./types";
 
 interface OperationalSettingsProps {
   form: UseFormReturn<GymSettingsFormValues>;
