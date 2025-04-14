@@ -111,7 +111,7 @@ const Dashboard = () => {
         // Update state with fetched data
         setStats({
           totalClients: clientCount || 0,
-          freeTrials: freeTrialsData.length || 0, // Changed from freeTrialsData[0]?.count to length
+          freeTrials: freeTrialsData.length || 0,
           assignedTemplates: templatesCount || 0,
           conversionRate: Math.round(conversionRate) || 0,
           clientsChange: 12, // Hardcoded for now, would need historical data
@@ -332,4 +332,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-

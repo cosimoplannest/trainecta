@@ -41,7 +41,7 @@ const Header = () => {
             <DropdownMenuItem>Profilo</DropdownMenuItem>
             <DropdownMenuItem>Impostazioni</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Logout</DropdownMenuItem>
+            <DropdownMenuItem>Disconnetti</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

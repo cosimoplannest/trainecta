@@ -67,22 +67,22 @@ export function Sidebar({ loading = false, profile = null }: SidebarProps) {
       icon: Home,
     },
     {
-      name: "Workout Templates",
+      name: "Schede Allenamento",
       href: "/workout-templates",
       icon: Dumbbell,
     },
     {
-      name: "Client Management",
+      name: "Gestione Clienti",
       href: "/client-management",
       icon: Users,
     },
     {
-      name: "Statistics",
+      name: "Statistiche",
       href: "/statistics",
       icon: BarChart2,
     },
     {
-      name: "Tracking & Analysis",
+      name: "Monitoraggio & Analisi",
       href: "/tracking",
       icon: LineChart,
     },
@@ -95,7 +95,7 @@ export function Sidebar({ loading = false, profile = null }: SidebarProps) {
 
   const secondaryLinks = [
     {
-      name: "Settings",
+      name: "Impostazioni",
       href: "/settings",
       icon: Settings,
     },
@@ -136,18 +136,18 @@ export function Sidebar({ loading = false, profile = null }: SidebarProps) {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="w-full justify-start">
-              My Account
+              Il Mio Account
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-40" align="start">
-            <DropdownMenuItem>Settings</DropdownMenuItem>
+            <DropdownMenuItem>Impostazioni</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {
                 signOut();
               }}
             >
-              Log out
+              Disconnetti
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
