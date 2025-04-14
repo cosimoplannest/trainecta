@@ -1,6 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { Users, Dumbbell, BarChart, MessageSquare } from "lucide-react";
 
 const LandingPage = () => {
   return (
