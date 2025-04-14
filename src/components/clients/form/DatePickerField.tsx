@@ -57,12 +57,14 @@ const DatePickerField = ({
                 selected={field.value}
                 onSelect={field.onChange}
                 disabled={(date) => {
+                  if (!date) return false;
                   const isTooEarly = minDate ? date < minDate : false;
                   const isTooLate = maxDate ? date > maxDate : false;
                   return isTooEarly || isTooLate;
                 }}
                 initialFocus
                 locale={it}
+                className="pointer-events-auto"
               />
             </PopoverContent>
           </Popover>
