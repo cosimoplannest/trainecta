@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,16 +17,8 @@ import {
   DialogFooter 
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { contractTypes, durations } from "../contracts/constants";
-
-export interface ContractFormData {
-  name: string;
-  description: string;
-  type: string;
-  price: string;
-  duration: string;
-  status: string;
-}
+import { contractTypes, durations } from "./constants";
+import { ContractFormData } from "./types";
 
 interface ContractDialogProps {
   open: boolean;
@@ -61,7 +52,6 @@ export function ContractDialog({
   };
 
   const handleSelectChange = (field: string, value: string) => {
-    // Ensure we never set an empty string value
     if (value === "") return;
     
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -69,7 +59,6 @@ export function ContractDialog({
 
   const handleSubmit = async () => {
     try {
-      // Basic validation
       if (!formData.name.trim()) {
         toast({
           title: "Campo richiesto",

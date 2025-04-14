@@ -1,9 +1,9 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { ContractFormData } from "./ContractDialog";
 import { Contract } from "./ContractList";
+import * as contractsApi from "./api";
 
 export function useContracts() {
   const [contracts, setContracts] = useState<Contract[]>([]);
@@ -22,20 +22,11 @@ export function useContracts() {
   
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchContracts();
-  }, []);
-
-  const fetchContracts = async () => {
+  const fetchContracts = useCallback(async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from("subscriptions")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      setContracts(data || []);
+      const data = await contractsApi.fetchContracts();
+      setContracts(data);
     } catch (error) {
       console.error("Error fetching contracts:", error);
       toast({
@@ -46,9 +37,13 @@ export function useContracts() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
-  const resetForm = () => {
+  useEffect(() => {
+    fetchContracts();
+  }, [fetchContracts]);
+
+  const resetForm = useCallback(() => {
     setFormData({
       name: "",
       description: "",
@@ -59,9 +54,9 @@ export function useContracts() {
     });
     setIsEditing(false);
     setCurrentContract(null);
-  };
+  }, []);
 
-  const openEditDialog = (contract: Contract) => {
+  const openEditDialog = useCallback((contract: Contract) => {
     setCurrentContract(contract);
     
     // Map duration_days back to the form value
@@ -77,40 +72,18 @@ export function useContracts() {
     });
     setIsEditing(true);
     setDialogOpen(true);
-  };
+  }, []);
 
-  const handleSubmit = async (formData: ContractFormData) => {
+  const handleSubmit = useCallback(async (formData: ContractFormData) => {
     try {
-      // Map form data to table structure
-      const durationDays = parseInt(formData.duration) || 30;
-      
-      // Create an object that matches the subscriptions table schema
-      const dataToSubmit = {
-        name: formData.name.trim(),
-        description: formData.description.trim(),
-        price: parseFloat(formData.price) || 0,
-        duration_days: durationDays,
-        is_active: formData.status === "active",
-        gym_id: "11111111-1111-1111-1111-111111111111", // Example hardcoded ID
-      };
-
       if (isEditing && currentContract) {
-        const { error } = await supabase
-          .from("subscriptions")
-          .update(dataToSubmit)
-          .eq("id", currentContract.id);
-
-        if (error) throw error;
+        await contractsApi.updateContract(currentContract.id, formData);
         toast({
           title: "Contratto aggiornato",
           description: "Il contratto è stato aggiornato con successo",
         });
       } else {
-        const { error } = await supabase
-          .from("subscriptions")
-          .insert(dataToSubmit);
-
-        if (error) throw error;
+        await contractsApi.createContract(formData);
         toast({
           title: "Contratto creato",
           description: "Il contratto è stato creato con successo",
@@ -120,20 +93,19 @@ export function useContracts() {
       fetchContracts();
     } catch (error) {
       console.error("Error saving contract:", error);
-      throw error;
+      toast({
+        title: "Errore",
+        description: "Impossibile salvare il contratto",
+        variant: "destructive",
+      });
     }
-  };
+  }, [isEditing, currentContract, toast, fetchContracts]);
 
-  const handleDeleteContract = async (id: string) => {
+  const handleDeleteContract = useCallback(async (id: string) => {
     if (!confirm("Sei sicuro di voler eliminare questo contratto?")) return;
 
     try {
-      const { error } = await supabase
-        .from("subscriptions")
-        .delete()
-        .eq("id", id);
-
-      if (error) throw error;
+      await contractsApi.deleteContract(id);
       
       toast({
         title: "Contratto eliminato",
@@ -149,7 +121,7 @@ export function useContracts() {
         variant: "destructive",
       });
     }
-  };
+  }, [toast, fetchContracts]);
 
   return {
     contracts,

@@ -1,18 +1,9 @@
-
 import { Loader2, Edit, Trash2 } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { formatDuration } from "./utils";
-
-export interface Contract {
-  id: string;
-  name: string;
-  description?: string;
-  duration_days: number;
-  price?: number;
-  is_active: boolean;
-}
+import { Contract } from "./types";
 
 interface ContractListProps {
   contracts: Contract[];
