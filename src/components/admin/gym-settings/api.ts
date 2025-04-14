@@ -30,7 +30,7 @@ export async function fetchUserGymId(userId: string) {
       .from("users")
       .select("gym_id")
       .eq("id", userId)
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error("Error fetching user gym ID:", error);
@@ -51,7 +51,7 @@ export async function fetchGymData(gymId: string) {
       .from("gyms")
       .select("*")
       .eq("id", gymId)
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error("Error fetching gym data:", error);
@@ -68,9 +68,8 @@ export async function fetchGymSettingsData(gymId: string) {
       .from("gym_settings")
       .select("*")
       .eq("gym_id", gymId)
-      .single();
+      .maybeSingle();
 
-    // PGRST116 is the error code for no rows returned
     if (error && error.code !== "PGRST116") {
       console.error("Error fetching gym settings data:", error);
       throw error;
@@ -131,6 +130,7 @@ export async function updateGymSettings(
       default_trainer_assignment_logic: settingsData.default_trainer_assignment_logic,
     };
 
+    // Check if settings exist and update or insert accordingly
     if (settingsId) {
       const { error } = await supabase
         .from("gym_settings")

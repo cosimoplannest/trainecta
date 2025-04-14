@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { User } from "@supabase/supabase-js";
 import { GymSettingsFormValues, TemplateSentBy } from "./types";
@@ -19,6 +19,7 @@ export function useGymSettingsForm() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
+  const [isInitialized, setIsInitialized] = useState(false);
   
   const form = useForm<GymSettingsFormValues>({
     defaultValues: {
@@ -42,12 +43,16 @@ export function useGymSettingsForm() {
     }
   });
 
-  const fetchSettings = async (user: User | null) => {
+  // Use useCallback to memoize the fetchSettings function to prevent infinite loops
+  const fetchSettings = useCallback(async (user: User | null) => {
     if (!user) {
       setFetchError("Utente non autenticato");
       setIsLoading(false);
+      setIsInitialized(true);
       return;
     }
+    
+    if (isLoading) return; // Prevent concurrent fetches
     
     setIsLoading(true);
     setFetchError(null);
@@ -58,6 +63,7 @@ export function useGymSettingsForm() {
       if (!userGymId) {
         setFetchError("Non è stato possibile trovare la palestra associata all'utente");
         setIsLoading(false);
+        setIsInitialized(true);
         return;
       }
       
@@ -66,7 +72,7 @@ export function useGymSettingsForm() {
       // Fetch gym data
       const gymData = await fetchGymData(userGymId);
       
-      // Fetch gym settings data
+      // Fetch gym settings data - use maybeSingle instead of single to handle empty results
       const gymSettingsData = await fetchGymSettingsData(userGymId);
       
       if (gymSettingsData) {
@@ -106,8 +112,16 @@ export function useGymSettingsForm() {
       setFetchError("Si è verificato un errore durante il caricamento delle impostazioni");
     } finally {
       setIsLoading(false);
+      setIsInitialized(true);
     }
-  };
+  }, [form, isLoading]);
+
+  useEffect(() => {
+    // Only run effect if not already initialized to prevent infinite loops
+    if (!isInitialized) {
+      setIsInitialized(true); // Ensure this won't run twice
+    }
+  }, [isInitialized]);
 
   const saveSettings = async (data: GymSettingsFormValues) => {
     if (!gymId) return;
@@ -142,6 +156,7 @@ export function useGymSettingsForm() {
 
   const retryFetchSettings = (user: User | null) => {
     setRetryCount(prev => prev + 1);
+    setIsInitialized(false); // Reset to allow re-initialization
     fetchSettings(user);
   };
 
@@ -154,6 +169,7 @@ export function useGymSettingsForm() {
     fetchError,
     saveError,
     isLoading,
+    isInitialized,
     retryFetchSettings
   };
 }
