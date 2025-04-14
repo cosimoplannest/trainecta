@@ -121,11 +121,17 @@ const AddClientForm = ({ onClientAdded }: AddClientFormProps) => {
     try {
       // Format date properly for database
       const formattedData = {
-        ...data,
+        first_name: data.first_name,
+        last_name: data.last_name,
+        email: data.email || null,
+        phone: data.phone || null,
+        gender: data.gender || null,
         birth_date: data.birth_date ? data.birth_date.toISOString() : null,
         joined_at: data.joined_at.toISOString(),
         subscription_id: data.subscription_id || null,
         assigned_to: data.assigned_to || null,
+        source: data.source || null,
+        internal_notes: data.internal_notes || null,
         // Add the required gym_id field - using a hardcoded value for now
         // In a real app, this would come from user context or similar
         gym_id: "11111111-1111-1111-1111-111111111111"

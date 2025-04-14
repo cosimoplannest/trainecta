@@ -20,7 +20,7 @@ interface SidebarProps {
 
 export default function Sidebar({ className }: SidebarProps) {
   const [isOpen, setOpen] = useState(false);
-  const { isMobile } = useIsMobile();
+  const isMobile = useIsMobile();
   const { pathname } = useLocation();
 
   const handleLogout = () => {
