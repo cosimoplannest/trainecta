@@ -58,6 +58,7 @@ export function useGymSettingsForm() {
     setFetchError(null);
 
     try {
+      console.log("Fetching user gym ID for user:", user.id);
       // Get the gym ID for the user
       const userGymId = await fetchUserGymId(user.id);
       if (!userGymId) {
@@ -67,13 +68,18 @@ export function useGymSettingsForm() {
         return;
       }
       
+      console.log("User gym ID fetched:", userGymId);
       setGymId(userGymId);
 
       // Fetch gym data
+      console.log("Fetching gym data for gym ID:", userGymId);
       const gymData = await fetchGymData(userGymId);
+      console.log("Gym data fetched:", gymData);
       
       // Fetch gym settings data - use maybeSingle instead of single to handle empty results
+      console.log("Fetching gym settings data for gym ID:", userGymId);
       const gymSettingsData = await fetchGymSettingsData(userGymId);
+      console.log("Gym settings data fetched:", gymSettingsData);
       
       if (gymSettingsData) {
         setGymSettingsId(gymSettingsData.id);
@@ -107,30 +113,28 @@ export function useGymSettingsForm() {
         default_trainer_assignment_logic: gymSettingsData?.default_trainer_assignment_logic || "manual",
         sale_methods: saleMethods,
       });
+      
+      console.log("Form reset with fetched data");
     } catch (error) {
       console.error("Error fetching gym settings:", error);
       setFetchError("Si è verificato un errore durante il caricamento delle impostazioni");
     } finally {
+      console.log("Fetch complete, setting isLoading to false");
       setIsLoading(false);
       setIsInitialized(true);
     }
   }, [form, isLoading]);
-
-  useEffect(() => {
-    // Only run effect if not already initialized to prevent infinite loops
-    if (!isInitialized) {
-      setIsInitialized(true); // Ensure this won't run twice
-    }
-  }, [isInitialized]);
 
   const saveSettings = async (data: GymSettingsFormValues) => {
     if (!gymId) return;
     setSaveError(null);
     
     try {
+      console.log("Saving gym data for gym ID:", gymId, "with data:", data);
       // Update gym data
       await updateGymData(gymId, data);
       
+      console.log("Saving gym settings for gym ID:", gymId, "with settings ID:", gymSettingsId);
       // Update gym settings
       await updateGymSettings(gymId, gymSettingsId, data);
       
@@ -155,6 +159,7 @@ export function useGymSettingsForm() {
   };
 
   const retryFetchSettings = (user: User | null) => {
+    console.log("Retrying fetch settings...");
     setRetryCount(prev => prev + 1);
     setIsInitialized(false); // Reset to allow re-initialization
     fetchSettings(user);

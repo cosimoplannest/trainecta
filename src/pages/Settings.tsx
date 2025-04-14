@@ -13,6 +13,7 @@ const Settings = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Check if user is admin only once when component mounts or user changes
     const checkAdminRole = async () => {
       if (!user) {
         setIsAdmin(false);
@@ -51,6 +52,7 @@ const Settings = () => {
     );
   }
 
+  // If user is not an admin, redirect to dashboard
   if (isAdmin === false) {
     toast({
       title: "Accesso negato",

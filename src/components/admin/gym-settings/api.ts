@@ -26,6 +26,8 @@ async function executeWithRetry<T>(
 
 export async function fetchUserGymId(userId: string) {
   return executeWithRetry(async () => {
+    console.log(`Fetching gym ID for user: ${userId}`);
+    
     const { data, error } = await supabase
       .from("users")
       .select("gym_id")
@@ -38,15 +40,19 @@ export async function fetchUserGymId(userId: string) {
     }
     
     if (!data?.gym_id) {
+      console.error("User does not have an associated gym");
       throw new Error("User does not have an associated gym");
     }
     
+    console.log(`Found gym ID for user: ${data.gym_id}`);
     return data.gym_id;
   });
 }
 
 export async function fetchGymData(gymId: string) {
   return executeWithRetry(async () => {
+    console.log(`Fetching gym data for gym ID: ${gymId}`);
+    
     const { data, error } = await supabase
       .from("gyms")
       .select("*")
@@ -58,12 +64,15 @@ export async function fetchGymData(gymId: string) {
       throw error;
     }
     
+    console.log("Gym data fetched successfully");
     return data;
   });
 }
 
 export async function fetchGymSettingsData(gymId: string) {
   return executeWithRetry(async () => {
+    console.log(`Fetching gym settings for gym ID: ${gymId}`);
+    
     const { data, error } = await supabase
       .from("gym_settings")
       .select("*")
@@ -75,12 +84,15 @@ export async function fetchGymSettingsData(gymId: string) {
       throw error;
     }
     
+    console.log("Gym settings fetched successfully:", data);
     return data;
   });
 }
 
 export async function updateGymData(gymId: string, gymData: Partial<GymSettingsFormValues>) {
   return executeWithRetry(async () => {
+    console.log(`Updating gym data for gym ID: ${gymId}`);
+    
     const { error } = await supabase
       .from("gyms")
       .update({ 
@@ -99,6 +111,8 @@ export async function updateGymData(gymId: string, gymData: Partial<GymSettingsF
       console.error("Error updating gym data:", error);
       throw error;
     }
+    
+    console.log("Gym data updated successfully");
   });
 }
 
@@ -108,6 +122,8 @@ export async function updateGymSettings(
   settingsData: Partial<GymSettingsFormValues>
 ) {
   return executeWithRetry(async () => {
+    console.log(`Updating gym settings for gym ID: ${gymId}, settings ID: ${settingsId || 'new'}`);
+    
     // Determine template_sent_by based on sale_methods
     let templateSentBy: TemplateSentBy = "both";
     if (settingsData.sale_methods && settingsData.sale_methods.length === 1) {
@@ -151,5 +167,7 @@ export async function updateGymSettings(
         throw error;
       }
     }
+    
+    console.log("Gym settings updated/created successfully");
   });
 }

@@ -21,14 +21,19 @@ export function GymSettings() {
     saveSettings,
     fetchError,
     isLoading,
+    isInitialized,
     retryFetchSettings
   } = useGymSettingsForm();
 
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    fetchSettings(user);
-  }, [user, fetchSettings]);
+    // Only fetch settings once
+    if (user && !isInitialized) {
+      console.log("Fetching gym settings...");
+      fetchSettings(user);
+    }
+  }, [user, fetchSettings, isInitialized]);
 
   const onSubmit = async (data: any) => {
     setSaving(true);
