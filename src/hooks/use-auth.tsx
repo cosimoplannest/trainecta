@@ -26,16 +26,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Fetch user role and status
   const fetchUserData = async (userId: string) => {
     try {
+      console.log("Fetching user data for ID:", userId);
       const { data, error } = await supabase
         .from("users")
         .select("role, status")
         .eq("id", userId)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching user data:", error);
+        return { role: null, status: null };
+      }
+      
+      console.log("User data fetched:", data);
       return data;
     } catch (error) {
-      console.error("Error fetching user data:", error);
+      console.error("Error in fetchUserData:", error);
       return { role: null, status: null };
     }
   };
@@ -48,10 +54,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const { data: { session } } = await supabase.auth.getSession();
         
         if (session) {
+          console.log("Active session found for user:", session.user);
           setUser(session.user);
           const userData = await fetchUserData(session.user.id);
           setUserRole(userData?.role || null);
           setUserStatus(userData?.status || null);
+          console.log("User role and status set:", { role: userData?.role, status: userData?.status });
+        } else {
+          console.log("No active session found");
         }
       } catch (error) {
         console.error("Error checking auth session:", error);
@@ -66,11 +76,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
+        console.log("Auth state changed:", { event: _event, user: session?.user });
         setUser(session?.user ?? null);
         if (session?.user) {
           const userData = await fetchUserData(session.user.id);
           setUserRole(userData?.role || null);
           setUserStatus(userData?.status || null);
+          console.log("Updated user role and status:", { role: userData?.role, status: userData?.status });
         } else {
           setUserRole(null);
           setUserStatus(null);

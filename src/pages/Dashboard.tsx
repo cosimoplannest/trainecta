@@ -14,7 +14,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     const checkApprovalStatus = async () => {
-      if (user && userRole) {
+      if (user && user.id) {
         try {
           const { data, error } = await supabase
             .from("users")
@@ -37,21 +37,27 @@ const Dashboard = () => {
     if (!loading) {
       checkApprovalStatus();
     }
-  }, [user, userRole, loading]);
+  }, [user, loading]);
 
+  // Effect to handle redirects based on role and approval status
   useEffect(() => {
     if (!loading && !loadingStatus) {
+      console.log("Dashboard: redirecting based on role", { userRole, approvalPending, user });
+      
       if (approvalPending) {
-        // User is registered but pending approval
-        // Stay on this page with the approval pending message
+        // User is registered but pending approval - stay on this page
+        console.log("User is pending approval, staying on dashboard");
       } else if (userRole) {
         // User has a role and is approved, navigate to role-specific dashboard
+        console.log(`Redirecting to /dashboard/${userRole}`);
         navigate(`/dashboard/${userRole}`, { replace: true });
       } else if (user) {
         // User is logged in but has no role (edge case)
+        console.log("User has no role, redirecting to login");
         navigate("/login", { replace: true });
       } else {
         // Not logged in
+        console.log("User not logged in, redirecting to login");
         navigate("/login", { replace: true });
       }
     }

@@ -1,5 +1,6 @@
 
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "./Header";
 import { cn } from "@/lib/utils";
 import { 
@@ -20,8 +21,27 @@ interface LayoutProps {
 }
 
 const Layout = ({ children }: LayoutProps) => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!loading && !user) {
+      console.log("Layout: User not authenticated, redirecting to login");
+      navigate("/login", { replace: true });
+    }
+  }, [user, loading, navigate]);
 
+  // Show loading while checking authentication
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="animate-spin h-12 w-12 border-t-2 border-b-2 border-primary rounded-full"></div>
+      </div>
+    );
+  }
+
+  // Only render layout if user is authenticated
   return (
     <SidebarProvider defaultOpen>
       <div className="flex h-screen w-full overflow-hidden bg-background">

@@ -20,10 +20,16 @@ const Login = () => {
   useEffect(() => {
     // Handle redirection based on user role and approval status
     if (!loading && user) {
+      console.log("Login: user is authenticated, checking status and role", { userStatus, userRole });
+      
       if (userStatus === 'pending_approval') {
+        console.log("User pending approval, redirecting to dashboard");
         navigate('/dashboard', { replace: true });
       } else if (userRole) {
+        console.log(`User has role ${userRole}, redirecting to dashboard/${userRole}`);
         navigate(`/dashboard/${userRole}`, { replace: true });
+      } else {
+        console.log("User has no role yet, waiting for role assignment");
       }
     }
   }, [user, userRole, userStatus, loading, navigate]);
