@@ -4,6 +4,7 @@ import {
   Dumbbell,
   Home,
   LineChart,
+  MessageSquare,
   Settings,
   Users,
 } from "lucide-react";
@@ -60,6 +61,11 @@ export function Sidebar({ loading = false, profile = null }: SidebarProps) {
       name: "Tracking & Analysis",
       href: "/tracking",
       icon: LineChart,
+    },
+    {
+      name: "Comunicazione",
+      href: "/communications",
+      icon: MessageSquare,
     }
   ];
 
