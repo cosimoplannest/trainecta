@@ -32,10 +32,10 @@ const contractTypes = [
 ];
 
 const durations = [
-  { value: "1_month", label: "1 Mese" },
-  { value: "3_months", label: "3 Mesi" },
-  { value: "6_months", label: "6 Mesi" },
-  { value: "12_months", label: "12 Mesi" },
+  { value: "30", label: "1 Mese" },
+  { value: "90", label: "3 Mesi" },
+  { value: "180", label: "6 Mesi" },
+  { value: "365", label: "12 Mesi" },
   { value: "custom", label: "Personalizzato" }
 ];
 
@@ -50,7 +50,7 @@ export function ContractManagement() {
     description: "",
     type: "subscription", // Default non-empty value
     price: "",
-    duration: "1_month", // Default non-empty value
+    duration: "30", // Default non-empty value
     status: "active"  // Default non-empty value
   });
   
@@ -100,7 +100,7 @@ export function ContractManagement() {
       description: "",
       type: "subscription",
       price: "",
-      duration: "1_month",
+      duration: "30",
       status: "active"
     });
     setIsEditing(false);
@@ -109,13 +109,17 @@ export function ContractManagement() {
 
   const openEditDialog = (contract) => {
     setCurrentContract(contract);
+    
+    // Map duration_days back to the form value
+    const durationValue = durations.find(d => d.value === contract.duration_days.toString())?.value || "custom";
+    
     setFormData({
       name: contract.name || "",
       description: contract.description || "",
-      type: contract.type || "subscription",
+      type: "subscription", // Default type for existing contracts
       price: contract.price?.toString() || "",
-      duration: contract.duration || "1_month",
-      status: contract.status || "active"
+      duration: durationValue,
+      status: contract.is_active ? "active" : "inactive"
     });
     setIsEditing(true);
     setDialogOpen(true);
@@ -133,14 +137,17 @@ export function ContractManagement() {
         return;
       }
 
-      // Ensure we have valid non-empty values for all select fields
+      // Map form data to table structure
+      const durationDays = parseInt(formData.duration) || 30;
+      
+      // Create an object that matches the subscriptions table schema
       const dataToSubmit = {
-        ...formData,
-        // Ensure these values are never empty strings
-        type: formData.type || "subscription",
-        duration: formData.duration || "1_month",
-        status: formData.status || "active",
-        price: parseFloat(formData.price) || 0
+        name: formData.name.trim(),
+        description: formData.description.trim(),
+        price: parseFloat(formData.price) || 0,
+        duration_days: durationDays,
+        is_active: formData.status === "active",
+        gym_id: "11111111-1111-1111-1111-111111111111", // Example hardcoded ID
       };
 
       if (isEditing && currentContract) {
@@ -157,10 +164,7 @@ export function ContractManagement() {
       } else {
         const { error } = await supabase
           .from("subscriptions")
-          .insert({
-            ...dataToSubmit,
-            gym_id: "11111111-1111-1111-1111-111111111111", // Example hardcoded ID
-          });
+          .insert(dataToSubmit);
 
         if (error) throw error;
         toast({
@@ -207,6 +211,15 @@ export function ContractManagement() {
         variant: "destructive",
       });
     }
+  };
+
+  // Format duration days to a human-readable format
+  const formatDuration = (days) => {
+    if (days === 30) return "1 Mese";
+    if (days === 90) return "3 Mesi";
+    if (days === 180) return "6 Mesi";
+    if (days === 365) return "12 Mesi";
+    return `${days} giorni`;
   };
 
   return (
@@ -285,7 +298,7 @@ export function ContractManagement() {
                 <div className="grid gap-2">
                   <Label htmlFor="duration">Durata</Label>
                   <Select
-                    value={formData.duration || "1_month"}
+                    value={formData.duration || "30"}
                     onValueChange={(value) => handleSelectChange("duration", value)}
                   >
                     <SelectTrigger id="duration">
@@ -313,7 +326,6 @@ export function ContractManagement() {
                     <SelectContent>
                       <SelectItem value="active">Attivo</SelectItem>
                       <SelectItem value="inactive">Inattivo</SelectItem>
-                      <SelectItem value="draft">Bozza</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -353,7 +365,6 @@ export function ContractManagement() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Nome</TableHead>
-                    <TableHead>Tipo</TableHead>
                     <TableHead>Durata</TableHead>
                     <TableHead>Prezzo</TableHead>
                     <TableHead>Stato</TableHead>
@@ -365,25 +376,18 @@ export function ContractManagement() {
                     <TableRow key={contract.id}>
                       <TableCell className="font-medium">{contract.name}</TableCell>
                       <TableCell>
-                        {contractTypes.find(t => t.value === contract.type)?.label || contract.type}
+                        {formatDuration(contract.duration_days)}
                       </TableCell>
-                      <TableCell>
-                        {durations.find(d => d.value === contract.duration)?.label || contract.duration}
-                      </TableCell>
-                      <TableCell>€{contract.price.toFixed(2)}</TableCell>
+                      <TableCell>€{contract.price?.toFixed(2)}</TableCell>
                       <TableCell>
                         <span 
                           className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            contract.status === 'active' 
+                            contract.is_active 
                               ? 'bg-green-100 text-green-800' 
-                              : contract.status === 'inactive'
-                              ? 'bg-red-100 text-red-800'
-                              : 'bg-gray-100 text-gray-800'
+                              : 'bg-red-100 text-red-800'
                           }`}
                         >
-                          {contract.status === 'active' ? 'Attivo' : 
-                           contract.status === 'inactive' ? 'Inattivo' : 
-                           contract.status === 'draft' ? 'Bozza' : contract.status}
+                          {contract.is_active ? 'Attivo' : 'Inattivo'}
                         </span>
                       </TableCell>
                       <TableCell className="text-right space-x-2">
