@@ -32,6 +32,8 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 
+type CompiledByRole = "trainer" | "admin" | "operator" | "assistant" | "instructor";
+
 const formSchema = z.object({
   client_id: z.string().uuid({ message: "Seleziona un cliente" }),
   trainer_id: z.string().uuid().optional(),
@@ -97,7 +99,7 @@ const QuestionnaireForm = ({ onClose }: QuestionnaireFormProps) => {
         client_id: values.client_id,
         trainer_id: values.trainer_id || null,
         purchased: values.purchased,
-        compiled_by_role: "trainer",  // Default value
+        compiled_by_role: "trainer" as CompiledByRole,  // Explicitly cast to the allowed type
       };
       
       // If not purchased, add reason fields
