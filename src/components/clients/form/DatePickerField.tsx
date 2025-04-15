@@ -57,16 +57,22 @@ const DatePickerField = ({
                 selected={field.value}
                 onSelect={field.onChange}
                 disabled={(date) => {
-                  // Ensure we always return a boolean
+                  // Ensure null check for date
                   if (!date) return false;
                   
-                  // Handle min date comparison
-                  const isTooEarly = minDate instanceof Date && date < minDate;
+                  let isDisabled = false;
                   
-                  // Handle max date comparison
-                  const isTooLate = maxDate instanceof Date && date > maxDate;
+                  // Only check minDate if it's a valid Date object
+                  if (minDate instanceof Date) {
+                    isDisabled = isDisabled || date < minDate;
+                  }
                   
-                  return Boolean(isTooEarly || isTooLate);
+                  // Only check maxDate if it's a valid Date object
+                  if (maxDate instanceof Date) {
+                    isDisabled = isDisabled || date > maxDate;
+                  }
+                  
+                  return isDisabled;
                 }}
                 initialFocus
                 locale={it}
