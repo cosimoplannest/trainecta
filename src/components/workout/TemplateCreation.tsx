@@ -142,6 +142,14 @@ export const TemplateCreation: React.FC<TemplateCreationProps> = ({ onComplete }
     setNewExercise({ ...newExercise, exercise_id: exercise.id });
   };
 
+  // This is the function we need to create to adapt the setNewExercise to the expected function signature
+  const handleNewExerciseChange = (exercise: Partial<TemplateExercise>) => {
+    setNewExercise(current => ({
+      ...current,
+      ...exercise
+    }));
+  };
+
   return (
     <>
       {isCreatingTemplate && (
@@ -157,7 +165,7 @@ export const TemplateCreation: React.FC<TemplateCreationProps> = ({ onComplete }
       {isAddingExercises && currentTemplate && (
         <AddExerciseForm
           newExercise={newExercise}
-          setNewExercise={setNewExercise}
+          setNewExercise={handleNewExerciseChange} // Use our adapter function here
           templateExercises={templateExercises}
           exercises={exercises}
           onAddExercise={handleAddExercise}
