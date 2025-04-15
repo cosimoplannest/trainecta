@@ -4,6 +4,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, FileText, BarChart3, Clock } from "lucide-react";
 import { FollowupManagement } from "@/components/followups/FollowupManagement";
 import { ActivityLog } from "@/components/activity/ActivityLog";
+import QuestionnaireManagement from "@/components/questionnaires/QuestionnaireManagement";
+import PerformanceAnalysis from "@/components/performance/PerformanceAnalysis";
 
 const TrackingPage = () => {
   const [activeTab, setActiveTab] = useState("followups");
@@ -51,29 +53,11 @@ const TrackingPage = () => {
           </TabsContent>
           
           <TabsContent value="questionnaires">
-            <div className="flex flex-col items-center justify-center py-12">
-              <div className="bg-muted/50 p-8 rounded-lg text-center">
-                <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-xl font-medium mb-2">Questionari Post-Prova</h3>
-                <p className="text-muted-foreground max-w-md">
-                  Questa sezione è in fase di sviluppo. Presto potrai visualizzare 
-                  e gestire i questionari post-prova dei clienti.
-                </p>
-              </div>
-            </div>
+            <QuestionnaireManagement />
           </TabsContent>
           
           <TabsContent value="performance">
-            <div className="flex flex-col items-center justify-center py-12">
-              <div className="bg-muted/50 p-8 rounded-lg text-center">
-                <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-xl font-medium mb-2">Analisi Performance</h3>
-                <p className="text-muted-foreground max-w-md">
-                  Questa sezione è in fase di sviluppo. Presto potrai visualizzare 
-                  le analisi dettagliate delle performance dei trainer e delle schede.
-                </p>
-              </div>
-            </div>
+            <PerformanceAnalysis />
           </TabsContent>
         </Tabs>
       </div>
