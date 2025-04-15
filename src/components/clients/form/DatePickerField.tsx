@@ -57,16 +57,20 @@ const DatePickerField = ({
                 selected={field.value}
                 onSelect={field.onChange}
                 disabled={(date) => {
+                  // Always make sure we have a valid date to compare
                   if (!date) return false;
                   
+                  // Check if the date is before the minimum date
                   if (minDate instanceof Date && date < minDate) {
                     return true;
                   }
                   
+                  // Check if the date is after the maximum date
                   if (maxDate instanceof Date && date > maxDate) {
                     return true;
                   }
                   
+                  // If no conditions are met, the date is not disabled
                   return false;
                 }}
                 initialFocus
