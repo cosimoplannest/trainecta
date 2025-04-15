@@ -8,6 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { UseFormReturn } from "react-hook-form";
 import { ClientFormData } from "../schemas/clientFormSchema";
+import { DayPickerRangeProps, DateRange } from "react-day-picker";
 
 interface DatePickerFieldProps {
   form: UseFormReturn<ClientFormData>;
@@ -57,7 +58,7 @@ const DatePickerField = ({
                 selected={field.value}
                 onSelect={field.onChange}
                 disabled={(date) => {
-                  // Always make sure we have a valid date to compare
+                  // Make sure we have a valid date to compare
                   if (!date) return false;
                   
                   // Check if the date is before the minimum date
