@@ -28,7 +28,7 @@ const DatePickerField = ({
   maxDate,
 }: DatePickerFieldProps) => {
   // Create a proper matcher function for react-day-picker
-  const disabledDays: Matcher = (date) => {
+  const disabledDays: Matcher = (date: Date) => {
     // Check if date is before minDate
     if (minDate && date < minDate) {
       return true;
@@ -70,7 +70,7 @@ const DatePickerField = ({
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
                 mode="single"
-                selected={field.value}
+                selected={field.value as Date}
                 onSelect={field.onChange}
                 disabled={disabledDays}
                 initialFocus
