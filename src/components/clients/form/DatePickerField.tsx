@@ -27,9 +27,9 @@ const DatePickerField = ({
   minDate,
   maxDate,
 }: DatePickerFieldProps) => {
-  // Create a disabled matcher function based on minDate and maxDate
+  // Create a proper matcher function for react-day-picker
   const getDisabledDates = (): Matcher => {
-    return (date) => {
+    return (date: Date) => {
       // Check if date is before minDate
       if (minDate && date < minDate) {
         return true;
