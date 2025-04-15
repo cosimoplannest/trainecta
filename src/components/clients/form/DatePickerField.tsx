@@ -28,20 +28,18 @@ const DatePickerField = ({
   maxDate,
 }: DatePickerFieldProps) => {
   // Create a proper matcher function for react-day-picker
-  const getDisabledDates = (): Matcher => {
-    return (date: Date) => {
-      // Check if date is before minDate
-      if (minDate && date < minDate) {
-        return true;
-      }
-      
-      // Check if date is after maxDate
-      if (maxDate && date > maxDate) {
-        return true;
-      }
-      
-      return false;
-    };
+  const disabledDays: Matcher = (date) => {
+    // Check if date is before minDate
+    if (minDate && date < minDate) {
+      return true;
+    }
+    
+    // Check if date is after maxDate
+    if (maxDate && date > maxDate) {
+      return true;
+    }
+    
+    return false;
   };
 
   return (
@@ -74,7 +72,7 @@ const DatePickerField = ({
                 mode="single"
                 selected={field.value}
                 onSelect={field.onChange}
-                disabled={getDisabledDates()}
+                disabled={disabledDays}
                 initialFocus
                 locale={it}
                 className="pointer-events-auto"
