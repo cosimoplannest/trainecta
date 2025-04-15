@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "@/hooks/use-auth";
@@ -122,15 +123,20 @@ export function UserUnavailability() {
     const fileName = `${user.id}-${Date.now()}.${fileExt}`;
     const filePath = `unavailability/${fileName}`;
     
-    const { error: uploadError, data } = await supabase.storage
-      .from('documents')
-      .upload(filePath, file);
-    
-    if (uploadError) {
-      throw uploadError;
+    try {
+      const { error: uploadError, data } = await supabase.storage
+        .from('documents')
+        .upload(filePath, file);
+      
+      if (uploadError) {
+        throw uploadError;
+      }
+      
+      return filePath;
+    } catch (error: any) {
+      console.error("Error uploading document:", error);
+      throw error;
     }
-    
-    return filePath;
   };
 
   const onSubmit = async (data: FormValues) => {
@@ -165,7 +171,10 @@ export function UserUnavailability() {
         gym_id: "00000000-0000-0000-0000-000000000000",
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error inserting unavailability:", error);
+        throw error;
+      }
 
       toast({
         title: "Indisponibilità registrata",
@@ -264,6 +273,7 @@ export function UserUnavailability() {
                                 selected={field.value}
                                 onSelect={field.onChange}
                                 initialFocus
+                                className="pointer-events-auto"
                               />
                             </PopoverContent>
                           </Popover>
@@ -301,6 +311,7 @@ export function UserUnavailability() {
                                 selected={field.value}
                                 onSelect={field.onChange}
                                 initialFocus
+                                className="pointer-events-auto"
                               />
                             </PopoverContent>
                           </Popover>

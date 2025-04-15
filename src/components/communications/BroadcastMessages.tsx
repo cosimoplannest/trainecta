@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "@/hooks/use-toast";
@@ -69,6 +68,12 @@ export function BroadcastMessages() {
     },
   });
 
+  useEffect(() => {
+    if (user) {
+      fetchMessages();
+    }
+  }, [user]);
+
   const fetchMessages = async () => {
     setIsLoading(true);
     try {
@@ -113,24 +118,49 @@ export function BroadcastMessages() {
     
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.from("broadcast_messages").insert({
-        title: data.title,
-        content: data.content,
-        sent_by: user.id,
-        target_role: selectedRoles.length === 0 ? null : selectedRoles[0] as AppRole,
-        gym_id: "00000000-0000-0000-0000-000000000000", // Replace with actual gym ID from context
-      });
+      if (selectedRoles.length > 0) {
+        const promises = selectedRoles.map(role => {
+          return supabase.from("broadcast_messages").insert({
+            title: data.title,
+            content: data.content,
+            sent_by: user.id,
+            target_role: role,
+            gym_id: "00000000-0000-0000-0000-000000000000", // Replace with actual gym ID from context
+          });
+        });
+        
+        const results = await Promise.all(promises);
+        const hasError = results.some(result => result.error);
+        
+        if (hasError) {
+          const errorMessages = results
+            .filter(result => result.error)
+            .map(result => result.error?.message)
+            .join(", ");
+          throw new Error(errorMessages);
+        }
+      } else {
+        const { error } = await supabase.from("broadcast_messages").insert({
+          title: data.title,
+          content: data.content,
+          sent_by: user.id,
+          target_role: null,
+          gym_id: "00000000-0000-0000-0000-000000000000", // Replace with actual gym ID from context
+        });
 
-      if (error) throw error;
+        if (error) throw error;
+      }
 
       toast({
         title: "Messaggio inviato",
         description: "Il messaggio broadcast è stato inviato con successo.",
       });
       form.reset();
+      setSelectedRoles([]);
       setIsSheetOpen(false);
       fetchMessages();
     } catch (error: any) {
+      console.error("Error submitting broadcast message:", error);
       toast({
         title: "Errore",
         description: error.message || "Si è verificato un errore nell'invio del messaggio",
@@ -207,12 +237,6 @@ export function BroadcastMessages() {
                                 checked={selectedRoles.includes(role.id)}
                                 onCheckedChange={() => {
                                   handleRoleToggle(role.id);
-                                  form.setValue(
-                                    "targetRoles",
-                                    selectedRoles.includes(role.id)
-                                      ? selectedRoles.filter(r => r !== role.id)
-                                      : [...selectedRoles, role.id]
-                                  );
                                 }}
                               />
                               <label
