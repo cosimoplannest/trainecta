@@ -18,6 +18,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Database } from "@/integrations/supabase/types";
+import { DateRange } from "react-day-picker";
 
 type UnavailabilityReason = Database["public"]["Enums"]["unavailability_reason"];
 
@@ -41,22 +42,19 @@ export interface UnavailabilityFilters {
 
 export function UnavailabilitySearch({ onSearch }: UnavailabilitySearchProps) {
   const [reason, setReason] = useState<UnavailabilityReason | undefined>(undefined);
-  const [dateRange, setDateRange] = useState<{
-    from?: Date;
-    to?: Date;
-  }>({});
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
 
   const handleSearch = () => {
     onSearch({
       reason,
-      startDate: dateRange.from,
-      endDate: dateRange.to,
+      startDate: dateRange?.from,
+      endDate: dateRange?.to,
     });
   };
 
   const resetFilters = () => {
     setReason(undefined);
-    setDateRange({});
+    setDateRange(undefined);
     onSearch({});
   };
 
@@ -91,7 +89,7 @@ export function UnavailabilitySearch({ onSearch }: UnavailabilitySearchProps) {
               className="w-full justify-start text-left font-normal md:w-[300px]"
             >
               <CalendarRange className="mr-2 h-4 w-4" />
-              {dateRange.from ? (
+              {dateRange?.from ? (
                 dateRange.to ? (
                   <>
                     {format(dateRange.from, "dd/MM/yyyy")} -{" "}
@@ -109,7 +107,7 @@ export function UnavailabilitySearch({ onSearch }: UnavailabilitySearchProps) {
             <Calendar
               initialFocus
               mode="range"
-              defaultMonth={dateRange.from}
+              defaultMonth={dateRange?.from}
               selected={dateRange}
               onSelect={setDateRange}
               numberOfMonths={2}
