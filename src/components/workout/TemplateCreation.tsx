@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { WorkoutTemplate, TemplateExerciseWithNestedExercise, Exercise } from '@/types/workout';
+import { WorkoutTemplate, TemplateExerciseWithNestedExercise, Exercise, TemplateExercise } from '@/types/workout';
 import { useWorkoutTemplates } from '@/hooks/use-workout-templates';
 import { CreateTemplateForm } from '@/components/workout/CreateTemplateForm';
 import { AddExerciseForm } from '@/components/workout/AddExerciseForm';
