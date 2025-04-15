@@ -19,7 +19,7 @@ export const SetsRepsInputs: React.FC<SetsRepsInputsProps> = ({
   return (
     <div className="grid grid-cols-2 gap-4">
       <div className="grid gap-2">
-        <Label htmlFor="sets">Sets</Label>
+        <Label htmlFor="sets">Serie</Label>
         <div className="flex items-center space-x-2">
           <Input
             id="sets"
@@ -32,12 +32,12 @@ export const SetsRepsInputs: React.FC<SetsRepsInputsProps> = ({
       </div>
       
       <div className="grid gap-2">
-        <Label htmlFor="reps">Reps</Label>
+        <Label htmlFor="reps">Ripetizioni</Label>
         <Input
           id="reps"
           value={reps || ""}
           onChange={(e) => onRepsChange(e.target.value)}
-          placeholder="e.g. 12 or 8-10"
+          placeholder="es. 12 o 8-10"
         />
       </div>
     </div>

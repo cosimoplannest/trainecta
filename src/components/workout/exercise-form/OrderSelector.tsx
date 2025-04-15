@@ -17,7 +17,7 @@ export const OrderSelector: React.FC<OrderSelectorProps> = ({
   return (
     <div className="grid gap-2">
       <div className="flex justify-between">
-        <Label htmlFor="order">Order</Label>
+        <Label htmlFor="order">Ordine</Label>
         <span className="text-sm">{orderIndex}</span>
       </div>
       <Slider

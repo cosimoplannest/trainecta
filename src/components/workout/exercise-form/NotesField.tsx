@@ -14,12 +14,12 @@ export const NotesField: React.FC<NotesFieldProps> = ({
 }) => {
   return (
     <div className="grid gap-2">
-      <Label htmlFor="notes">Notes</Label>
+      <Label htmlFor="notes">Note</Label>
       <Textarea
         id="notes"
         value={notes || ""}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="Optional notes"
+        placeholder="Note opzionali"
       />
     </div>
   );

@@ -14,12 +14,12 @@ export const TemplateNameField: React.FC<TemplateNameFieldProps> = ({
 }) => {
   return (
     <div className="grid gap-2">
-      <Label htmlFor="template-name">Template Name</Label>
+      <Label htmlFor="template-name">Nome Template</Label>
       <Input
         id="template-name"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="e.g. Beginner Full Body"
+        placeholder="es. Principiante Corpo Intero"
       />
     </div>
   );

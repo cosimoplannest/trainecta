@@ -14,8 +14,8 @@ export const FormActions: React.FC<FormActionsProps> = ({
   onCancel,
   onSubmit,
   loading = false,
-  submitLabel = "Submit",
-  cancelLabel = "Cancel"
+  submitLabel = "Invia",
+  cancelLabel = "Annulla"
 }) => {
   return (
     <div className="flex justify-end space-x-2">
@@ -23,7 +23,7 @@ export const FormActions: React.FC<FormActionsProps> = ({
         {cancelLabel}
       </Button>
       <Button onClick={onSubmit} disabled={loading}>
-        {loading ? "Loading..." : submitLabel}
+        {loading ? "Caricamento..." : submitLabel}
       </Button>
     </div>
   );

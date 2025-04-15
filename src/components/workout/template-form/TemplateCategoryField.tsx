@@ -14,12 +14,12 @@ export const TemplateCategoryField: React.FC<TemplateCategoryFieldProps> = ({
 }) => {
   return (
     <div className="grid gap-2">
-      <Label htmlFor="template-category">Category</Label>
+      <Label htmlFor="template-category">Categoria</Label>
       <Input
         id="template-category"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="e.g. Beginner, Advanced, etc."
+        placeholder="es. Principiante, Avanzato, ecc."
       />
     </div>
   );

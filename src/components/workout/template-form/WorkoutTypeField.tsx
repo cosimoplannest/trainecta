@@ -16,13 +16,13 @@ export const WorkoutTypeField: React.FC<WorkoutTypeFieldProps> = ({
 }) => {
   return (
     <div className="grid gap-2">
-      <Label htmlFor="template-type">Workout Type</Label>
+      <Label htmlFor="template-type">Tipo di Allenamento</Label>
       <Select
         value={value}
         onValueChange={(value) => onChange(value as WorkoutType)}
       >
         <SelectTrigger id="template-type">
-          <SelectValue placeholder="Select workout type" />
+          <SelectValue placeholder="Seleziona tipo di allenamento" />
         </SelectTrigger>
         <SelectContent>
           {workoutTypes.map((type) => (

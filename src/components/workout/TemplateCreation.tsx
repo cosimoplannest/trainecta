@@ -4,6 +4,7 @@ import { WorkoutTemplate, TemplateExerciseWithNestedExercise, Exercise } from '@
 import { useWorkoutTemplates } from '@/hooks/use-workout-templates';
 import { CreateTemplateForm } from '@/components/workout/CreateTemplateForm';
 import { AddExerciseForm } from '@/components/workout/AddExerciseForm';
+import { toast } from "sonner";
 
 interface TemplateCreationProps {
   onComplete: () => void;
@@ -16,6 +17,7 @@ export const TemplateCreation: React.FC<TemplateCreationProps> = ({ onComplete }
   const [currentTemplate, setCurrentTemplate] = useState<WorkoutTemplate | null>(null);
   const [templateExercises, setTemplateExercises] = useState<TemplateExerciseWithNestedExercise[]>([]);
   const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [loading, setLoading] = useState(false);
 
   // Set initial exercises from the useWorkoutTemplates hook
   useEffect(() => {
@@ -31,52 +33,107 @@ export const TemplateCreation: React.FC<TemplateCreationProps> = ({ onComplete }
     type: "full_body"
   });
   
-  const [newExercise, setNewExercise] = useState<any>({
+  const [newExercise, setNewExercise] = useState({
     sets: 3,
     reps: "12",
     order_index: 1,
-    exercise_id: ""
+    exercise_id: "",
+    notes: ""
   });
 
   const handleCreateTemplate = async () => {
-    const createdTemplate = await createTemplate(newTemplate);
-    if (createdTemplate) {
-      setCurrentTemplate(createdTemplate);
-      setIsCreatingTemplate(false);
-      setIsAddingExercises(true);
+    setLoading(true);
+    try {
+      const createdTemplate = await createTemplate(newTemplate);
+      if (createdTemplate) {
+        setCurrentTemplate(createdTemplate);
+        setIsCreatingTemplate(false);
+        setIsAddingExercises(true);
+      }
+    } catch (error) {
+      console.error("Errore nella creazione del template:", error);
+      toast.error("Errore nella creazione del template");
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleAddExercise = async () => {
-    if (!currentTemplate) return;
+    if (!currentTemplate) {
+      toast.error("Nessun template selezionato");
+      return;
+    }
     
-    const addedExercise = await addExerciseToTemplate(
-      currentTemplate.id, 
-      newExercise, 
-      templateExercises
-    );
+    if (!newExercise.exercise_id) {
+      toast.error("Seleziona un esercizio");
+      return;
+    }
     
-    if (addedExercise) {
-      setTemplateExercises([...templateExercises, addedExercise]);
+    setLoading(true);
+    try {
+      // Calculate next order index
+      const nextOrderIndex = templateExercises.length > 0 
+        ? Math.max(...templateExercises.map(e => e.order_index)) + 1 
+        : 1;
       
-      setNewExercise({
+      const exerciseToAdd = {
         ...newExercise,
-        exercise_id: "",
-        notes: "",
-        order_index: Math.max(...templateExercises.map(e => e.order_index), 0) + 1
-      });
+        order_index: nextOrderIndex
+      };
+      
+      const addedExercise = await addExerciseToTemplate(
+        currentTemplate.id, 
+        exerciseToAdd, 
+        templateExercises
+      );
+      
+      if (addedExercise) {
+        setTemplateExercises([...templateExercises, addedExercise]);
+        
+        setNewExercise({
+          sets: 3,
+          reps: "12",
+          exercise_id: "",
+          notes: "",
+          order_index: nextOrderIndex + 1
+        });
+        
+        toast.success("Esercizio aggiunto con successo");
+      }
+    } catch (error) {
+      console.error("Errore nell'aggiunta dell'esercizio:", error);
+      toast.error("Errore nell'aggiunta dell'esercizio");
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleFinishTemplate = async () => {
-    if (!currentTemplate) return;
+    if (!currentTemplate) {
+      toast.error("Nessun template selezionato");
+      return;
+    }
     
-    const finalizedTemplate = await finalizeTemplate(currentTemplate.id);
-    if (finalizedTemplate) {
-      setCurrentTemplate(null);
-      setTemplateExercises([]);
-      setIsAddingExercises(false);
-      onComplete();
+    if (templateExercises.length === 0) {
+      toast.error("Aggiungi almeno un esercizio al template");
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const finalizedTemplate = await finalizeTemplate(currentTemplate.id);
+      if (finalizedTemplate) {
+        setCurrentTemplate(null);
+        setTemplateExercises([]);
+        setIsAddingExercises(false);
+        toast.success("Template completato con successo");
+        onComplete();
+      }
+    } catch (error) {
+      console.error("Errore nel completamento del template:", error);
+      toast.error("Errore nel completamento del template");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -93,6 +150,7 @@ export const TemplateCreation: React.FC<TemplateCreationProps> = ({ onComplete }
           setNewTemplate={setNewTemplate}
           createTemplate={handleCreateTemplate}
           cancelCreate={() => onComplete()}
+          loading={loading}
         />
       )}
       
@@ -105,6 +163,7 @@ export const TemplateCreation: React.FC<TemplateCreationProps> = ({ onComplete }
           onAddExercise={handleAddExercise}
           onExerciseAdded={handleExerciseAdded}
           onFinish={handleFinishTemplate}
+          loading={loading}
           gymId={userGymId || undefined}
         />
       )}

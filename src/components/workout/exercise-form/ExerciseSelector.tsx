@@ -22,14 +22,14 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
 }) => {
   return (
     <div>
-      <Label htmlFor="exercise-select">Select Exercise</Label>
+      <Label htmlFor="exercise-select">Seleziona Esercizio</Label>
       <div className="flex space-x-2">
         <Select
           value={exerciseId || ""}
           onValueChange={(value) => onChange(value)}
         >
           <SelectTrigger id="exercise-select" className="flex-1">
-            <SelectValue placeholder="Select an exercise" />
+            <SelectValue placeholder="Seleziona un esercizio" />
           </SelectTrigger>
           <SelectContent>
             {exercises.map((exercise) => (

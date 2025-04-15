@@ -11,12 +11,12 @@ const WorkoutTemplates = () => {
   return (
     <div className="container mx-auto py-6 max-w-4xl">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Workout Templates</h1>
+        <h1 className="text-2xl font-bold">Template Allenamento</h1>
         
         {!isCreatingTemplate && (
           <Button onClick={() => setIsCreatingTemplate(true)}>
             <Plus className="h-4 w-4 mr-2" />
-            Create Template
+            Crea Template
           </Button>
         )}
       </div>

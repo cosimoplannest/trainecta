@@ -14,12 +14,12 @@ export const TemplateDescriptionField: React.FC<TemplateDescriptionFieldProps> =
 }) => {
   return (
     <div className="grid gap-2">
-      <Label htmlFor="template-description">Description</Label>
+      <Label htmlFor="template-description">Descrizione</Label>
       <Textarea
         id="template-description"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="Describe this workout template..."
+        placeholder="Descrivi questo template di allenamento..."
       />
     </div>
   );

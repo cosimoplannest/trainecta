@@ -11,7 +11,7 @@ export const ExerciseList: React.FC<ExerciseListProps> = ({ exercises }) => {
   
   return (
     <div className="border rounded-md p-3 mt-2 space-y-2">
-      <h3 className="font-medium text-sm">Current Exercises</h3>
+      <h3 className="font-medium text-sm">Esercizi Aggiunti</h3>
       <ul className="space-y-1">
         {exercises
           .sort((a, b) => a.order_index - b.order_index)
@@ -21,7 +21,7 @@ export const ExerciseList: React.FC<ExerciseListProps> = ({ exercises }) => {
                 {ex.order_index}
               </span>
               <span className="font-medium">{ex.exercise?.name}</span>
-              <span className="text-muted-foreground">{ex.sets} sets × {ex.reps}</span>
+              <span className="text-muted-foreground">{ex.sets} serie × {ex.reps}</span>
             </li>
           ))}
       </ul>

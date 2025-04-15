@@ -54,8 +54,8 @@ export const AddExerciseForm = ({
   return (
     <div className="space-y-4 p-4 rounded-lg border bg-card text-card-foreground shadow-sm">
       <div className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold">Add Exercises</h2>
-        <Button onClick={onFinish} variant="outline">Finish</Button>
+        <h2 className="text-lg font-semibold">Aggiungi Esercizi</h2>
+        <Button onClick={onFinish} variant="outline">Completa</Button>
       </div>
       
       <ExerciseList exercises={templateExercises} />
@@ -91,7 +91,7 @@ export const AddExerciseForm = ({
           onClick={onAddExercise} 
           disabled={loading || !newExercise.exercise_id}
         >
-          {loading ? "Adding..." : "Add Exercise"}
+          {loading ? "Aggiunta in corso..." : "Aggiungi Esercizio"}
         </Button>
       </div>
     </div>
