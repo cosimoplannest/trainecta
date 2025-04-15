@@ -9,17 +9,7 @@ import {
   CardDescription,
   CardContent
 } from "@/components/ui/card";
-
-type BroadcastMessage = {
-  id: string;
-  title: string;
-  content: string;
-  sent_at: string;
-  target_role: string | null;
-  sent_by_user: {
-    full_name: string | null;
-  } | null;
-};
+import { type BroadcastMessage } from "./hooks/useBroadcastMessages";
 
 type BroadcastMessageCardProps = {
   message: BroadcastMessage;
