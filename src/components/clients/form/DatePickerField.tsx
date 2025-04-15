@@ -27,16 +27,16 @@ const DatePickerField = ({
   minDate,
   maxDate,
 }: DatePickerFieldProps) => {
-  // Create a disabled function based on minDate and maxDate
+  // Create a disabled matcher function based on minDate and maxDate
   const getDisabledDates = (): Matcher => {
-    return (date: Date) => {
-      if (!date) return false;
-      
-      if (minDate instanceof Date && date < minDate) {
+    return (date) => {
+      // Check if date is before minDate
+      if (minDate && date < minDate) {
         return true;
       }
       
-      if (maxDate instanceof Date && date > maxDate) {
+      // Check if date is after maxDate
+      if (maxDate && date > maxDate) {
         return true;
       }
       
