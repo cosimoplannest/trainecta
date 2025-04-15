@@ -4,7 +4,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { WorkoutTemplate, Exercise, TemplateExercise, TemplateExerciseWithNestedExercise } from "@/types/workout";
 import { useAuth } from "@/hooks/use-auth";
-import * as TemplateService from "@/services/workout-template-service";
+import { 
+  fetchWorkoutTemplates, 
+  fetchTemplateAssignmentCounts, 
+  fetchExercises,
+  createWorkoutTemplate,
+  addExerciseToTemplate,
+  finalizeWorkoutTemplate,
+  duplicateWorkoutTemplate,
+  deleteWorkoutTemplate
+} from "@/services/workout-templates";
 
 export const useWorkoutTemplates = () => {
   const { toast } = useToast();
@@ -54,14 +63,14 @@ export const useWorkoutTemplates = () => {
       setLoading(true);
       try {
         // Fetch workout templates
-        const templatesData = await TemplateService.fetchWorkoutTemplates(userGymId);
+        const templatesData = await fetchWorkoutTemplates(userGymId);
         
         // Get assignment counts for each template
-        const templatesWithCounts = await TemplateService.fetchTemplateAssignmentCounts(templatesData);
+        const templatesWithCounts = await fetchTemplateAssignmentCounts(templatesData);
         setTemplates(templatesWithCounts);
 
         // Fetch exercises
-        const exercisesData = await TemplateService.fetchExercises(userGymId);
+        const exercisesData = await fetchExercises(userGymId);
         setExercises(exercisesData);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -79,19 +88,19 @@ export const useWorkoutTemplates = () => {
   }, [userGymId, toast]);
 
   const createTemplate = async (newTemplate: Partial<WorkoutTemplate>) => {
-    return await TemplateService.createWorkoutTemplate(newTemplate, user?.id, userGymId);
+    return await createWorkoutTemplate(newTemplate, user?.id, userGymId);
   };
 
-  const addExerciseToTemplate = async (
+  const addExerciseToTemplateWrapper = async (
     templateId: string,
     newExercise: Partial<TemplateExercise>,
     currentExercises: TemplateExerciseWithNestedExercise[]
   ) => {
-    return await TemplateService.addExerciseToTemplate(templateId, newExercise, currentExercises);
+    return await addExerciseToTemplate(templateId, newExercise, currentExercises);
   };
 
   const finalizeTemplate = async (templateId: string) => {
-    const finalizedTemplate = await TemplateService.finalizeWorkoutTemplate(templateId);
+    const finalizedTemplate = await finalizeWorkoutTemplate(templateId);
     
     if (finalizedTemplate) {
       setTemplates(prevTemplates => [finalizedTemplate, ...prevTemplates]);
@@ -101,12 +110,12 @@ export const useWorkoutTemplates = () => {
   };
   
   const duplicateTemplate = async (template: WorkoutTemplate) => {
-    const duplicated = await TemplateService.duplicateWorkoutTemplate(template, user?.id, userGymId);
+    const duplicated = await duplicateWorkoutTemplate(template, user?.id, userGymId);
     return duplicated;
   };
   
   const deleteTemplate = async (templateId: string) => {
-    return await TemplateService.deleteWorkoutTemplate(templateId);
+    return await deleteWorkoutTemplate(templateId);
   };
 
   return {
@@ -117,7 +126,7 @@ export const useWorkoutTemplates = () => {
     setTemplates,
     setExercises,
     createTemplate,
-    addExerciseToTemplate,
+    addExerciseToTemplate: addExerciseToTemplateWrapper,
     finalizeTemplate,
     duplicateTemplate,
     deleteTemplate
