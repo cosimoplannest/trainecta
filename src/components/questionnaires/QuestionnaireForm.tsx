@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Card, 
   CardContent, 
@@ -54,16 +53,7 @@ const QuestionnaireForm = ({ onClose }: QuestionnaireFormProps) => {
   const [isPurchased, setIsPurchased] = useState(false);
   const [selectedReason, setSelectedReason] = useState<string>("");
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      purchased: false,
-      future_interest: false,
-    },
-  });
-
-  // Load clients and trainers on component mount
-  useState(() => {
+  useEffect(() => {
     const fetchClientsAndTrainers = async () => {
       // Fetch clients
       const { data: clientsData } = await supabase
@@ -89,6 +79,14 @@ const QuestionnaireForm = ({ onClose }: QuestionnaireFormProps) => {
     
     fetchClientsAndTrainers();
   }, []);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      purchased: false,
+      future_interest: false,
+    },
+  });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
