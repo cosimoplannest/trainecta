@@ -10,7 +10,7 @@ interface TemplateCreationProps {
 }
 
 export const TemplateCreation: React.FC<TemplateCreationProps> = ({ onComplete }) => {
-  const { createTemplate, addExerciseToTemplate, finalizeTemplate, exercises: availableExercises } = useWorkoutTemplates();
+  const { createTemplate, addExerciseToTemplate, finalizeTemplate, exercises: availableExercises, userGymId } = useWorkoutTemplates();
   const [isCreatingTemplate, setIsCreatingTemplate] = useState(true);
   const [isAddingExercises, setIsAddingExercises] = useState(false);
   const [currentTemplate, setCurrentTemplate] = useState<WorkoutTemplate | null>(null);
@@ -105,9 +105,9 @@ export const TemplateCreation: React.FC<TemplateCreationProps> = ({ onComplete }
           onAddExercise={handleAddExercise}
           onExerciseAdded={handleExerciseAdded}
           onFinish={handleFinishTemplate}
+          gymId={userGymId || undefined}
         />
       )}
     </>
   );
 };
-

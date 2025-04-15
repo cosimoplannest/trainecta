@@ -17,6 +17,7 @@ interface AddExerciseFormProps {
   onExerciseAdded: (exercise: Exercise) => void;
   onFinish: () => void;
   loading?: boolean;
+  gymId?: string;
 }
 
 export const AddExerciseForm = ({
@@ -27,7 +28,8 @@ export const AddExerciseForm = ({
   onAddExercise,
   onExerciseAdded,
   onFinish,
-  loading = false
+  loading = false,
+  gymId
 }: AddExerciseFormProps) => {
   const handleExerciseChange = (exerciseId: string) => {
     setNewExercise({ ...newExercise, exercise_id: exerciseId });
@@ -64,6 +66,7 @@ export const AddExerciseForm = ({
           onChange={handleExerciseChange}
           exercises={exercises}
           onExerciseAdded={onExerciseAdded}
+          gymId={gymId}
         />
         
         <SetsRepsInputs 

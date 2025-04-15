@@ -10,13 +10,15 @@ interface ExerciseSelectorProps {
   onChange: (exerciseId: string) => void;
   exercises: Exercise[];
   onExerciseAdded: (exercise: Exercise) => void;
+  gymId?: string;
 }
 
 export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
   exerciseId,
   onChange,
   exercises,
-  onExerciseAdded
+  onExerciseAdded,
+  gymId
 }) => {
   return (
     <div>
@@ -37,7 +39,7 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
             ))}
           </SelectContent>
         </Select>
-        <CreateExerciseDialog onExerciseAdded={onExerciseAdded} />
+        <CreateExerciseDialog onExerciseAdded={onExerciseAdded} gymId={gymId} />
       </div>
     </div>
   );

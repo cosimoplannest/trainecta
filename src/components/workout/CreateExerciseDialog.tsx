@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,9 +20,10 @@ import { Exercise } from "@/types/workout";
 
 interface CreateExerciseDialogProps {
   onExerciseAdded: (exercise: Exercise) => void;
+  gymId?: string;
 }
 
-export function CreateExerciseDialog({ onExerciseAdded }: CreateExerciseDialogProps) {
+export function CreateExerciseDialog({ onExerciseAdded, gymId }: CreateExerciseDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [exercise, setExercise] = useState<Partial<Exercise>>({
@@ -51,6 +53,11 @@ export function CreateExerciseDialog({ onExerciseAdded }: CreateExerciseDialogPr
       return;
     }
 
+    if (!gymId) {
+      toast.error("Errore: ID palestra non disponibile");
+      return;
+    }
+
     setLoading(true);
     try {
       const { data, error } = await supabase
@@ -59,7 +66,7 @@ export function CreateExerciseDialog({ onExerciseAdded }: CreateExerciseDialogPr
           name: exercise.name,
           description: exercise.description,
           video_url: exercise.video_url,
-          gym_id: "11111111-1111-1111-1111-111111111111", // Hardcoded for now
+          gym_id: gymId, // Use the gym_id passed as prop
         })
         .select()
         .single();
