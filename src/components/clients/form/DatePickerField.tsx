@@ -8,7 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { UseFormReturn } from "react-hook-form";
 import { ClientFormData } from "../schemas/clientFormSchema";
-import { DateAfter, DateBefore, type Matcher } from "react-day-picker";
+import { type Matcher } from "react-day-picker";
 
 interface DatePickerFieldProps {
   form: UseFormReturn<ClientFormData>;
@@ -27,20 +27,21 @@ const DatePickerField = ({
   minDate,
   maxDate,
 }: DatePickerFieldProps) => {
-  // Create matchers based on minDate and maxDate
-  const getDisabledDates = (): Matcher | Matcher[] => {
-    const matchers: Matcher[] = [];
-    
-    if (minDate instanceof Date) {
-      matchers.push(DateBefore(minDate));
-    }
-    
-    if (maxDate instanceof Date) {
-      matchers.push(DateAfter(maxDate));
-    }
-    
-    // If we have both constraints, return array of matchers, otherwise return single matcher or undefined
-    return matchers.length > 1 ? matchers : matchers[0];
+  // Create a disabled function based on minDate and maxDate
+  const getDisabledDates = (): Matcher => {
+    return (date: Date) => {
+      if (!date) return false;
+      
+      if (minDate instanceof Date && date < minDate) {
+        return true;
+      }
+      
+      if (maxDate instanceof Date && date > maxDate) {
+        return true;
+      }
+      
+      return false;
+    };
   };
 
   return (
