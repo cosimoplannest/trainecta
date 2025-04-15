@@ -59,18 +59,15 @@ const DatePickerField = ({
                 disabled={(date) => {
                   if (!date) return false;
                   
-                  let isDisabled = false;
-                  
-                  if (minDate instanceof Date) {
-                    isDisabled = isDisabled || date < minDate;
+                  if (minDate instanceof Date && date < minDate) {
+                    return true;
                   }
                   
-                  if (maxDate instanceof Date) {
-                    isDisabled = isDisabled || date > maxDate;
+                  if (maxDate instanceof Date && date > maxDate) {
+                    return true;
                   }
                   
-                  // Ensure we always return a boolean
-                  return !!isDisabled;
+                  return false;
                 }}
                 initialFocus
                 locale={it}
