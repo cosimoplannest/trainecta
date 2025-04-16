@@ -257,6 +257,7 @@ export type Database = {
           internal_notes: string | null
           joined_at: string | null
           last_name: string
+          mindbody_id: number
           phone: string | null
           preferred_time: string | null
           primary_goal: string | null
@@ -283,6 +284,7 @@ export type Database = {
           internal_notes?: string | null
           joined_at?: string | null
           last_name: string
+          mindbody_id?: number
           phone?: string | null
           preferred_time?: string | null
           primary_goal?: string | null
@@ -309,6 +311,7 @@ export type Database = {
           internal_notes?: string | null
           joined_at?: string | null
           last_name?: string
+          mindbody_id?: number
           phone?: string | null
           preferred_time?: string | null
           primary_goal?: string | null

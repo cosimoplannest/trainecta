@@ -70,6 +70,7 @@ export const useClientForm = (onClientAdded: () => void) => {
     try {
       // Format date properly for database
       const formattedData = {
+        // Let the database generate the ID automatically - don't specify id
         first_name: data.first_name,
         last_name: data.last_name,
         email: data.email || null,
