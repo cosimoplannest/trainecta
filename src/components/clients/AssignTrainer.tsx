@@ -69,27 +69,17 @@ export const AssignTrainer = ({ clientId, currentTrainerId, onAssigned }: Assign
 
       if (updateError) throw updateError;
 
-      // Create follow-up record
-      const { error: followupError } = await supabase
-        .from("client_followups")
-        .insert({
-          client_id: clientId,
-          trainer_id: selectedTrainer,
-          type: "in_app",
-          notes: notes || "Cliente assegnato al trainer",
-        });
-
-      if (followupError) throw followupError;
-
-      // Log activity
-      await supabase.from("activity_logs").insert({
+      // Log activity instead of creating a followup
+      const { error: activityError } = await supabase.from("activity_logs").insert({
         action: "trainer_assigned",
         target_id: clientId,
         target_type: "client",
         user_id: selectedTrainer,
+        notes: notes || `Cliente assegnato al trainer ${selectedTrainer}`,
         gym_id: "11111111-1111-1111-1111-111111111111", // Hardcoded for now
-        notes: `Cliente assegnato al trainer ${selectedTrainer}`,
       });
+
+      if (activityError) throw activityError;
 
       toast({
         title: "Successo",
