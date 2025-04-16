@@ -37,7 +37,11 @@ type UserWithRoleType = {
   created_at: string;
 };
 
-export function UserManagement() {
+interface UserManagementProps {
+  initialRole?: string | null;
+}
+
+export function UserManagement({ initialRole = null }: UserManagementProps) {
   const { user } = useAuth();
   const [admins, setAdmins] = useState<UserWithRoleType[]>([]);
   const [operators, setOperators] = useState<UserWithRoleType[]>([]);
@@ -46,6 +50,14 @@ export function UserManagement() {
   const [instructors, setInstructors] = useState<UserWithRoleType[]>([]);
   const [loading, setLoading] = useState(true);
   const [gymId, setGymId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<string>(initialRole || 'trainers');
+
+  useEffect(() => {
+    // Set the active tab based on initialRole if provided
+    if (initialRole) {
+      setActiveTab(initialRole);
+    }
+  }, [initialRole]);
 
   useEffect(() => {
     const fetchUserGymId = async () => {
@@ -165,7 +177,7 @@ export function UserManagement() {
 
   return (
     <div>
-      <Tabs defaultValue="trainers" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} defaultValue={activeTab} className="w-full">
         <TabsList className="mb-6">
           <TabsTrigger value="admins" className="flex items-center gap-1">
             <ShieldCheck className="h-4 w-4" />

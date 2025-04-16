@@ -1,9 +1,9 @@
-
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { 
-  BarChart2, Dumbbell, Home, LineChart, MessageSquare, Users, Calendar, Clock, Ticket
+  BarChart2, Dumbbell, Home, LineChart, MessageSquare, Users, Calendar, Clock, Ticket,
+  UserCog, ShieldCheck, UserRound
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -15,9 +15,14 @@ export function SidebarNavigation() {
     { name: "Dashboard", href: "/dashboard/admin", icon: Home },
     { name: "Schede Allenamento", href: "/workout-templates", icon: Dumbbell },
     { name: "Gestione Clienti", href: "/client-management", icon: Users },
+    { name: "Trainer", href: "/admin-settings?tab=user-management&role=trainer", icon: Dumbbell },
+    { name: "Istruttori", href: "/admin-settings?tab=user-management&role=instructor", icon: Ticket },
+    { name: "Assistenti", href: "/admin-settings?tab=user-management&role=assistant", icon: UserRound },
+    { name: "Operatori", href: "/admin-settings?tab=user-management&role=operator", icon: UserCog },
     { name: "Statistiche", href: "/statistics", icon: BarChart2 },
     { name: "Monitoraggio & Analisi", href: "/tracking", icon: LineChart },
-    { name: "Comunicazione", href: "/communications", icon: MessageSquare }
+    { name: "Comunicazione", href: "/communications", icon: MessageSquare },
+    { name: "Impostazioni", href: "/admin-settings", icon: ShieldCheck }
   ];
 
   const operatorLinks = [

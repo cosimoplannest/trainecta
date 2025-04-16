@@ -19,6 +19,7 @@ const AdminSettings = () => {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const defaultTab = searchParams.get('tab') || 'gym-settings';
+  const selectedRole = searchParams.get('role');
 
   useEffect(() => {
     const checkAdminRole = async () => {
@@ -101,7 +102,7 @@ const AdminSettings = () => {
         </TabsContent>
         
         <TabsContent value="user-management">
-          <UserManagement />
+          <UserManagement initialRole={selectedRole} />
         </TabsContent>
         
         <TabsContent value="user-roles">
