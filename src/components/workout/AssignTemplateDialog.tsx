@@ -79,6 +79,7 @@ export function AssignTemplateDialog({
   }, [open]);
 
   useEffect(() => {
+    // This effect should filter clients when searchQuery changes
     if (searchQuery.trim() === "") {
       setFilteredClients(clients);
       return;
