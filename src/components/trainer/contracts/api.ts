@@ -17,7 +17,7 @@ export async function fetchTrainerContract(trainerId: string): Promise<ContractF
     throw error;
   }
 
-  return data;
+  return data as ContractFile | null;
 }
 
 /**
@@ -54,14 +54,22 @@ export async function upsertTrainerContract(
     fileUrl = publicUrl;
   }
 
+  // Make sure all required fields are present for an upsert
+  const contractData: Partial<ContractFile> = {
+    ...contract,
+    file_url: fileUrl,
+    updated_at: new Date().toISOString()
+  };
+
+  // Ensure trainer_id, gym_id, contract_type, and start_date are defined
+  if (!contractData.trainer_id || !contractData.gym_id || !contractData.contract_type || !contractData.start_date) {
+    throw new Error("Missing required contract fields");
+  }
+
   // Now save the contract record with the file URL
   const { data, error } = await supabase
     .from("trainer_contracts")
-    .upsert({
-      ...contract,
-      file_url: fileUrl,
-      updated_at: new Date().toISOString()
-    })
+    .upsert(contractData)
     .select()
     .single();
 
@@ -70,7 +78,7 @@ export async function upsertTrainerContract(
     throw error;
   }
 
-  return data;
+  return data as ContractFile;
 }
 
 /**
@@ -130,7 +138,7 @@ export async function fetchTrainerInsurance(trainerId: string): Promise<Insuranc
     throw error;
   }
 
-  return data;
+  return data as InsuranceFile | null;
 }
 
 /**
@@ -167,14 +175,22 @@ export async function upsertTrainerInsurance(
     fileUrl = publicUrl;
   }
 
+  // Make sure all required fields are present for an upsert
+  const insuranceData: Partial<InsuranceFile> = {
+    ...insurance,
+    file_url: fileUrl,
+    updated_at: new Date().toISOString()
+  };
+
+  // Ensure trainer_id, gym_id, start_date, end_date are defined
+  if (!insuranceData.trainer_id || !insuranceData.gym_id || !insuranceData.start_date || !insuranceData.end_date) {
+    throw new Error("Missing required insurance fields");
+  }
+
   // Now save the insurance record with the file URL
   const { data, error } = await supabase
     .from("trainer_insurance")
-    .upsert({
-      ...insurance,
-      file_url: fileUrl,
-      updated_at: new Date().toISOString()
-    })
+    .upsert(insuranceData)
     .select()
     .single();
 
@@ -183,7 +199,7 @@ export async function upsertTrainerInsurance(
     throw error;
   }
 
-  return data;
+  return data as InsuranceFile;
 }
 
 /**

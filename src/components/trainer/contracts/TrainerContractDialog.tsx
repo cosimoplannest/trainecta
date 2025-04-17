@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { format } from "date-fns";
@@ -51,7 +50,7 @@ export function TrainerContractDialog({
   
   const form = useForm({
     defaultValues: {
-      contract_type: "freelance" as const,
+      contract_type: "freelance" as "employee" | "freelance" | "consultant",
       start_date: new Date(),
       end_date: null as Date | null,
       monthly_fee: "" as unknown as number,
@@ -60,7 +59,6 @@ export function TrainerContractDialog({
     }
   });
 
-  // Reset the form when the dialog opens or when the contract changes
   useEffect(() => {
     if (open && contract) {
       form.reset({
