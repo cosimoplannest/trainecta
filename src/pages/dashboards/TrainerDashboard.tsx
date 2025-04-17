@@ -5,6 +5,7 @@ import { Users, Dumbbell, LineChart, ArrowUpRight, Calendar } from "lucide-react
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
+import { MyClientsCard } from "@/components/followups";
 
 const TrainerDashboard = () => {
   const { user } = useAuth();
@@ -26,6 +27,8 @@ const TrainerDashboard = () => {
         </TabsList>
         
         <TabsContent value="clients" className="space-y-6">
+          <MyClientsCard />
+          
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

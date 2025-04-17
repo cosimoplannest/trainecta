@@ -24,6 +24,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { WorkoutTemplate } from "@/types/workout";
 import { Search } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 
 interface Client {
   id: string;
@@ -52,6 +53,7 @@ export function AssignTemplateDialog({
   const [deliveryChannel, setDeliveryChannel] = useState("whatsapp");
   const [notes, setNotes] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const { user, userRole } = useAuth();
 
   useEffect(() => {
     const fetchClients = async () => {
@@ -59,14 +61,22 @@ export function AssignTemplateDialog({
       
       setClientsLoading(true);
       try {
-        const { data, error } = await supabase
+        let query = supabase
           .from("clients")
-          .select("id, first_name, last_name")
-          .order("last_name");
+          .select("id, first_name, last_name");
+          
+        // If user is a trainer, only fetch their assigned clients
+        if (userRole === 'trainer' && user) {
+          query = query.eq('assigned_to', user.id);
+        }
+        
+        query = query.order("last_name");
+          
+        const { data, error } = await query;
           
         if (error) throw error;
-        setClients(data);
-        setFilteredClients(data);
+        setClients(data || []);
+        setFilteredClients(data || []);
       } catch (error) {
         console.error("Error fetching clients:", error);
         toast.error("Errore durante il caricamento dei clienti");
@@ -76,7 +86,7 @@ export function AssignTemplateDialog({
     };
     
     fetchClients();
-  }, [open]);
+  }, [open, user, userRole]);
 
   useEffect(() => {
     // This effect should filter clients when searchQuery changes

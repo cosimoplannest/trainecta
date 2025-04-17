@@ -12,6 +12,7 @@ import { Search, User, MoreHorizontal, Edit, Trash, FileText } from "lucide-reac
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Link, useNavigate } from "react-router-dom";
 import { AssignTrainer } from "./AssignTrainer";
+import { useAuth } from "@/hooks/use-auth";
 
 const ClientList = () => {
   const [clients, setClients] = useState([]);
@@ -19,21 +20,31 @@ const ClientList = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { user, userRole } = useAuth();
 
   useEffect(() => {
     const fetchClients = async () => {
       try {
         setLoading(true);
-        const { data, error } = await supabase
+        
+        // Create a base query
+        let query = supabase
           .from("clients")
           .select(`
             *,
             users(full_name)
           `)
           .order("last_name", { ascending: true });
+        
+        // If user is a trainer, only fetch their assigned clients
+        if (userRole === 'trainer' && user) {
+          query = query.eq('assigned_to', user.id);
+        }
+        
+        const { data, error } = await query;
 
         if (error) throw error;
-        setClients(data);
+        setClients(data || []);
       } catch (error) {
         console.error("Error fetching clients:", error);
         toast({
@@ -47,21 +58,30 @@ const ClientList = () => {
     };
 
     fetchClients();
-  }, [toast]);
+  }, [toast, user, userRole]);
 
   const handleRefreshClients = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      // Create a base query
+      let query = supabase
         .from("clients")
         .select(`
           *,
           users(full_name)
         `)
         .order("last_name", { ascending: true });
+      
+      // If user is a trainer, only fetch their assigned clients
+      if (userRole === 'trainer' && user) {
+        query = query.eq('assigned_to', user.id);
+      }
+      
+      const { data, error } = await query;
 
       if (error) throw error;
-      setClients(data);
+      setClients(data || []);
       toast({
         title: "Aggiornato",
         description: "Elenco clienti aggiornato con successo",
@@ -93,7 +113,9 @@ const ClientList = () => {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle>Elenco Clienti</CardTitle>
+        <CardTitle>
+          {userRole === 'trainer' ? 'I Miei Clienti' : 'Elenco Clienti'}
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex items-center justify-between pb-4">
