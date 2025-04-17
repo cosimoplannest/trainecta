@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { 
   Dialog, 
@@ -18,9 +19,11 @@ import {
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { WorkoutTemplate } from "@/types/workout";
+import { Search } from "lucide-react";
 
 interface Client {
   id: string;
@@ -42,11 +45,13 @@ export function AssignTemplateDialog({
   onAssigned 
 }: AssignTemplateDialogProps) {
   const [clients, setClients] = useState<Client[]>([]);
+  const [filteredClients, setFilteredClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(false);
   const [clientsLoading, setClientsLoading] = useState(false);
   const [selectedClient, setSelectedClient] = useState("");
   const [deliveryChannel, setDeliveryChannel] = useState("whatsapp");
   const [notes, setNotes] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const fetchClients = async () => {
@@ -61,6 +66,7 @@ export function AssignTemplateDialog({
           
         if (error) throw error;
         setClients(data);
+        setFilteredClients(data);
       } catch (error) {
         console.error("Error fetching clients:", error);
         toast.error("Errore durante il caricamento dei clienti");
@@ -71,6 +77,21 @@ export function AssignTemplateDialog({
     
     fetchClients();
   }, [open]);
+
+  useEffect(() => {
+    if (searchQuery.trim() === "") {
+      setFilteredClients(clients);
+      return;
+    }
+
+    const lowerQuery = searchQuery.toLowerCase();
+    const filtered = clients.filter(client => {
+      const fullName = `${client.first_name} ${client.last_name}`.toLowerCase();
+      return fullName.includes(lowerQuery);
+    });
+    
+    setFilteredClients(filtered);
+  }, [searchQuery, clients]);
 
   const handleAssignTemplate = async () => {
     if (!template) return;
@@ -112,6 +133,7 @@ export function AssignTemplateDialog({
       setSelectedClient("");
       setDeliveryChannel("whatsapp");
       setNotes("");
+      setSearchQuery("");
     } catch (error) {
       console.error("Error assigning template:", error);
       toast.error("Errore durante l'assegnazione del template");
@@ -134,17 +156,38 @@ export function AssignTemplateDialog({
         
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
+            <Label htmlFor="client-search">Cerca cliente</Label>
+            <div className="relative">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                id="client-search"
+                type="text"
+                placeholder="Cerca per nome..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-8"
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-2">
             <Label htmlFor="client">Cliente</Label>
             <Select value={selectedClient} onValueChange={setSelectedClient}>
               <SelectTrigger id="client">
                 <SelectValue placeholder={clientsLoading ? "Caricamento clienti..." : "Seleziona cliente"} />
               </SelectTrigger>
               <SelectContent>
-                {clients.map((client) => (
-                  <SelectItem key={client.id} value={client.id}>
-                    {client.last_name} {client.first_name}
-                  </SelectItem>
-                ))}
+                {filteredClients.length === 0 ? (
+                  <div className="p-2 text-center text-sm text-muted-foreground">
+                    Nessun cliente trovato
+                  </div>
+                ) : (
+                  filteredClients.map((client) => (
+                    <SelectItem key={client.id} value={client.id}>
+                      {client.last_name} {client.first_name}
+                    </SelectItem>
+                  ))
+                )}
               </SelectContent>
             </Select>
           </div>
