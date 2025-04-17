@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { format } from "date-fns";
@@ -50,7 +51,7 @@ export function TrainerContractDialog({
   
   const form = useForm({
     defaultValues: {
-      contract_type: "freelance" as "employee" | "freelance" | "consultant",
+      contract_type: "collaboration" as 'collaboration' | 'vat_fixed_fee' | 'vat_percentage',
       start_date: new Date(),
       end_date: null as Date | null,
       monthly_fee: "" as unknown as number,
@@ -71,7 +72,7 @@ export function TrainerContractDialog({
       });
     } else if (open) {
       form.reset({
-        contract_type: "freelance",
+        contract_type: "collaboration",
         start_date: new Date(),
         end_date: null,
         monthly_fee: undefined,
@@ -173,9 +174,9 @@ export function TrainerContractDialog({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="employee">Dipendente</SelectItem>
-                      <SelectItem value="freelance">Libero Professionista</SelectItem>
-                      <SelectItem value="consultant">Consulente</SelectItem>
+                      <SelectItem value="collaboration">Collaborazione</SelectItem>
+                      <SelectItem value="vat_fixed_fee">Partita IVA (Compenso Fisso)</SelectItem>
+                      <SelectItem value="vat_percentage">Partita IVA (Percentuale)</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />

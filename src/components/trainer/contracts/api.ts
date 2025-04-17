@@ -69,7 +69,7 @@ export async function upsertTrainerContract(
   // Now save the contract record with the file URL
   const { data, error } = await supabase
     .from("trainer_contracts")
-    .upsert(contractData)
+    .upsert(contractData as any)
     .select()
     .single();
 
@@ -190,7 +190,7 @@ export async function upsertTrainerInsurance(
   // Now save the insurance record with the file URL
   const { data, error } = await supabase
     .from("trainer_insurance")
-    .upsert(insuranceData)
+    .upsert(insuranceData as any)
     .select()
     .single();
 

@@ -3,7 +3,7 @@ export interface ContractFile {
   id: string;
   trainer_id: string;
   gym_id: string;
-  contract_type: 'employee' | 'freelance' | 'consultant';
+  contract_type: 'collaboration' | 'vat_fixed_fee' | 'vat_percentage';
   start_date: string;
   end_date?: string | null;
   file_url?: string | null;
