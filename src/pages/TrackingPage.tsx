@@ -34,11 +34,11 @@ const TrackingPage = () => {
           </TabsList>
           
           <TabsContent value="firstMeeting">
-            <MyClientsCard />
+            <MyClientsCard filter="first_meeting" />
           </TabsContent>
           
           <TabsContent value="followup">
-            <MyClientsCard />
+            <MyClientsCard filter="followup" />
           </TabsContent>
         </Tabs>
       </div>

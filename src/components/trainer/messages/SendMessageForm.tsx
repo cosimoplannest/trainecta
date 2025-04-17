@@ -56,12 +56,16 @@ export function SendMessageForm() {
 
     setIsSubmitting(true);
     try {
-      // Convert targetRole to the correct type for the database
-      const mappedTargetRole = data.targetRole === "all" 
-        ? null // null means all users in the database
-        : data.targetRole === "clients" 
-          ? "trainer" // if targeting clients, we store "trainer" in database (backwards logic due to UX vs DB design)
-          : data.targetRole; // otherwise keep as is ("trainers")
+      // Map the UI targetRole values to the database target_role values
+      let mappedTargetRole: "trainer" | "admin" | "operator" | "assistant" | "instructor" | null = null;
+      
+      if (data.targetRole === "all") {
+        mappedTargetRole = null; // null means all users in the database
+      } else if (data.targetRole === "clients") {
+        mappedTargetRole = "trainer"; // if targeting clients, we store "trainer" in database
+      } else if (data.targetRole === "trainers") {
+        mappedTargetRole = "trainer"; // target trainers directly
+      }
       
       const { error } = await supabase.from("broadcast_messages").insert({
         content: data.content,

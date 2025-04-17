@@ -21,7 +21,7 @@ interface MyClientsCardProps {
   filter?: 'first_meeting' | 'followup';
 }
 
-export function MyClientsCard({ filter }: MyClientsCardProps = {}) {
+export function MyClientsCard({ filter }: MyClientsCardProps) {
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
