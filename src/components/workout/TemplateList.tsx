@@ -1,9 +1,9 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Check, Edit, Trash2, File, Copy, EyeIcon, Users, Video } from "lucide-react";
 import { WorkoutTemplate } from "@/types/workout";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AssignTemplateDialog } from "./AssignTemplateDialog";
 
 interface TemplateListProps {
   templates: WorkoutTemplate[];
