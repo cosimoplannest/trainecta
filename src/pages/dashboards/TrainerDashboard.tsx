@@ -1,84 +1,87 @@
 
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Dumbbell, LineChart, ArrowUpRight, Calendar } from "lucide-react";
+import { Users, Dumbbell, MessageSquare, FileText, ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { MyClientsCard } from "@/components/followups";
+import { TrainerDocuments } from "@/components/trainer/contracts";
+import { AssignedClientsTable } from "@/components/trainer/clients/AssignedClientsTable";
+import { SendMessageForm } from "@/components/trainer/messages/SendMessageForm";
 
 const TrainerDashboard = () => {
   const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState("clients");
 
   return (
     <div className="space-y-8">
       <div>
         <h2 className="text-3xl font-bold tracking-tight">Dashboard Trainer</h2>
         <p className="text-muted-foreground">
-          Benvenuto, {user?.user_metadata?.full_name || 'Trainer'}. Gestisci i tuoi clienti e schede.
+          Benvenuto, {user?.user_metadata?.full_name || 'Trainer'}. Gestisci i tuoi clienti, schede e comunicazioni.
         </p>
       </div>
       
-      <Tabs defaultValue="clients" className="space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="bg-muted/60">
-          <TabsTrigger value="clients">Clienti</TabsTrigger>
-          <TabsTrigger value="workouts">Schede</TabsTrigger>
-          <TabsTrigger value="tracking">Monitoraggio</TabsTrigger>
+          <TabsTrigger value="clients">
+            <Users className="h-4 w-4 mr-2" />
+            I Miei Clienti
+          </TabsTrigger>
+          <TabsTrigger value="workouts">
+            <Dumbbell className="h-4 w-4 mr-2" />
+            Schede Allenamento
+          </TabsTrigger>
+          <TabsTrigger value="messages">
+            <MessageSquare className="h-4 w-4 mr-2" />
+            Messaggi
+          </TabsTrigger>
+          <TabsTrigger value="documents">
+            <FileText className="h-4 w-4 mr-2" />
+            Documenti
+          </TabsTrigger>
         </TabsList>
         
+        {/* Clients tab */}
         <TabsContent value="clients" className="space-y-6">
-          <MyClientsCard />
+          <AssignedClientsTable />
           
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2">
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Clienti Assegnati</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5 text-primary" />
+                  Clienti Follow-Up
+                </CardTitle>
+                <CardDescription>
+                  Clienti che necessitano di un follow-up
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">I Tuoi Clienti</div>
-                <p className="text-xs text-muted-foreground">
-                  Visualizza e gestisci i clienti a te assegnati
-                </p>
-                <Button variant="link" className="mt-2 p-0" asChild>
-                  <Link to="/client-management" className="flex items-center">
-                    Gestisci <ArrowUpRight className="h-4 w-4 ml-1" />
-                  </Link>
-                </Button>
+                <MyClientsCard />
               </CardContent>
             </Card>
             
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Follow-Up</CardTitle>
-                <Calendar className="h-4 w-4 text-muted-foreground" />
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Dumbbell className="h-5 w-5 text-primary" />
+                  Schede da Assegnare
+                </CardTitle>
+                <CardDescription>
+                  Assegna nuove schede ai tuoi clienti
+                </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">Follow-Up Clienti</div>
-                <p className="text-xs text-muted-foreground">
-                  Gestisci i follow-up per i tuoi clienti
+              <CardContent className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Assegna rapidamente schede di allenamento personalizzate ai tuoi clienti
                 </p>
-                <Button variant="link" className="mt-2 p-0" asChild>
-                  <Link to="/communications" className="flex items-center">
-                    Gestisci <ArrowUpRight className="h-4 w-4 ml-1" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Performance</CardTitle>
-                <LineChart className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">Le Tue Statistiche</div>
-                <p className="text-xs text-muted-foreground">
-                  Visualizza le tue performance e conversioni
-                </p>
-                <Button variant="link" className="mt-2 p-0" asChild>
-                  <Link to="/statistics" className="flex items-center">
-                    Visualizza <ArrowUpRight className="h-4 w-4 ml-1" />
+                <Button className="w-full" asChild>
+                  <Link to="/workout-templates">
+                    Vai alle Schede
+                    <ArrowUpRight className="h-4 w-4 ml-2" />
                   </Link>
                 </Button>
               </CardContent>
@@ -86,36 +89,95 @@ const TrainerDashboard = () => {
           </div>
         </TabsContent>
         
+        {/* Workouts tab */}
         <TabsContent value="workouts" className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Dumbbell className="h-6 w-6" /> Schede di Allenamento
+                <Dumbbell className="h-5 w-5 text-primary" />
+                Schede di Allenamento
               </CardTitle>
               <CardDescription>
-                Crea e gestisci le schede di allenamento per i tuoi clienti
+                Gestisci e assegna schede di allenamento
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <Button className="w-full" asChild>
-                <Link to="/workout-templates">Gestisci Schede</Link>
-              </Button>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="rounded-lg border p-4">
+                  <h3 className="text-lg font-medium mb-2">Crea Schede</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Crea schede personalizzate per i tuoi clienti
+                  </p>
+                  <Button className="w-full" asChild>
+                    <Link to="/workout-templates">Crea Scheda</Link>
+                  </Button>
+                </div>
+                
+                <div className="rounded-lg border p-4">
+                  <h3 className="text-lg font-medium mb-2">Assegna Schede</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Assegna schede esistenti ai clienti
+                  </p>
+                  <Button className="w-full" asChild>
+                    <Link to="/workout-templates">Assegna Scheda</Link>
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="rounded-lg border p-4 mt-4">
+                <h3 className="text-lg font-medium mb-2">Schede Recenti</h3>
+                <p className="text-sm text-muted-foreground">
+                  Le tue schede create di recente appariranno qui
+                </p>
+                <Button variant="outline" className="w-full mt-4" asChild>
+                  <Link to="/workout-templates">Visualizza Tutte le Schede</Link>
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
         
-        <TabsContent value="tracking">
+        {/* Messages tab */}
+        <TabsContent value="messages" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Monitoraggio Clienti</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <MessageSquare className="h-5 w-5 text-primary" />
+                Messaggi e Comunicazioni
+              </CardTitle>
               <CardDescription>
-                Monitora i progressi e i risultati dei tuoi clienti
+                Gestisci le comunicazioni con i tuoi clienti
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button className="w-full" asChild>
-                <Link to="/tracking">Vai al Monitoraggio</Link>
-              </Button>
+              <SendMessageForm />
+              
+              <div className="mt-6">
+                <Button variant="outline" className="w-full" asChild>
+                  <Link to="/communications">
+                    Vai a Comunicazioni
+                    <ArrowUpRight className="h-4 w-4 ml-2" />
+                  </Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* Documents tab */}
+        <TabsContent value="documents" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5 text-primary" />
+                Documenti Personali
+              </CardTitle>
+              <CardDescription>
+                Gestisci i tuoi documenti contrattuali e assicurativi
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {user?.id && <TrainerDocuments trainerId={user.id} trainerName={user?.user_metadata?.full_name || 'Trainer'} />}
             </CardContent>
           </Card>
         </TabsContent>
