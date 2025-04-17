@@ -2,9 +2,12 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { useClientList } from "./hooks/useClientList";
-import { ClientListHeader } from "./list/ClientListHeader";
-import { ClientListSearchBar } from "./list/ClientListSearchBar";
-import { ClientListTable } from "./list/ClientListTable";
+import { 
+  ClientListHeader, 
+  ClientListSearchBar, 
+  ClientListTable,
+  ClientListPagination
+} from "./list";
 
 const ClientList = () => {
   const navigate = useNavigate();
@@ -12,9 +15,14 @@ const ClientList = () => {
     loading, 
     searchQuery, 
     setSearchQuery, 
-    filteredClients, 
+    paginatedClients, 
     handleRefreshClients,
-    userRole
+    userRole,
+    // Pagination
+    currentPage,
+    totalPages,
+    handlePageChange,
+    totalItems
   } = useClientList();
 
   const handleViewProfile = (clientId: string) => {
@@ -35,9 +43,22 @@ const ClientList = () => {
         <ClientListTable 
           clients={[]}
           loading={loading}
-          filteredClients={filteredClients}
+          filteredClients={paginatedClients}
           handleViewProfile={handleViewProfile}
         />
+        
+        {!loading && (
+          <div className="mt-2 flex flex-col items-center justify-between gap-4 sm:flex-row">
+            <p className="text-sm text-muted-foreground">
+              Mostrati {paginatedClients.length} di {totalItems} clienti
+            </p>
+            <ClientListPagination 
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          </div>
+        )}
       </CardContent>
     </Card>
   );

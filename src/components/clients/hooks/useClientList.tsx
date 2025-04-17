@@ -5,16 +5,22 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { ClientData } from "../types/client-types";
 
-export function useClientList() {
+export function useClientList(itemsPerPage = 10) {
   const [clients, setClients] = useState<ClientData[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const { toast } = useToast();
   const { user, userRole } = useAuth();
   
   useEffect(() => {
     fetchClients();
   }, [toast, user, userRole]);
+
+  useEffect(() => {
+    // Reset to first page when search query changes
+    setCurrentPage(1);
+  }, [searchQuery]);
 
   const fetchClients = async () => {
     try {
@@ -96,13 +102,36 @@ export function useClientList() {
            (client.phone && client.phone.includes(query));
   });
 
+  // Pagination logic
+  const totalItems = filteredClients.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
+  
+  // Ensure current page is within bounds
+  const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
+  
+  // Get the current page items
+  const startIndex = (safeCurrentPage - 1) * itemsPerPage;
+  const paginatedClients = filteredClients.slice(startIndex, startIndex + itemsPerPage);
+  
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Scroll to top when changing pages
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return {
     clients,
     loading,
     searchQuery,
     setSearchQuery,
     filteredClients,
+    paginatedClients,
     handleRefreshClients,
-    userRole
+    userRole,
+    // Pagination
+    currentPage: safeCurrentPage,
+    totalPages,
+    handlePageChange,
+    totalItems
   };
 }
