@@ -1,11 +1,10 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { LoaderCircle } from "lucide-react";
+import { LoaderCircle, CheckSquare } from "lucide-react";
 import { 
   Form, 
   FormControl, 
@@ -16,23 +15,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
-import { 
-  Popover, 
-  PopoverContent, 
-  PopoverTrigger 
-} from "@/components/ui/popover";
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
-import { it } from "date-fns/locale";
 import { Database } from "@/integrations/supabase/types";
 
 type FormValues = {
   title: string;
   content: string;
   targetRoles: string[];
-  expiryDate?: Date;
 };
 
 type AppRole = Database["public"]["Enums"]["app_role"];
@@ -70,6 +59,16 @@ export function BroadcastMessageForm({ onSuccess, onClose }: BroadcastMessageFor
         : [...prev, role]
     );
   };
+
+  const handleSelectAllRoles = () => {
+    if (selectedRoles.length === roleOptions.length) {
+      setSelectedRoles([]);
+    } else {
+      setSelectedRoles(roleOptions.map(role => role.id));
+    }
+  };
+
+  const areAllRolesSelected = selectedRoles.length === roleOptions.length;
 
   const onSubmit = async (data: FormValues) => {
     if (!user) return;
@@ -173,6 +172,20 @@ export function BroadcastMessageForm({ onSuccess, onClose }: BroadcastMessageFor
             <FormItem>
               <FormLabel>Destinatari</FormLabel>
               <div className="mt-2 space-y-2">
+                <div className="flex items-center space-x-2 mb-2">
+                  <Checkbox
+                    id="select-all"
+                    checked={areAllRolesSelected}
+                    onCheckedChange={handleSelectAllRoles}
+                  />
+                  <label
+                    htmlFor="select-all"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center cursor-pointer"
+                  >
+                    <CheckSquare className="h-4 w-4 mr-1" />
+                    Seleziona tutti
+                  </label>
+                </div>
                 {roleOptions.map((role) => (
                   <div key={role.id} className="flex items-center space-x-2">
                     <Checkbox
@@ -191,43 +204,6 @@ export function BroadcastMessageForm({ onSuccess, onClose }: BroadcastMessageFor
                   </div>
                 ))}
               </div>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="expiryDate"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>Data di scadenza (opzionale)</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant={"outline"}
-                      className={`w-full pl-3 text-left font-normal ${!field.value && "text-muted-foreground"}`}
-                    >
-                      {field.value ? (
-                        format(field.value, "PP", { locale: it })
-                      ) : (
-                        <span>Seleziona data</span>
-                      )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={field.value}
-                    onSelect={field.onChange}
-                    disabled={(date) => date < new Date()}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
               <FormMessage />
             </FormItem>
           )}
