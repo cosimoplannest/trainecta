@@ -1,7 +1,8 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Dumbbell, MessageSquare, FileText, ArrowUpRight, UserPlus, UserClock } from "lucide-react";
+import { Users, Dumbbell, MessageSquare, FileText, ArrowUpRight, UserPlus, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
@@ -65,7 +66,7 @@ const TrainerDashboard = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <UserClock className="h-5 w-5 text-primary" />
+                  <Clock className="h-5 w-5 text-primary" />
                   Clienti Follow-up
                 </CardTitle>
                 <CardDescription>

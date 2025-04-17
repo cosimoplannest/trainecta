@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { UserClock, UserPlus } from "lucide-react";
+import { UserPlus, Clock } from "lucide-react";
 import { MyClientsCard } from "@/components/followups";
 
 const TrackingPage = () => {
@@ -28,17 +28,17 @@ const TrackingPage = () => {
               Primo Incontro
             </TabsTrigger>
             <TabsTrigger value="followup" className="flex items-center gap-2">
-              <UserClock className="h-4 w-4" />
+              <Clock className="h-4 w-4" />
               Follow-up
             </TabsTrigger>
           </TabsList>
           
           <TabsContent value="firstMeeting">
-            <MyClientsCard filter="first_meeting" />
+            <MyClientsCard />
           </TabsContent>
           
           <TabsContent value="followup">
-            <MyClientsCard filter="followup" />
+            <MyClientsCard />
           </TabsContent>
         </Tabs>
       </div>

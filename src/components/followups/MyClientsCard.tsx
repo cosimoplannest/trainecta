@@ -17,7 +17,11 @@ interface Client {
   joined_at?: string;
 }
 
-export function MyClientsCard() {
+interface MyClientsCardProps {
+  filter?: 'first_meeting' | 'followup';
+}
+
+export function MyClientsCard({ filter }: MyClientsCardProps = {}) {
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
@@ -28,12 +32,25 @@ export function MyClientsCard() {
       
       try {
         setLoading(true);
-        const { data, error } = await supabase
+        let query = supabase
           .from("clients")
           .select("id, first_name, last_name, subscription_type, joined_at")
-          .eq("assigned_to", user.id)
-          .order("last_name")
-          .limit(5);
+          .eq("assigned_to", user.id);
+          
+        // If filter is provided, apply additional filtering
+        if (filter === 'first_meeting') {
+          // Filter for clients needing first meeting
+          query = query.is('joined_at', null);
+        } else if (filter === 'followup') {
+          // Filter for clients needing followup (joined but recent)
+          const twoWeeksAgo = new Date();
+          twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+          query = query
+            .not('joined_at', 'is', null)
+            .gte('joined_at', twoWeeksAgo.toISOString());
+        }
+          
+        const { data, error } = await query.order("last_name").limit(5);
           
         if (error) throw error;
         setClients(data || []);
@@ -45,17 +62,31 @@ export function MyClientsCard() {
     };
     
     fetchMyClients();
-  }, [user]);
+  }, [user, filter]);
   
   const getInitials = (firstName: string, lastName: string) => {
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   };
 
+  // Get the title based on the filter
+  const getCardTitle = () => {
+    if (filter === 'first_meeting') return "Clienti Primo Incontro";
+    if (filter === 'followup') return "Clienti Follow-up";
+    return "I Miei Clienti";
+  };
+
+  // Get the description based on the filter
+  const getCardDescription = () => {
+    if (filter === 'first_meeting') return "Clienti che devono ancora effettuare il primo incontro";
+    if (filter === 'followup') return "Clienti che necessitano di un follow-up";
+    return "Clienti a te assegnati";
+  };
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>I Miei Clienti</CardTitle>
-        <CardDescription>Clienti a te assegnati</CardDescription>
+        <CardTitle>{getCardTitle()}</CardTitle>
+        <CardDescription>{getCardDescription()}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {loading ? (
@@ -65,7 +96,7 @@ export function MyClientsCard() {
         ) : clients.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 text-center text-muted-foreground">
             <User className="h-12 w-12 mb-2 opacity-20" />
-            <p>Non hai clienti assegnati</p>
+            <p>Non hai clienti {filter === 'first_meeting' ? 'per il primo incontro' : filter === 'followup' ? 'per il follow-up' : 'assegnati'}</p>
             <p className="text-sm">I clienti che ti verranno assegnati appariranno qui</p>
           </div>
         ) : (
