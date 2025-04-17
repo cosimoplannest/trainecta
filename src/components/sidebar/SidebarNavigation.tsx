@@ -1,3 +1,4 @@
+
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
@@ -15,10 +16,10 @@ export function SidebarNavigation() {
     { name: "Dashboard", href: "/dashboard/admin", icon: Home },
     { name: "Schede Allenamento", href: "/workout-templates", icon: Dumbbell },
     { name: "Gestione Clienti", href: "/client-management", icon: Users },
-    { name: "Trainer", href: "/admin-settings?tab=user-management&role=trainer", icon: Dumbbell },
-    { name: "Istruttori", href: "/admin-settings?tab=user-management&role=instructor", icon: Ticket },
-    { name: "Assistenti", href: "/admin-settings?tab=user-management&role=assistant", icon: UserRound },
-    { name: "Operatori", href: "/admin-settings?tab=user-management&role=operator", icon: UserCog },
+    { name: "Trainer", href: "/admin-settings?tab=user-management&role=trainers", icon: Dumbbell },
+    { name: "Istruttori", href: "/admin-settings?tab=user-management&role=instructors", icon: Ticket },
+    { name: "Assistenti", href: "/admin-settings?tab=user-management&role=assistants", icon: UserRound },
+    { name: "Operatori", href: "/admin-settings?tab=user-management&role=operators", icon: UserCog },
     { name: "Statistiche", href: "/statistics", icon: BarChart2 },
     { name: "Monitoraggio & Analisi", href: "/tracking", icon: LineChart },
     { name: "Comunicazione", href: "/communications", icon: MessageSquare },
