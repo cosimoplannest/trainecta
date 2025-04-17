@@ -7,13 +7,27 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import ClientList from "@/components/clients/ClientList";
 import AddClientForm from "@/components/clients/AddClientForm";
+import { useAuth } from "@/hooks/use-auth";
 
 const ClientManagement = () => {
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { userRole } = useAuth();
   const tabFromUrl = searchParams.get("tab");
-  const [activeTab, setActiveTab] = useState(tabFromUrl === "add" ? "add" : "list");
+  
+  // Only allow tab "add" if role is admin or operator
+  const canAddClients = userRole === 'admin' || userRole === 'operator';
+  const validTab = tabFromUrl === "add" && canAddClients ? "add" : "list";
+  const [activeTab, setActiveTab] = useState(validTab);
+
+  // If role changes, ensure we're on a valid tab
+  useEffect(() => {
+    if (activeTab === "add" && !canAddClients) {
+      setActiveTab("list");
+      navigate("/client-management");
+    }
+  }, [userRole, canAddClients, navigate, activeTab]);
 
   const handleClientAdded = () => {
     toast({
@@ -49,10 +63,12 @@ const ClientManagement = () => {
               <Users className="h-4 w-4" />
               Lista Clienti
             </TabsTrigger>
-            <TabsTrigger value="add" className="flex items-center gap-2">
-              <PlusCircle className="h-4 w-4" />
-              Aggiungi Cliente
-            </TabsTrigger>
+            {canAddClients && (
+              <TabsTrigger value="add" className="flex items-center gap-2">
+                <PlusCircle className="h-4 w-4" />
+                Aggiungi Cliente
+              </TabsTrigger>
+            )}
           </TabsList>
         </div>
 
@@ -60,9 +76,11 @@ const ClientManagement = () => {
           <ClientList />
         </TabsContent>
 
-        <TabsContent value="add" className="mt-6">
-          <AddClientForm onClientAdded={handleClientAdded} />
-        </TabsContent>
+        {canAddClients && (
+          <TabsContent value="add" className="mt-6">
+            <AddClientForm onClientAdded={handleClientAdded} />
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );
