@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -57,7 +56,7 @@ export function SendMessageForm() {
     setIsSubmitting(true);
     try {
       // Map the UI targetRole values to the database target_role values
-      let mappedTargetRole: "trainer" | "admin" | "operator" | "assistant" | "instructor" | null = null;
+      let mappedTargetRole: "admin" | "operator" | "trainer" | "assistant" | "instructor" | null = null;
       
       if (data.targetRole === "all") {
         mappedTargetRole = null; // null means all users in the database
