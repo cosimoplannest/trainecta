@@ -1,3 +1,5 @@
+
+import { useState } from "react";
 import { User, Calendar, Phone, Mail, Users, Clock, Edit, Info } from "lucide-react";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
@@ -5,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { AssignTrainer } from "../AssignTrainer";
+import EditClientDialog from "./EditClientDialog";
 
 interface ClientData {
   id: string;
@@ -26,6 +29,8 @@ interface ClientPersonalInfoProps {
 }
 
 const ClientPersonalInfo = ({ client, onRefresh }: ClientPersonalInfoProps) => {
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+
   return (
     <>
       <Card>
@@ -100,7 +105,12 @@ const ClientPersonalInfo = ({ client, onRefresh }: ClientPersonalInfoProps) => {
               onAssigned={onRefresh}
             />
             
-            <Button variant="outline" size="sm" className="flex items-center gap-1">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex items-center gap-1"
+              onClick={() => setIsEditDialogOpen(true)}
+            >
               <Edit className="h-4 w-4" />
               Modifica Dati
             </Button>
@@ -120,6 +130,15 @@ const ClientPersonalInfo = ({ client, onRefresh }: ClientPersonalInfoProps) => {
             <p className="text-sm whitespace-pre-line">{client.internal_notes}</p>
           </CardContent>
         </Card>
+      )}
+      
+      {isEditDialogOpen && (
+        <EditClientDialog
+          client={client}
+          open={isEditDialogOpen}
+          onClose={() => setIsEditDialogOpen(false)}
+          onSuccess={onRefresh}
+        />
       )}
     </>
   );
