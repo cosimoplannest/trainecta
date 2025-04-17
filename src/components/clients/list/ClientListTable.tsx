@@ -1,11 +1,10 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { User, FileText, MoreHorizontal, Edit, Trash } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { User } from "lucide-react";
 import { format } from "date-fns";
 import { ClientData } from "../types/client-types";
+import { ClientActions } from "./ClientActions";
 
 interface ClientListTableProps {
   clients: ClientData[];
@@ -87,33 +86,10 @@ export function ClientListTable({
                   )}
                 </TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-2">
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      onClick={() => handleViewProfile(client.id)}
-                    >
-                      <FileText className="h-4 w-4" />
-                    </Button>
-                    
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
-                          <Edit className="mr-2 h-4 w-4" />
-                          <span>Modifica</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Trash className="mr-2 h-4 w-4" />
-                          <span>Elimina</span>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
+                  <ClientActions 
+                    client={client} 
+                    handleViewProfile={handleViewProfile} 
+                  />
                 </TableCell>
               </TableRow>
             ))
