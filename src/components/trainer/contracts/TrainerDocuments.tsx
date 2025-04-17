@@ -102,9 +102,9 @@ export function TrainerDocuments({ trainerId, trainerName }: TrainerDocumentsPro
                 <div>
                   <p className="text-sm font-medium">Tipo Contratto</p>
                   <p className="text-sm">
-                    {contract.contract_type === 'employee' ? 'Dipendente' : 
-                     contract.contract_type === 'freelance' ? 'Libero Professionista' : 
-                     'Consulente'}
+                    {contract.contract_type === 'collaboration' ? 'Collaborazione' : 
+                     contract.contract_type === 'vat_fixed_fee' ? 'Partita IVA (Compenso Fisso)' : 
+                     'Partita IVA (Percentuale)'}
                   </p>
                 </div>
                 
