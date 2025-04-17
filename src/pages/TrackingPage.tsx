@@ -1,14 +1,14 @@
 
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, FileText, BarChart3, Clock } from "lucide-react";
-import { FollowupManagement } from "@/components/followups/FollowupManagement";
+import { Calendar, FileText, BarChart3, Clock, Users } from "lucide-react";
+import { TrialClientsManagement } from "@/components/followups/TrialClientsManagement";
 import { ActivityLog } from "@/components/activity/ActivityLog";
 import QuestionnaireManagement from "@/components/questionnaires/QuestionnaireManagement";
 import PerformanceAnalysis from "@/components/performance/PerformanceAnalysis";
 
 const TrackingPage = () => {
-  const [activeTab, setActiveTab] = useState("followups");
+  const [activeTab, setActiveTab] = useState("trialClients");
 
   return (
     <div className="container mx-auto py-6 max-w-7xl">
@@ -16,7 +16,7 @@ const TrackingPage = () => {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Tracciamento & Analisi</h1>
           <p className="text-muted-foreground">
-            Monitoraggio delle attività, follow-up e analisi delle performance
+            Monitoraggio delle attività, clienti in prova e analisi delle performance
           </p>
         </div>
       
@@ -26,9 +26,9 @@ const TrackingPage = () => {
           className="space-y-6"
         >
           <TabsList className="bg-muted/60">
-            <TabsTrigger value="followups" className="flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              Follow-up
+            <TabsTrigger value="trialClients" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Clienti in Prova
             </TabsTrigger>
             <TabsTrigger value="activities" className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
@@ -44,8 +44,8 @@ const TrackingPage = () => {
             </TabsTrigger>
           </TabsList>
           
-          <TabsContent value="followups">
-            <FollowupManagement />
+          <TabsContent value="trialClients">
+            <TrialClientsManagement />
           </TabsContent>
           
           <TabsContent value="activities">
