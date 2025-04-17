@@ -3,14 +3,13 @@ import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GymSettings } from "@/components/admin/gym-settings";
 import { UserRoleManagement } from "@/components/admin/UserRoleManagement";
-import { ContractManagement } from "@/components/admin/ContractManagement";
 import { UserManagement } from "@/components/admin/UserManagement";
 import { RegistrationCodes } from "@/components/admin/registration-codes";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Navigate, useLocation } from "react-router-dom";
-import { Settings, Users, FileText, Shield, Key } from "lucide-react";
+import { Settings, Users, Shield, Key } from "lucide-react";
 
 const AdminSettings = () => {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
@@ -87,10 +86,6 @@ const AdminSettings = () => {
             <Shield className="h-4 w-4" />
             Gestione Ruoli
           </TabsTrigger>
-          <TabsTrigger value="contracts" className="flex items-center gap-1">
-            <FileText className="h-4 w-4" />
-            Gestione Contratti
-          </TabsTrigger>
           <TabsTrigger value="registration-codes" className="flex items-center gap-1">
             <Key className="h-4 w-4" />
             Codici Registrazione
@@ -107,10 +102,6 @@ const AdminSettings = () => {
         
         <TabsContent value="user-roles">
           <UserRoleManagement />
-        </TabsContent>
-        
-        <TabsContent value="contracts">
-          <ContractManagement />
         </TabsContent>
         
         <TabsContent value="registration-codes">
