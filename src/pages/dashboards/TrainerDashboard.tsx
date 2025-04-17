@@ -1,15 +1,14 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Dumbbell, MessageSquare, FileText, ArrowUpRight } from "lucide-react";
+import { Users, Dumbbell, MessageSquare, FileText, ArrowUpRight, UserPlus, UserClock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
-import { MyClientsCard } from "@/components/followups";
-import { TrainerDocuments } from "@/components/trainer/contracts";
 import { AssignedClientsTable } from "@/components/trainer/clients/AssignedClientsTable";
 import { SendMessageForm } from "@/components/trainer/messages/SendMessageForm";
+import { MyClientsCard } from "@/components/followups";
+import { TrainerDocuments } from "@/components/trainer/contracts";
 
 const TrainerDashboard = () => {
   const { user } = useAuth();
@@ -44,7 +43,6 @@ const TrainerDashboard = () => {
           </TabsTrigger>
         </TabsList>
         
-        {/* Clients tab */}
         <TabsContent value="clients" className="space-y-6">
           <AssignedClientsTable />
           
@@ -52,44 +50,35 @@ const TrainerDashboard = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5 text-primary" />
-                  Clienti Follow-Up
+                  <UserPlus className="h-5 w-5 text-primary" />
+                  Clienti Primo Incontro
                 </CardTitle>
                 <CardDescription>
-                  Clienti che necessitano di un follow-up
+                  Clienti che devono ancora effettuare il primo incontro
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <MyClientsCard />
+                <MyClientsCard filter="first_meeting" />
               </CardContent>
             </Card>
             
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Dumbbell className="h-5 w-5 text-primary" />
-                  Schede da Assegnare
+                  <UserClock className="h-5 w-5 text-primary" />
+                  Clienti Follow-up
                 </CardTitle>
                 <CardDescription>
-                  Assegna nuove schede ai tuoi clienti
+                  Clienti che necessitano di un follow-up
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Assegna rapidamente schede di allenamento personalizzate ai tuoi clienti
-                </p>
-                <Button className="w-full" asChild>
-                  <Link to="/workout-templates">
-                    Vai alle Schede
-                    <ArrowUpRight className="h-4 w-4 ml-2" />
-                  </Link>
-                </Button>
+              <CardContent>
+                <MyClientsCard filter="followup" />
               </CardContent>
             </Card>
           </div>
         </TabsContent>
         
-        {/* Workouts tab */}
         <TabsContent value="workouts" className="space-y-6">
           <Card>
             <CardHeader>
@@ -137,7 +126,6 @@ const TrainerDashboard = () => {
           </Card>
         </TabsContent>
         
-        {/* Messages tab */}
         <TabsContent value="messages" className="space-y-6">
           <Card>
             <CardHeader>
@@ -164,7 +152,6 @@ const TrainerDashboard = () => {
           </Card>
         </TabsContent>
         
-        {/* Documents tab */}
         <TabsContent value="documents" className="space-y-6">
           <Card>
             <CardHeader>

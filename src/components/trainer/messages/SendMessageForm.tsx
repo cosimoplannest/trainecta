@@ -24,9 +24,9 @@ import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 
 type FormValues = {
-  title: string;
+  subject: string;
   content: string;
-  priority: "normal" | "high" | "low";
+  priority: "normal" | "urgent";
   targetRole: "all" | "trainers" | "clients";
 };
 
@@ -37,7 +37,7 @@ export function SendMessageForm() {
   
   const form = useForm<FormValues>({
     defaultValues: {
-      title: "",
+      subject: "",
       content: "",
       priority: "normal",
       targetRole: "clients",
@@ -57,12 +57,12 @@ export function SendMessageForm() {
     setIsSubmitting(true);
     try {
       const { error } = await supabase.from("broadcast_messages").insert({
-        title: data.title,
         content: data.content,
         priority: data.priority,
         target_role: data.targetRole,
         sent_by: user.id,
         gym_id: user.user_metadata?.gym_id || "11111111-1111-1111-1111-111111111111", // Fallback to default gym
+        subject: data.subject,
       });
 
       if (error) throw error;
@@ -72,7 +72,6 @@ export function SendMessageForm() {
         description: "Il tuo messaggio è stato inviato con successo",
       });
       
-      // Reset form
       form.reset();
     } catch (error) {
       console.error("Error sending message:", error);
@@ -92,12 +91,12 @@ export function SendMessageForm() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
-            name="title"
+            name="subject"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Titolo</FormLabel>
+                <FormLabel>Oggetto</FormLabel>
                 <FormControl>
-                  <Input placeholder="Titolo del messaggio" {...field} />
+                  <Input placeholder="Oggetto del messaggio" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -121,9 +120,8 @@ export function SendMessageForm() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="low">Bassa</SelectItem>
                       <SelectItem value="normal">Normale</SelectItem>
-                      <SelectItem value="high">Alta</SelectItem>
+                      <SelectItem value="urgent">Alta</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
