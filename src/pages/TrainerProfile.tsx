@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrainerDocuments } from "@/components/trainer/contracts/TrainerDocuments";
 import { PerformanceChartCard } from "@/components/performance/components/PerformanceChartCard";
+import { PerformanceChart } from "@/components/PerformanceChart";
 
 type TrainerData = {
   id: string;
@@ -165,7 +166,9 @@ const TrainerProfile = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                <PerformanceChartCard trainerData={performanceData} />
+                <div className="h-80">
+                  <PerformanceChart trainerData={performanceData} />
+                </div>
                 
                 <div className="grid grid-cols-3 gap-4 mt-4">
                   <div className="space-y-2">
