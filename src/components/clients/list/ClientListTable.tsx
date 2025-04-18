@@ -1,7 +1,7 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { User } from "lucide-react";
+import { User, UserCheck, Calendar, ShoppingBag } from "lucide-react";
 import { format } from "date-fns";
 import { ClientData } from "../types/client-types";
 import { ClientActions } from "./ClientActions";
@@ -19,22 +19,45 @@ export function ClientListTable({
   filteredClients, 
   handleViewProfile 
 }: ClientListTableProps) {
+  const getPurchaseStatusBadge = (purchaseType: string | null) => {
+    if (!purchaseType || purchaseType === 'none') {
+      return <Badge variant="outline" className="bg-yellow-50">In attesa</Badge>;
+    }
+    const variants = {
+      'package': 'bg-green-50 text-green-700 border-green-200',
+      'custom_plan': 'bg-blue-50 text-blue-700 border-blue-200'
+    };
+    const labels = {
+      'package': 'Pacchetto',
+      'custom_plan': 'Scheda personalizzata'
+    };
+    return (
+      <Badge 
+        variant="outline" 
+        className={variants[purchaseType as keyof typeof variants]}
+      >
+        {labels[purchaseType as keyof typeof labels]}
+      </Badge>
+    );
+  };
+
   return (
     <div className="rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead>Cliente</TableHead>
-            <TableHead>Contatto</TableHead>
-            <TableHead>Iscrizione</TableHead>
+            <TableHead>Stato</TableHead>
             <TableHead>Trainer</TableHead>
+            <TableHead>Primo Incontro</TableHead>
+            <TableHead>Acquisto</TableHead>
             <TableHead>Azioni</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {loading ? (
             <TableRow>
-              <TableCell colSpan={5} className="text-center py-10">
+              <TableCell colSpan={6} className="text-center py-10">
                 <div className="flex flex-col items-center justify-center">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-2"></div>
                   <span className="text-muted-foreground">Caricamento clienti...</span>
@@ -43,7 +66,7 @@ export function ClientListTable({
             </TableRow>
           ) : filteredClients.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={5} className="text-center py-10">
+              <TableCell colSpan={6} className="text-center py-10">
                 <div className="flex flex-col items-center justify-center">
                   <User className="h-10 w-10 text-muted-foreground/50 mb-2" />
                   <span className="text-muted-foreground">Nessun cliente trovato</span>
@@ -57,33 +80,61 @@ export function ClientListTable({
                   <div className="font-medium">
                     {client.first_name} {client.last_name}
                   </div>
-                  {client.gender && (
-                    <div className="text-sm text-muted-foreground">
-                      {client.gender === 'male' ? 'Uomo' : client.gender === 'female' ? 'Donna' : client.gender}
-                    </div>
-                  )}
-                </TableCell>
-                <TableCell>
-                  {client.email && (
-                    <div className="text-sm">{client.email}</div>
-                  )}
-                  {client.phone && (
-                    <div className="text-sm text-muted-foreground">{client.phone}</div>
-                  )}
+                  <div className="text-sm text-muted-foreground">
+                    {client.email || client.phone || "Nessun contatto"}
+                  </div>
                 </TableCell>
                 <TableCell>
                   {client.joined_at && (
-                    <Badge variant="outline" className="font-normal">
+                    <div className="text-sm text-muted-foreground">
                       Dal {format(new Date(client.joined_at), "dd/MM/yyyy")}
+                    </div>
+                  )}
+                  {client.next_confirmation_due && (
+                    <Badge variant="outline" className="mt-1 text-xs">
+                      Conferma: {format(new Date(client.next_confirmation_due), "dd/MM/yyyy")}
                     </Badge>
                   )}
                 </TableCell>
                 <TableCell>
-                  {client.users?.full_name ? (
-                    <div className="text-sm">{client.users.full_name}</div>
-                  ) : (
-                    <div className="text-sm text-muted-foreground">Non assegnato</div>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {client.users?.full_name ? (
+                      <>
+                        <UserCheck className="h-4 w-4 text-green-500" />
+                        <span>{client.users.full_name}</span>
+                      </>
+                    ) : (
+                      <>
+                        <User className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-muted-foreground">Non assegnato</span>
+                      </>
+                    )}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    {client.first_meeting_completed ? (
+                      <>
+                        <Calendar className="h-4 w-4 text-green-500" />
+                        <span className="text-sm">
+                          {client.first_meeting_date 
+                            ? format(new Date(client.first_meeting_date), "dd/MM/yyyy")
+                            : "Completato"}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <Calendar className="h-4 w-4 text-yellow-500" />
+                        <span className="text-sm text-muted-foreground">Da programmare</span>
+                      </>
+                    )}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <ShoppingBag className="h-4 w-4" />
+                    {getPurchaseStatusBadge(client.purchase_type)}
+                  </div>
                 </TableCell>
                 <TableCell>
                   <ClientActions 
