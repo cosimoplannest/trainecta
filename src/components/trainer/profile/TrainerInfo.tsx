@@ -1,5 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { TrainerStatusBadge } from "./status/TrainerStatusBadge";
+import { InfoItem } from "./info/InfoItem";
 
 interface TrainerInfoProps {
   trainer: {
@@ -13,31 +15,24 @@ interface TrainerInfoProps {
 export const TrainerInfo = ({ trainer }: TrainerInfoProps) => {
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Informazioni Personali</CardTitle>
+        <TrainerStatusBadge status={trainer.status} />
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <p className="text-sm font-medium">Stato</p>
-            <p className="text-sm">
-              {trainer.status === 'active' ? 'Attivo' : 'Inattivo'}
-            </p>
-          </div>
-          <div>
-            <p className="text-sm font-medium">Ruolo</p>
-            <p className="text-sm capitalize">{trainer.role}</p>
-          </div>
-          <div>
-            <p className="text-sm font-medium">Email</p>
-            <p className="text-sm">{trainer.email}</p>
-          </div>
-          <div>
-            <p className="text-sm font-medium">Data di registrazione</p>
-            <p className="text-sm">
-              {new Date(trainer.registration_date).toLocaleDateString('it-IT')}
-            </p>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <InfoItem 
+            label="Ruolo"
+            value={trainer.role.charAt(0).toUpperCase() + trainer.role.slice(1)}
+          />
+          <InfoItem 
+            label="Email"
+            value={trainer.email}
+          />
+          <InfoItem 
+            label="Data di registrazione"
+            value={new Date(trainer.registration_date).toLocaleDateString('it-IT')}
+          />
         </div>
       </CardContent>
     </Card>
