@@ -1,4 +1,5 @@
-import { useParams } from "react-router-dom";
+
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +10,7 @@ import { PerformanceChart } from "@/components/PerformanceChart";
 import { ProfileHeader } from "@/components/trainer/profile/ProfileHeader";
 import { TrainerInfo } from "@/components/trainer/profile/TrainerInfo";
 import { MetricsGrid } from "@/components/trainer/profile/MetricsGrid";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type TrainerData = {
   id: string;
@@ -29,6 +31,7 @@ type TrainerMetrics = {
 const TrainerProfile = () => {
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [trainer, setTrainer] = useState<TrainerData | null>(null);
   const [performanceData, setPerformanceData] = useState<any>(null);
