@@ -7,6 +7,7 @@ import { Loader2, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrainerDocuments } from "@/components/trainer/contracts/TrainerDocuments";
+import { PerformanceChartCard } from "@/components/performance/components/PerformanceChartCard";
 
 type TrainerData = {
   id: string;
@@ -23,6 +24,7 @@ const TrainerProfile = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [trainer, setTrainer] = useState<TrainerData | null>(null);
+  const [performanceData, setPerformanceData] = useState<any>(null);
 
   useEffect(() => {
     const fetchTrainerData = async () => {
@@ -30,14 +32,41 @@ const TrainerProfile = () => {
       
       try {
         setLoading(true);
-        const { data, error } = await supabase
+        // Fetch trainer info
+        const { data: trainerData, error: trainerError } = await supabase
           .from("users")
           .select("*")
           .eq("id", id)
           .single();
 
-        if (error) throw error;
-        setTrainer(data as TrainerData);
+        if (trainerError) throw trainerError;
+
+        // Fetch performance data specific to this trainer
+        const { data: followupsData, error: followupsError } = await supabase
+          .from("client_followups")
+          .select(`
+            trainer_id,
+            purchase_confirmed
+          `)
+          .eq('trainer_id', id);
+          
+        if (followupsError) throw followupsError;
+        
+        // Calculate performance metrics
+        const total = followupsData.length;
+        const conversions = followupsData.filter((f: any) => f.purchase_confirmed).length;
+        const rate = total > 0 ? Math.round((conversions / total) * 100) : 0;
+        
+        const performanceMetrics = {
+          name: trainerData.full_name,
+          rate,
+          total,
+          conversions
+        };
+
+        setTrainer(trainerData as TrainerData);
+        setPerformanceData([performanceMetrics]);
+
       } catch (error: any) {
         console.error("Error fetching trainer data:", error);
         toast({
@@ -128,6 +157,34 @@ const TrainerProfile = () => {
             </div>
           </CardContent>
         </Card>
+
+        {performanceData && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Performance del Trainer</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <PerformanceChartCard trainerData={performanceData} />
+                
+                <div className="grid grid-cols-3 gap-4 mt-4">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">Totale Follow-up</p>
+                    <p className="text-2xl font-bold">{performanceData[0].total}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">Conversioni</p>
+                    <p className="text-2xl font-bold">{performanceData[0].conversions}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">Tasso di Conversione</p>
+                    <p className="text-2xl font-bold">{performanceData[0].rate}%</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
         
         <TrainerDocuments trainerId={id!} trainerName={trainer.full_name} />
       </div>
