@@ -1,86 +1,120 @@
 
-import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { usePerformanceData } from "./hooks/usePerformanceData";
-import { PerformanceChartCard } from "./components/PerformanceChartCard";
-import { PerformanceTable } from "./components/PerformanceTable";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { TrendingUp, Users, Dumbbell } from "lucide-react";
+import { PerformanceChart } from "@/components/PerformanceChart";
+import { TrainerPerformanceTable } from "./components/TrainerPerformanceTable";
+import { NonConvertingClients } from "./components/NonConvertingClients";
 
-export const PerformanceAnalysis = () => {
-  const [period, setPeriod] = useState<string>("month");
-  const [viewType, setViewType] = useState<string>("trainers");
-  
-  const { data: performanceData, isLoading } = usePerformanceData(period, viewType);
+interface PerformanceAnalysisProps {
+  trainerPerformance: any[];
+  loading: boolean;
+  nonConvertingClients: any[];
+}
 
+export const PerformanceAnalysis = ({ 
+  trainerPerformance, 
+  loading, 
+  nonConvertingClients 
+}: PerformanceAnalysisProps) => {
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold">Analisi Performance</h2>
-          <p className="text-muted-foreground">
-            Visualizza e analizza le performance dei trainer e delle schede
-          </p>
-        </div>
+    <div className="space-y-6">
+      {/* Summary metrics */}
+      <div className="grid gap-4 md:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Tasso di Conversione Medio</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {loading ? '...' : `${Math.round(trainerPerformance.reduce((acc, t) => acc + t.rate, 0) / (trainerPerformance.length || 1))}%`}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Media del tasso di conversione tra tutti i trainer
+            </p>
+          </CardContent>
+        </Card>
         
-        <Select 
-          value={period} 
-          onValueChange={setPeriod}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Seleziona periodo" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="week">Ultima settimana</SelectItem>
-            <SelectItem value="month">Ultimo mese</SelectItem>
-            <SelectItem value="quarter">Ultimo trimestre</SelectItem>
-            <SelectItem value="year">Ultimo anno</SelectItem>
-            <SelectItem value="all">Tutti i dati</SelectItem>
-          </SelectContent>
-        </Select>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Fatturato Totale</CardTitle>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground">
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+            </svg>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {loading ? '...' : `€${trainerPerformance.reduce((acc, t) => acc + t.revenue, 0).toLocaleString()}`}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Ricavi totali da vendita pacchetti e schede
+            </p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Clienti Totali</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {loading ? '...' : trainerPerformance.reduce((acc, t) => acc + t.clients, 0)}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Numero totale di clienti seguiti
+            </p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Schede Assegnate</CardTitle>
+            <Dumbbell className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {loading ? '...' : trainerPerformance.reduce((acc, t) => acc + t.templatesAssigned, 0)}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Numero totale di schede assegnate
+            </p>
+          </CardContent>
+        </Card>
       </div>
-
-      <Tabs 
-        value={viewType}
-        onValueChange={setViewType}
-        className="space-y-4"
-      >
-        <TabsList>
-          <TabsTrigger value="trainers">Performance Trainer</TabsTrigger>
-          <TabsTrigger value="templates">Performance Schede</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="trainers" className="space-y-4">
-          <PerformanceChartCard
-            title="Tasso di conversione per Trainer"
-            loading={isLoading}
-            data={performanceData}
-          />
-          
-          {performanceData && performanceData.length > 0 && (
-            <PerformanceTable 
-              data={performanceData}
-              type="trainers"
-            />
+      
+      {/* Conversion chart */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Performance Trainer</CardTitle>
+        </CardHeader>
+        <CardContent className="px-2">
+          {loading ? (
+            <div className="text-center py-8 text-muted-foreground">Caricamento...</div>
+          ) : (
+            <PerformanceChart trainerData={trainerPerformance} />
           )}
-        </TabsContent>
-
-        <TabsContent value="templates" className="space-y-4">
-          <PerformanceChartCard
-            title="Efficacia delle schede di allenamento"
-            loading={isLoading}
-            data={performanceData}
+        </CardContent>
+      </Card>
+      
+      {/* Detailed trainers table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Classifica Performance Trainer</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <TrainerPerformanceTable
+            data={trainerPerformance}
+            loading={loading}
           />
-          
-          {performanceData && performanceData.length > 0 && (
-            <PerformanceTable 
-              data={performanceData}
-              type="templates"
-            />
-          )}
-        </TabsContent>
-      </Tabs>
+        </CardContent>
+      </Card>
+      
+      {/* Non-converting clients analysis */}
+      <NonConvertingClients 
+        data={nonConvertingClients}
+        loading={loading}
+      />
     </div>
   );
 };
-
-export default PerformanceAnalysis;
