@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, ChevronLeft, UserClock, Calendar, UserCheck, ClipboardList } from "lucide-react";
+import { Loader2, ChevronLeft, User, Calendar, UserCheck, ClipboardList } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrainerDocuments } from "@/components/trainer/contracts/TrainerDocuments";
@@ -187,7 +187,7 @@ const TrainerProfile = () => {
               <CardTitle className="text-sm font-medium">
                 In attesa primo incontro
               </CardTitle>
-              <UserClock className="h-4 w-4 text-muted-foreground" />
+              <User className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{metrics.awaitingFirstMeeting}</div>
