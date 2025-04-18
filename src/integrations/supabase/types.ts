@@ -248,6 +248,8 @@ export type Database = {
           birth_date: string | null
           created_at: string
           email: string | null
+          first_meeting_completed: boolean | null
+          first_meeting_date: string | null
           first_name: string
           fiscal_code: string | null
           fitness_level: string | null
@@ -256,11 +258,14 @@ export type Database = {
           id: string
           internal_notes: string | null
           joined_at: string | null
+          last_confirmation_date: string | null
           last_name: string
           mindbody_id: number
+          next_confirmation_due: string | null
           phone: string | null
           preferred_time: string | null
           primary_goal: string | null
+          purchase_type: string | null
           source: string | null
           subscription_duration: string | null
           subscription_end_date: string | null
@@ -275,6 +280,8 @@ export type Database = {
           birth_date?: string | null
           created_at?: string
           email?: string | null
+          first_meeting_completed?: boolean | null
+          first_meeting_date?: string | null
           first_name: string
           fiscal_code?: string | null
           fitness_level?: string | null
@@ -283,11 +290,14 @@ export type Database = {
           id?: string
           internal_notes?: string | null
           joined_at?: string | null
+          last_confirmation_date?: string | null
           last_name: string
           mindbody_id?: number
+          next_confirmation_due?: string | null
           phone?: string | null
           preferred_time?: string | null
           primary_goal?: string | null
+          purchase_type?: string | null
           source?: string | null
           subscription_duration?: string | null
           subscription_end_date?: string | null
@@ -302,6 +312,8 @@ export type Database = {
           birth_date?: string | null
           created_at?: string
           email?: string | null
+          first_meeting_completed?: boolean | null
+          first_meeting_date?: string | null
           first_name?: string
           fiscal_code?: string | null
           fitness_level?: string | null
@@ -310,11 +322,14 @@ export type Database = {
           id?: string
           internal_notes?: string | null
           joined_at?: string | null
+          last_confirmation_date?: string | null
           last_name?: string
           mindbody_id?: number
+          next_confirmation_due?: string | null
           phone?: string | null
           preferred_time?: string | null
           primary_goal?: string | null
+          purchase_type?: string | null
           source?: string | null
           subscription_duration?: string | null
           subscription_end_date?: string | null
@@ -440,6 +455,7 @@ export type Database = {
         Row: {
           allow_template_duplication: boolean | null
           created_at: string
+          custom_plan_confirmation_days: number | null
           days_to_active_confirmation: number | null
           days_to_first_followup: number | null
           default_trainer_assignment_logic: string | null
@@ -447,6 +463,7 @@ export type Database = {
           gym_id: string
           id: string
           max_trials_per_client: number | null
+          package_confirmation_days: number | null
           template_sent_by: string | null
           template_viewable_by_client: boolean | null
           updated_at: string
@@ -454,6 +471,7 @@ export type Database = {
         Insert: {
           allow_template_duplication?: boolean | null
           created_at?: string
+          custom_plan_confirmation_days?: number | null
           days_to_active_confirmation?: number | null
           days_to_first_followup?: number | null
           default_trainer_assignment_logic?: string | null
@@ -461,6 +479,7 @@ export type Database = {
           gym_id: string
           id?: string
           max_trials_per_client?: number | null
+          package_confirmation_days?: number | null
           template_sent_by?: string | null
           template_viewable_by_client?: boolean | null
           updated_at?: string
@@ -468,6 +487,7 @@ export type Database = {
         Update: {
           allow_template_duplication?: boolean | null
           created_at?: string
+          custom_plan_confirmation_days?: number | null
           days_to_active_confirmation?: number | null
           days_to_first_followup?: number | null
           default_trainer_assignment_logic?: string | null
@@ -475,6 +495,7 @@ export type Database = {
           gym_id?: string
           id?: string
           max_trials_per_client?: number | null
+          package_confirmation_days?: number | null
           template_sent_by?: string | null
           template_viewable_by_client?: boolean | null
           updated_at?: string
