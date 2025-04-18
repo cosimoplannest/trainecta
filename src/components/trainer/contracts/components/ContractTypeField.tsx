@@ -1,29 +1,41 @@
 
-import { FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { 
+  FormControl, 
+  FormField, 
+  FormItem, 
+  FormLabel, 
+  FormMessage 
+} from "@/components/ui/form";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
 import { UseFormReturn } from "react-hook-form";
 
 interface ContractTypeFieldProps {
   form: UseFormReturn<any>;
-  disabled: boolean;
+  disabled?: boolean;
 }
 
-export function ContractTypeField({ form, disabled }: ContractTypeFieldProps) {
+export const ContractTypeField = ({ form, disabled = false }: ContractTypeFieldProps) => {
   return (
     <FormField
       control={form.control}
       name="contract_type"
       render={({ field }) => (
         <FormItem>
-          <FormLabel>Tipo Contratto</FormLabel>
-          <Select
+          <FormLabel>Tipo di Contratto</FormLabel>
+          <Select 
+            onValueChange={field.onChange} 
+            defaultValue={field.value} 
             disabled={disabled}
-            onValueChange={field.onChange}
-            defaultValue={field.value}
           >
             <FormControl>
               <SelectTrigger>
-                <SelectValue placeholder="Seleziona tipo contratto" />
+                <SelectValue placeholder="Seleziona tipo di contratto" />
               </SelectTrigger>
             </FormControl>
             <SelectContent>
@@ -32,8 +44,9 @@ export function ContractTypeField({ form, disabled }: ContractTypeFieldProps) {
               <SelectItem value="vat_percentage">Partita IVA (Percentuale)</SelectItem>
             </SelectContent>
           </Select>
+          <FormMessage />
         </FormItem>
       )}
     />
   );
-}
+};

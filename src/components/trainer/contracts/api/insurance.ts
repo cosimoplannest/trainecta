@@ -2,123 +2,128 @@
 import { supabase } from "@/integrations/supabase/client";
 import { InsuranceFile } from "../types";
 
-/**
- * Fetches trainer insurance
- */
-export async function fetchTrainerInsurance(trainerId: string): Promise<InsuranceFile | null> {
-  const { data, error } = await supabase
-    .from("trainer_insurance")
-    .select("*")
-    .eq("trainer_id", trainerId)
-    .single();
+export const fetchTrainerInsurance = async (trainerId: string): Promise<InsuranceFile | null> => {
+  try {
+    const { data, error } = await supabase
+      .from("trainer_insurance")
+      .select("*")
+      .eq("trainer_id", trainerId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .single();
 
-  if (error && error.code !== 'PGRST116') {
+    if (error) {
+      // If no data found, return null instead of throwing error
+      if (error.code === 'PGRST116') {
+        return null;
+      }
+      throw error;
+    }
+
+    return data as InsuranceFile;
+  } catch (error) {
     console.error("Error fetching trainer insurance:", error);
-    throw error;
+    return null;
   }
+};
 
-  return data as InsuranceFile | null;
-}
-
-/**
- * Creates or updates a trainer insurance
- */
-export async function upsertTrainerInsurance(
-  insurance: Partial<InsuranceFile>,
+export const createTrainerInsurance = async (
+  insuranceData: Partial<InsuranceFile>,
   file?: File
-): Promise<InsuranceFile> {
-  let fileUrl = insurance.file_url;
+): Promise<InsuranceFile | null> => {
+  try {
+    let fileUrl = null;
 
-  // Upload file if provided
-  if (file) {
-    const fileName = `${insurance.trainer_id}/${Date.now()}_${file.name}`;
-    const { data: uploadData, error: uploadError } = await supabase
-      .storage
-      .from("trainer_insurance")
-      .upload(fileName, file, {
-        cacheControl: "3600",
-        upsert: true
-      });
+    // Upload file if provided
+    if (file) {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${insuranceData.trainer_id}/insurance-${Date.now()}.${fileExt}`;
+      
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from("trainer_documents")
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
-    if (uploadError) {
-      console.error("Error uploading insurance file:", uploadError);
-      throw uploadError;
+      if (uploadError) throw uploadError;
+      
+      // Get public URL
+      const { data: urlData } = await supabase.storage
+        .from("trainer_documents")
+        .getPublicUrl(fileName);
+      
+      fileUrl = urlData.publicUrl;
     }
 
-    // Get public URL for the file
-    const { data: { publicUrl } } = supabase
-      .storage
+    // Create insurance entry
+    const { data, error } = await supabase
       .from("trainer_insurance")
-      .getPublicUrl(fileName);
+      .insert([
+        {
+          ...insuranceData,
+          file_url: fileUrl
+        }
+      ])
+      .select()
+      .single();
 
-    fileUrl = publicUrl;
+    if (error) throw error;
+    
+    return data as InsuranceFile;
+  } catch (error) {
+    console.error("Error creating trainer insurance:", error);
+    return null;
   }
+};
 
-  // Make sure all required fields are present for an upsert
-  const insuranceData: Partial<InsuranceFile> = {
-    ...insurance,
-    file_url: fileUrl,
-    updated_at: new Date().toISOString()
-  };
+export const updateTrainerInsurance = async (
+  id: string,
+  insuranceData: Partial<InsuranceFile>,
+  file?: File
+): Promise<InsuranceFile | null> => {
+  try {
+    let fileUrl = insuranceData.file_url;
 
-  // Ensure trainer_id, gym_id, start_date, end_date are defined
-  if (!insuranceData.trainer_id || !insuranceData.gym_id || !insuranceData.start_date || !insuranceData.end_date) {
-    throw new Error("Missing required insurance fields");
-  }
+    // Upload new file if provided
+    if (file) {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${insuranceData.trainer_id}/insurance-${Date.now()}.${fileExt}`;
+      
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from("trainer_documents")
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
-  // Now save the insurance record with the file URL
-  const { data, error } = await supabase
-    .from("trainer_insurance")
-    .upsert(insuranceData as any)
-    .select()
-    .single();
-
-  if (error) {
-    console.error("Error saving trainer insurance:", error);
-    throw error;
-  }
-
-  return data as InsuranceFile;
-}
-
-/**
- * Deletes a trainer insurance
- */
-export async function deleteTrainerInsurance(insuranceId: string): Promise<void> {
-  // First get the insurance to get the file URL
-  const { data: insurance, error: fetchError } = await supabase
-    .from("trainer_insurance")
-    .select("file_url")
-    .eq("id", insuranceId)
-    .single();
-
-  if (fetchError) {
-    console.error("Error fetching insurance to delete:", fetchError);
-    throw fetchError;
-  }
-
-  // Delete the associated file if it exists
-  if (insurance?.file_url) {
-    const filePath = insurance.file_url.split("/").slice(-2).join("/");
-    const { error: storageError } = await supabase
-      .storage
-      .from("trainer_insurance")
-      .remove([filePath]);
-
-    if (storageError) {
-      console.error("Error deleting insurance file:", storageError);
-      // Continue with record deletion even if file deletion fails
+      if (uploadError) throw uploadError;
+      
+      // Get public URL
+      const { data: urlData } = await supabase.storage
+        .from("trainer_documents")
+        .getPublicUrl(fileName);
+      
+      fileUrl = urlData.publicUrl;
     }
-  }
 
-  // Delete the insurance record
-  const { error } = await supabase
-    .from("trainer_insurance")
-    .delete()
-    .eq("id", insuranceId);
+    // Update insurance entry
+    const { data, error } = await supabase
+      .from("trainer_insurance")
+      .update({
+        ...insuranceData,
+        file_url: fileUrl,
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", id)
+      .select()
+      .single();
 
-  if (error) {
-    console.error("Error deleting trainer insurance:", error);
-    throw error;
+    if (error) throw error;
+    
+    return data as InsuranceFile;
+  } catch (error) {
+    console.error("Error updating trainer insurance:", error);
+    return null;
   }
-}
+};

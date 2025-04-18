@@ -1,19 +1,30 @@
 
-import { format } from "date-fns";
-import { Calendar } from "lucide-react";
-import { FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
+import { 
+  FormControl, 
+  FormField, 
+  FormItem, 
+  FormLabel, 
+  FormMessage 
+} from "@/components/ui/form";
+import { 
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Calendar as CalendarIcon, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { it } from "date-fns/locale";
 import { UseFormReturn } from "react-hook-form";
 
 interface ContractDateFieldsProps {
   form: UseFormReturn<any>;
-  disabled: boolean;
+  disabled?: boolean;
 }
 
-export function ContractDateFields({ form, disabled }: ContractDateFieldsProps) {
+export const ContractDateFields = ({ form, disabled = false }: ContractDateFieldsProps) => {
   return (
     <div className="grid grid-cols-2 gap-4">
       <FormField
@@ -34,26 +45,25 @@ export function ContractDateFields({ form, disabled }: ContractDateFieldsProps) 
                     disabled={disabled}
                   >
                     {field.value ? (
-                      format(field.value, "dd/MM/yyyy")
+                      format(field.value, "PPP", { locale: it })
                     ) : (
                       <span>Seleziona data</span>
                     )}
-                    <Calendar className="ml-auto h-4 w-4 opacity-50" />
+                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                   </Button>
                 </FormControl>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
-                <CalendarComponent
+                <Calendar
                   mode="single"
                   selected={field.value}
                   onSelect={field.onChange}
-                  disabled={(date) =>
-                    date < new Date("1900-01-01")
-                  }
-                  initialFocus
+                  disabled={disabled}
+                  locale={it}
                 />
               </PopoverContent>
             </Popover>
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -76,32 +86,40 @@ export function ContractDateFields({ form, disabled }: ContractDateFieldsProps) 
                     disabled={disabled}
                   >
                     {field.value ? (
-                      format(field.value, "dd/MM/yyyy")
+                      format(field.value, "PPP", { locale: it })
                     ) : (
-                      <span>Seleziona data</span>
+                      <span>Contratto a tempo indeterminato</span>
                     )}
-                    <Calendar className="ml-auto h-4 w-4 opacity-50" />
+                    {field.value ? (
+                      <X 
+                        className="ml-auto h-4 w-4 opacity-50 hover:opacity-100 cursor-pointer" 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          field.onChange(null);
+                        }}
+                      />
+                    ) : (
+                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                    )}
                   </Button>
                 </FormControl>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
-                <CalendarComponent
+                <Calendar
                   mode="single"
-                  selected={field.value as Date}
+                  selected={field.value || undefined}
                   onSelect={field.onChange}
-                  disabled={(date) =>
-                    date < new Date("1900-01-01") ||
-                    (form.getValues().start_date
-                      ? date < form.getValues().start_date
-                      : false)
-                  }
-                  initialFocus
+                  disabled={disabled || {
+                    before: form.getValues("start_date") || new Date(),
+                  }}
+                  locale={it}
                 />
               </PopoverContent>
             </Popover>
+            <FormMessage />
           </FormItem>
         )}
       />
     </div>
   );
-}
+};

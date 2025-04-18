@@ -1,5 +1,5 @@
 
-import { FileText, Plus, AlertTriangle, CheckCircle, Calendar } from "lucide-react";
+import { FileText, Plus, AlertTriangle, CheckCircle } from "lucide-react";
 import { format, isAfter, parseISO } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,7 @@ export function InsuranceCard({ insurance, loading, isTrainer, onEdit }: Insuran
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-lg flex items-center gap-2">
           <FileText className="h-5 w-5" />
-          Polizza Assicurativa
+          Assicurazione RC
         </CardTitle>
         
         {isTrainer && (
@@ -32,11 +32,11 @@ export function InsuranceCard({ insurance, loading, isTrainer, onEdit }: Insuran
             onClick={onEdit}
           >
             {insurance ? (
-              <>Modifica Polizza</>
+              <>Aggiorna Assicurazione</>
             ) : (
               <>
                 <Plus className="h-4 w-4 mr-1" />
-                Aggiungi Polizza
+                Aggiungi Assicurazione
               </>
             )}
           </Button>
@@ -51,13 +51,6 @@ export function InsuranceCard({ insurance, loading, isTrainer, onEdit }: Insuran
         ) : insurance ? (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              {insurance.policy_number && (
-                <div>
-                  <p className="text-sm font-medium">Numero Polizza</p>
-                  <p className="text-sm">{insurance.policy_number}</p>
-                </div>
-              )}
-              
               <div>
                 <p className="text-sm font-medium">Stato</p>
                 <div className="flex items-center gap-1 mt-1">
@@ -74,27 +67,28 @@ export function InsuranceCard({ insurance, loading, isTrainer, onEdit }: Insuran
                   )}
                 </div>
               </div>
+              
+              {insurance.policy_number && (
+                <div>
+                  <p className="text-sm font-medium">Numero Polizza</p>
+                  <p className="text-sm">{insurance.policy_number}</p>
+                </div>
+              )}
             </div>
             
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-sm font-medium">Data Inizio</p>
-                <div className="flex items-center gap-1">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <p className="text-sm">
-                    {insurance.start_date ? format(new Date(insurance.start_date), 'dd/MM/yyyy') : 'N/A'}
-                  </p>
-                </div>
+                <p className="text-sm">
+                  {insurance.start_date ? format(new Date(insurance.start_date), 'dd/MM/yyyy') : 'N/A'}
+                </p>
               </div>
               
               <div>
-                <p className="text-sm font-medium">Data Scadenza</p>
-                <div className="flex items-center gap-1">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <p className="text-sm">
-                    {insurance.end_date ? format(new Date(insurance.end_date), 'dd/MM/yyyy') : 'N/A'}
-                  </p>
-                </div>
+                <p className="text-sm font-medium">Data Fine</p>
+                <p className="text-sm">
+                  {insurance.end_date ? format(new Date(insurance.end_date), 'dd/MM/yyyy') : 'N/A'}
+                </p>
               </div>
             </div>
             
@@ -114,7 +108,7 @@ export function InsuranceCard({ insurance, loading, isTrainer, onEdit }: Insuran
                   className="flex items-center gap-1 text-blue-600 hover:underline"
                 >
                   <FileText className="h-4 w-4" />
-                  Visualizza polizza
+                  Visualizza documento
                 </a>
               </div>
             )}
@@ -123,8 +117,8 @@ export function InsuranceCard({ insurance, loading, isTrainer, onEdit }: Insuran
           <div className="text-center py-8">
             <p className="text-sm text-muted-foreground">
               {isTrainer 
-                ? "Nessuna polizza assicurativa registrata. Clicca su 'Aggiungi Polizza' per inserirne una."
-                : "Nessuna polizza assicurativa registrata per questo trainer."}
+                ? "Nessuna assicurazione registrata. Clicca su 'Aggiungi Assicurazione' per inserirne una."
+                : "Nessuna assicurazione registrata. Il trainer deve inserire i dettagli dell'assicurazione."}
             </p>
           </div>
         )}

@@ -21,6 +21,7 @@ import AdminSettings from "./pages/AdminSettings";
 import Settings from "./pages/Settings";
 import Layout from "./components/Layout";
 import ClientProfile from "./components/clients/ClientProfile";
+import TrainerProfile from "./pages/TrainerProfile";
 import RequireAuth from "./components/auth/RequireAuth";
 import TrainerRegistration from "./pages/registration/TrainerRegistration";
 import OperatorRegistration from "./pages/registration/OperatorRegistration";
@@ -79,6 +80,13 @@ const App = () => (
             <Route path="/dashboard/instructor" element={
               <RequireAuth allowedRoles={['instructor']}>
                 <Layout><InstructorDashboard /></Layout>
+              </RequireAuth>
+            } />
+            
+            {/* Trainer profile route */}
+            <Route path="/trainer/:id" element={
+              <RequireAuth allowedRoles={['admin']}>
+                <Layout><TrainerProfile /></Layout>
               </RequireAuth>
             } />
             

@@ -3,6 +3,7 @@ import { UserWithRoleType } from "./types";
 import { UserStatusBadge } from "./UserStatusBadge";
 import { Loader2, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import { 
   Table, 
   TableBody, 
@@ -19,6 +20,15 @@ interface UserTableProps {
 }
 
 export const UserTable = ({ users, loading, emptyMessage }: UserTableProps) => {
+  const navigate = useNavigate();
+
+  const handleViewProfile = (userId: string, role: string) => {
+    if (role === 'trainer') {
+      navigate(`/trainer/${userId}`);
+    }
+    // Add other role types as needed
+  };
+
   if (loading) {
     return <div className="flex justify-center p-6"><Loader2 className="h-6 w-6 animate-spin" /></div>;
   }
@@ -44,7 +54,13 @@ export const UserTable = ({ users, loading, emptyMessage }: UserTableProps) => {
             <TableCell>{user.email}</TableCell>
             <TableCell><UserStatusBadge status={user.status} /></TableCell>
             <TableCell className="text-right">
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="Visualizza profilo">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-8 w-8 p-0" 
+                title="Visualizza profilo"
+                onClick={() => handleViewProfile(user.id, user.role)}
+              >
                 <Eye className="h-4 w-4" />
               </Button>
             </TableCell>
