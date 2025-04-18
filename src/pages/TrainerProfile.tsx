@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -6,11 +5,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TrainerDocuments } from "@/components/trainer/contracts/TrainerDocuments";
-import { PerformanceChart } from "@/components/PerformanceChart";
 import { ProfileHeader } from "@/components/trainer/profile/ProfileHeader";
 import { TrainerInfo } from "@/components/trainer/profile/TrainerInfo";
 import { MetricsGrid } from "@/components/trainer/profile/MetricsGrid";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PerformanceStats } from "@/components/trainer/profile/PerformanceStats";
 
 type TrainerData = {
   id: string;
@@ -142,35 +140,7 @@ const TrainerProfile = () => {
         <TrainerInfo trainer={trainer} />
         <MetricsGrid metrics={metrics} />
         
-        {performanceData && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Performance del Trainer</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div className="h-80">
-                  <PerformanceChart trainerData={performanceData} />
-                </div>
-                
-                <div className="grid grid-cols-3 gap-4 mt-4">
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">Totale Follow-up</p>
-                    <p className="text-2xl font-bold">{performanceData[0].total}</p>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">Conversioni</p>
-                    <p className="text-2xl font-bold">{performanceData[0].conversions}</p>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">Tasso di Conversione</p>
-                    <p className="text-2xl font-bold">{performanceData[0].rate}%</p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        {performanceData && <PerformanceStats performanceData={performanceData} />}
         
         <TrainerDocuments 
           trainerId={id!} 
