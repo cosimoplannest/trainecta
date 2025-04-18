@@ -1,12 +1,14 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, ChevronLeft, User, Calendar, UserCheck, ClipboardList } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrainerDocuments } from "@/components/trainer/contracts/TrainerDocuments";
 import { PerformanceChart } from "@/components/PerformanceChart";
+import { ProfileHeader } from "@/components/trainer/profile/ProfileHeader";
+import { TrainerInfo } from "@/components/trainer/profile/TrainerInfo";
+import { MetricsGrid } from "@/components/trainer/profile/MetricsGrid";
 
 type TrainerData = {
   id: string;
@@ -26,7 +28,6 @@ type TrainerMetrics = {
 
 const TrainerProfile = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [trainer, setTrainer] = useState<TrainerData | null>(null);
@@ -132,105 +133,12 @@ const TrainerProfile = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2">
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={() => navigate("/admin-settings?tab=user-management&role=trainers")}
-        >
-          <ChevronLeft className="h-5 w-5" />
-        </Button>
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">
-            {trainer.full_name}
-          </h2>
-          <p className="text-muted-foreground">
-            Trainer - {trainer.email}
-          </p>
-        </div>
-      </div>
+      <ProfileHeader fullName={trainer.full_name} email={trainer.email} />
       
       <div className="grid gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Informazioni Personali</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm font-medium">Stato</p>
-                <p className="text-sm">
-                  {trainer.status === 'active' ? 'Attivo' : 'Inattivo'}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm font-medium">Ruolo</p>
-                <p className="text-sm capitalize">{trainer.role}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium">Email</p>
-                <p className="text-sm">{trainer.email}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium">Data di registrazione</p>
-                <p className="text-sm">
-                  {new Date(trainer.registration_date).toLocaleDateString('it-IT')}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                In attesa primo incontro
-              </CardTitle>
-              <User className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{metrics.awaitingFirstMeeting}</div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                In attesa follow-up
-              </CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{metrics.awaitingFollowup}</div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Clienti Personal
-              </CardTitle>
-              <UserCheck className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{metrics.personalPackageClients}</div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Clienti Scheda Personalizzata
-              </CardTitle>
-              <ClipboardList className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{metrics.customPlanClients}</div>
-            </CardContent>
-          </Card>
-        </div>
-
+        <TrainerInfo trainer={trainer} />
+        <MetricsGrid metrics={metrics} />
+        
         {performanceData && (
           <Card>
             <CardHeader>
