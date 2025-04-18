@@ -144,7 +144,7 @@ export async function updateGymSettings(
       template_viewable_by_client: settingsData.template_viewable_by_client,
       allow_template_duplication: settingsData.allow_template_duplication,
       default_trainer_assignment_logic: settingsData.default_trainer_assignment_logic,
-      // New fields for post-first-meeting workflows
+      // Post-first-meeting workflow fields
       require_default_template_assignment: settingsData.require_default_template_assignment,
       package_confirmation_days: settingsData.package_confirmation_days,
       custom_plan_confirmation_days: settingsData.custom_plan_confirmation_days,

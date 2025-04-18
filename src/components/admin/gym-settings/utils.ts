@@ -1,3 +1,4 @@
+
 import { GymSettingsFormValues, TemplateSentBy } from "./types";
 
 export function normalizeTemplateSentBy(value: string | null): TemplateSentBy {
@@ -35,7 +36,7 @@ export function getDefaultFormValues(): GymSettingsFormValues {
     allow_template_duplication: true,
     default_trainer_assignment_logic: "manual",
     sale_methods: ["both"],
-    // New post-first-meeting workflow settings
+    // Post-first-meeting workflow settings
     require_default_template_assignment: true,
     package_confirmation_days: 30,
     custom_plan_confirmation_days: 45,

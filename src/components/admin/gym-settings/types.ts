@@ -1,3 +1,4 @@
+
 export type TemplateSentBy = "trainer" | "system" | "both";
 export type SaleMethod = "package" | "custom" | "both";
 export type NotificationChannel = "app" | "email";
@@ -20,7 +21,7 @@ export type GymSettingsFormValues = {
   default_trainer_assignment_logic: string;
   sale_methods: string[];
   
-  // New fields for post-first-meeting workflows
+  // Post-first-meeting workflow fields
   require_default_template_assignment: boolean;
   package_confirmation_days: number;
   custom_plan_confirmation_days: number;

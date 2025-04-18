@@ -1,7 +1,8 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { User } from "@supabase/supabase-js";
-import { GymSettingsFormValues, TemplateSentBy } from "./types";
+import { GymSettingsFormValues, TemplateSentBy, NotificationChannel } from "./types";
 import {
   fetchGymData,
   fetchGymSettingsData,
@@ -70,7 +71,7 @@ export function useGymSettingsForm() {
         saleMethods = ["custom"];
       }
 
-      const notificationChannels = gymSettingsData?.notification_channels || ["app"];
+      const notificationChannels: NotificationChannel[] = gymSettingsData?.notification_channels || ["app"];
 
       form.reset({
         name: gymData?.name || "",
