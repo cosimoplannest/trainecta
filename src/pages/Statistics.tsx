@@ -1,11 +1,12 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { BarChart3, TrendingUp, Users, Dumbbell, Calendar, Activity } from "lucide-react";
+import { TrendingUp, Users, Dumbbell, Calendar, Activity } from "lucide-react";
 import { PerformanceAnalysis } from "@/components/performance/PerformanceAnalysis";
-import { TemplateUsageCard } from "@/components/performance/components/TemplateUsageCard";
 import { MonitoringTab } from "@/components/performance/monitoring/MonitoringTab";
+import { TemplatePerformance } from "@/components/performance/templates/TemplatePerformance";
 import { usePerformanceData } from "@/components/performance/hooks/usePerformanceData";
 
 const Statistics = () => {
@@ -15,11 +16,6 @@ const Statistics = () => {
     data: trainerPerformance, 
     isLoading: isLoadingTrainers 
   } = usePerformanceData(timeFilter, "trainers");
-
-  const { 
-    data: templateData, 
-    isLoading: isLoadingTemplates 
-  } = usePerformanceData(timeFilter, "templates");
 
   return (
     <div className="space-y-8">
@@ -74,23 +70,7 @@ const Statistics = () => {
         </TabsContent>
         
         <TabsContent value="templates">
-          <div className="grid gap-6 md:grid-cols-2">
-            <TemplateUsageCard 
-              data={templateData || []}
-              loading={isLoadingTemplates}
-            />
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Performance Schede</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-80">
-                  {/* Add template performance chart here */}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          <TemplatePerformance />
         </TabsContent>
         
         <TabsContent value="monitoring">

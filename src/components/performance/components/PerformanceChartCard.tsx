@@ -1,40 +1,30 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
-import { PerformanceChart } from "@/components/PerformanceChart";
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 
 interface PerformanceChartCardProps {
-  title: string;
-  loading: boolean;
-  data: Array<{
-    name: string;
-    rate: number;
-  }> | undefined;
+  data: any[];
+  loading?: boolean;
 }
 
-export const PerformanceChartCard = ({ title, loading, data }: PerformanceChartCardProps) => {
+export const PerformanceChartCard = ({ data, loading }: PerformanceChartCardProps) => {
+  if (loading) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <p className="text-muted-foreground">Caricamento dati...</p>
+      </div>
+    );
+  }
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <span>{title}</span>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {loading ? (
-          <div className="flex justify-center py-16">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          </div>
-        ) : data && data.length > 0 ? (
-          <div className="h-96">
-            <PerformanceChart trainerData={data} />
-          </div>
-        ) : (
-          <div className="text-center py-16">
-            <p className="text-muted-foreground">Nessun dato disponibile per il periodo selezionato</p>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+    <ResponsiveContainer width="100%" height={300}>
+      <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip />
+        <Bar dataKey="rate" fill="#22c55e" name="Tasso di Conversione %" />
+      </BarChart>
+    </ResponsiveContainer>
   );
 };
