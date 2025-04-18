@@ -1,8 +1,8 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart3, TrendingUp, Users, Dumbbell, Calendar, Activity, FileCheck, AlertTriangle } from "lucide-react";
 import { PerformanceChart } from "@/components/PerformanceChart";
 import { TrainerPerformanceTable } from "@/components/performance/components/TrainerPerformanceTable";
