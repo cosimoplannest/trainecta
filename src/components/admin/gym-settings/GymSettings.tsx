@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,6 +12,7 @@ import { OperationalSettings } from "./OperationalSettings";
 import { AdvancedSettings } from "./AdvancedSettings";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { PostFirstMeetingSettings } from "./PostFirstMeetingSettings";
+import { Form } from "@/components/ui/form";
 
 export function GymSettings() {
   const { user } = useAuth();
@@ -99,43 +101,45 @@ export function GymSettings() {
           <TabsTrigger value="advanced">Advanced</TabsTrigger>
         </TabsList>
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <TabsContent value="general">
-            <GeneralSettings form={form} />
-          </TabsContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <TabsContent value="general">
+              <GeneralSettings form={form} />
+            </TabsContent>
 
-          <TabsContent value="contact">
-            <ContactSettings form={form} />
-          </TabsContent>
+            <TabsContent value="contact">
+              <ContactSettings form={form} />
+            </TabsContent>
 
-          <TabsContent value="operational">
-            <OperationalSettings form={form} />
-          </TabsContent>
+            <TabsContent value="operational">
+              <OperationalSettings form={form} />
+            </TabsContent>
 
-          <TabsContent value="post-first-meeting">
-            <PostFirstMeetingSettings form={form} />
-          </TabsContent>
+            <TabsContent value="post-first-meeting">
+              <PostFirstMeetingSettings form={form} />
+            </TabsContent>
 
-          <TabsContent value="advanced">
-            <AdvancedSettings form={form} />
-          </TabsContent>
+            <TabsContent value="advanced">
+              <AdvancedSettings form={form} />
+            </TabsContent>
 
-          <div className="flex justify-end">
-            <Button type="submit" disabled={saving}>
-              {saving ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Save className="mr-2 h-4 w-4" />
-                  Save Settings
-                </>
-              )}
-            </Button>
-          </div>
-        </form>
+            <div className="flex justify-end">
+              <Button type="submit" disabled={saving}>
+                {saving ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Settings
+                  </>
+                )}
+              </Button>
+            </div>
+          </form>
+        </Form>
       </Tabs>
     </div>
   );
