@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, ChevronLeft } from "lucide-react";
+import { Loader2, ChevronLeft, UserClock, Calendar, UserCheck, ClipboardList } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrainerDocuments } from "@/components/trainer/contracts/TrainerDocuments";
@@ -17,6 +17,13 @@ type TrainerData = {
   registration_date: string;
 };
 
+type TrainerMetrics = {
+  awaitingFirstMeeting: number;
+  awaitingFollowup: number;
+  personalPackageClients: number;
+  customPlanClients: number;
+};
+
 const TrainerProfile = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -24,7 +31,12 @@ const TrainerProfile = () => {
   const [loading, setLoading] = useState(true);
   const [trainer, setTrainer] = useState<TrainerData | null>(null);
   const [performanceData, setPerformanceData] = useState<any>(null);
-  const [contractDialogOpen, setContractDialogOpen] = useState(false);
+  const [metrics, setMetrics] = useState<TrainerMetrics>({
+    awaitingFirstMeeting: 0,
+    awaitingFollowup: 0,
+    personalPackageClients: 0,
+    customPlanClients: 0,
+  });
 
   useEffect(() => {
     const fetchTrainerData = async () => {
@@ -32,37 +44,51 @@ const TrainerProfile = () => {
       
       try {
         setLoading(true);
-        const { data: trainerData, error: trainerError } = await supabase
-          .from("users")
-          .select("*")
-          .eq("id", id)
-          .single();
-
-        if (trainerError) throw trainerError;
-
-        const { data: followupsData, error: followupsError } = await supabase
-          .from("client_followups")
-          .select(`
-            trainer_id,
-            purchase_confirmed
-          `)
-          .eq('trainer_id', id);
-          
-        if (followupsError) throw followupsError;
         
-        const total = followupsData.length;
-        const conversions = followupsData.filter((f: any) => f.purchase_confirmed).length;
+        const [trainerResult, followupsResult, clientsResult] = await Promise.all([
+          supabase
+            .from("users")
+            .select("*")
+            .eq("id", id)
+            .single(),
+            
+          supabase
+            .from("client_followups")
+            .select("trainer_id, purchase_confirmed")
+            .eq("trainer_id", id),
+            
+          supabase
+            .from("clients")
+            .select("*")
+            .eq("assigned_to", id)
+        ]);
+
+        if (trainerResult.error) throw trainerResult.error;
+        if (followupsResult.error) throw followupsResult.error;
+        if (clientsResult.error) throw clientsResult.error;
+
+        const total = followupsResult.data.length;
+        const conversions = followupsResult.data.filter((f: any) => f.purchase_confirmed).length;
         const rate = total > 0 ? Math.round((conversions / total) * 100) : 0;
-        
-        const performanceMetrics = {
-          name: trainerData.full_name,
+
+        setTrainer(trainerResult.data as TrainerData);
+        setPerformanceData([{
+          name: trainerResult.data.full_name,
           rate,
           total,
           conversions
-        };
+        }]);
 
-        setTrainer(trainerData as TrainerData);
-        setPerformanceData([performanceMetrics]);
+        const clients = clientsResult.data;
+        setMetrics({
+          awaitingFirstMeeting: clients.filter((c: any) => !c.first_meeting_completed).length,
+          awaitingFollowup: clients.filter((c: any) => {
+            const needsFollowup = c.next_confirmation_due && new Date(c.next_confirmation_due) <= new Date();
+            return needsFollowup;
+          }).length,
+          personalPackageClients: clients.filter((c: any) => c.subscription_type === 'personal').length,
+          customPlanClients: clients.filter((c: any) => c.subscription_type === 'custom_plan').length,
+        });
 
       } catch (error: any) {
         console.error("Error fetching trainer data:", error);
@@ -154,6 +180,56 @@ const TrainerProfile = () => {
             </div>
           </CardContent>
         </Card>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                In attesa primo incontro
+              </CardTitle>
+              <UserClock className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{metrics.awaitingFirstMeeting}</div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                In attesa follow-up
+              </CardTitle>
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{metrics.awaitingFollowup}</div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Clienti Personal
+              </CardTitle>
+              <UserCheck className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{metrics.personalPackageClients}</div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Clienti Scheda Personalizzata
+              </CardTitle>
+              <ClipboardList className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{metrics.customPlanClients}</div>
+            </CardContent>
+          </Card>
+        </div>
 
         {performanceData && (
           <Card>
