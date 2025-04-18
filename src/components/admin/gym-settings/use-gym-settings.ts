@@ -72,9 +72,10 @@ export function useGymSettingsForm() {
       }
 
       // Handle notification channels with a fallback to default
+      // TypeScript might not know about this property yet since it's new
       const notificationChannels: NotificationChannel[] = 
         Array.isArray(gymSettingsData?.notification_channels) ? 
-        gymSettingsData.notification_channels : ["app"];
+        gymSettingsData.notification_channels as NotificationChannel[] : ["app"];
 
       form.reset({
         name: gymData?.name || "",
@@ -94,7 +95,7 @@ export function useGymSettingsForm() {
         allow_template_duplication: gymSettingsData?.allow_template_duplication ?? true,
         default_trainer_assignment_logic: gymSettingsData?.default_trainer_assignment_logic || "manual",
         sale_methods: saleMethods,
-        require_default_template_assignment: gymSettingsData?.require_default_template_assignment ?? true,
+        require_default_template_assignment: (gymSettingsData as any)?.require_default_template_assignment ?? true,
         package_confirmation_days: gymSettingsData?.package_confirmation_days || 30,
         custom_plan_confirmation_days: gymSettingsData?.custom_plan_confirmation_days || 45,
         notification_channels: notificationChannels,
