@@ -8,6 +8,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import ClientList from "@/components/clients/ClientList";
 import AddClientForm from "@/components/clients/AddClientForm";
 import { useAuth } from "@/hooks/use-auth";
+import { PriorityClientsSection } from "@/components/clients/priority/PriorityClientsSection";
 
 const ClientManagement = () => {
   const { toast } = useToast();
@@ -52,9 +53,11 @@ const ClientManagement = () => {
       <div className="flex flex-col space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">Gestione Clienti</h1>
         <p className="text-muted-foreground">
-          Aggiungi, visualizza e gestisci i clienti della palestra.
+          Gestisci i clienti della palestra e monitora le attività prioritarie.
         </p>
       </div>
+
+      <PriorityClientsSection />
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         <div className="flex items-center justify-between">
