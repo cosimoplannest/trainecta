@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -6,12 +5,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { BarChart3, TrendingUp, Users, Dumbbell, Calendar, Activity } from "lucide-react";
 import { PerformanceAnalysis } from "@/components/performance/PerformanceAnalysis";
 import { TemplateUsageCard } from "@/components/performance/components/TemplateUsageCard";
+import { MonitoringTab } from "@/components/performance/monitoring/MonitoringTab";
 import { usePerformanceData } from "@/components/performance/hooks/usePerformanceData";
-import { useToast } from "@/hooks/use-toast";
 
 const Statistics = () => {
   const [timeFilter, setTimeFilter] = useState("month");
-  const { toast } = useToast();
 
   const { 
     data: trainerPerformance, 
@@ -61,9 +59,9 @@ const Statistics = () => {
             <Dumbbell className="h-4 w-4" />
             Schede e Clienti
           </TabsTrigger>
-          <TabsTrigger value="overview" className="flex items-center gap-2">
-            <BarChart3 className="h-4 w-4" />
-            Panoramica
+          <TabsTrigger value="monitoring" className="flex items-center gap-2">
+            <Activity className="h-4 w-4" />
+            Monitoraggio
           </TabsTrigger>
         </TabsList>
         
@@ -95,53 +93,8 @@ const Statistics = () => {
           </div>
         </TabsContent>
         
-        <TabsContent value="overview">
-          <div className="grid gap-4 md:grid-cols-3">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Tasso di Conversione</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {isLoadingTrainers ? '...' : `${Math.round((trainerPerformance || []).reduce((acc, t) => acc + t.rate, 0) / ((trainerPerformance || []).length || 1))}%`}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Media del tasso di conversione dei trainer
-                </p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Clienti Totali</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {isLoadingTrainers ? '...' : (trainerPerformance || []).reduce((acc, t) => acc + t.total, 0)}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Numero totale di clienti seguiti
-                </p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Schede Assegnate</CardTitle>
-                <Activity className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {isLoadingTemplates ? '...' : (templateData || []).reduce((acc, t) => acc + t.total, 0)}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Numero totale di schede assegnate
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+        <TabsContent value="monitoring">
+          <MonitoringTab />
         </TabsContent>
       </Tabs>
     </div>
