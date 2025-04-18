@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { fetchTrainerContract, fetchTrainerInsurance } from "./api";
@@ -12,9 +11,10 @@ import { InsuranceCard } from "./cards/InsuranceCard";
 interface TrainerDocumentsProps {
   trainerId: string;
   trainerName: string;
+  isAdmin?: boolean;
 }
 
-export function TrainerDocuments({ trainerId }: TrainerDocumentsProps) {
+export function TrainerDocuments({ trainerId, trainerName, isAdmin = false }: TrainerDocumentsProps) {
   const [contract, setContract] = useState<ContractFile | null>(null);
   const [insurance, setInsurance] = useState<InsuranceFile | null>(null);
   const [contractDialogOpen, setContractDialogOpen] = useState(false);
@@ -23,7 +23,7 @@ export function TrainerDocuments({ trainerId }: TrainerDocumentsProps) {
   const { toast } = useToast();
   const { user } = useAuth();
   
-  const isAdmin = user?.user_metadata?.role === 'admin';
+  const isAdminUser = user?.user_metadata?.role === 'admin';
   const isTrainer = user?.id === trainerId;
 
   const fetchDocuments = async () => {

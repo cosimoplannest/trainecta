@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -7,7 +6,6 @@ import { Loader2, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrainerDocuments } from "@/components/trainer/contracts/TrainerDocuments";
-import { PerformanceChartCard } from "@/components/performance/components/PerformanceChartCard";
 import { PerformanceChart } from "@/components/PerformanceChart";
 
 type TrainerData = {
@@ -26,6 +24,7 @@ const TrainerProfile = () => {
   const [loading, setLoading] = useState(true);
   const [trainer, setTrainer] = useState<TrainerData | null>(null);
   const [performanceData, setPerformanceData] = useState<any>(null);
+  const [contractDialogOpen, setContractDialogOpen] = useState(false);
 
   useEffect(() => {
     const fetchTrainerData = async () => {
@@ -33,7 +32,6 @@ const TrainerProfile = () => {
       
       try {
         setLoading(true);
-        // Fetch trainer info
         const { data: trainerData, error: trainerError } = await supabase
           .from("users")
           .select("*")
@@ -42,7 +40,6 @@ const TrainerProfile = () => {
 
         if (trainerError) throw trainerError;
 
-        // Fetch performance data specific to this trainer
         const { data: followupsData, error: followupsError } = await supabase
           .from("client_followups")
           .select(`
@@ -53,7 +50,6 @@ const TrainerProfile = () => {
           
         if (followupsError) throw followupsError;
         
-        // Calculate performance metrics
         const total = followupsData.length;
         const conversions = followupsData.filter((f: any) => f.purchase_confirmed).length;
         const rate = total > 0 ? Math.round((conversions / total) * 100) : 0;
@@ -189,7 +185,11 @@ const TrainerProfile = () => {
           </Card>
         )}
         
-        <TrainerDocuments trainerId={id!} trainerName={trainer.full_name} />
+        <TrainerDocuments 
+          trainerId={id!} 
+          trainerName={trainer.full_name}
+          isAdmin={true}
+        />
       </div>
     </div>
   );
