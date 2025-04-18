@@ -11,6 +11,7 @@ import {
   updateGymSettings
 } from "./api";
 import { toast } from "@/hooks/use-toast";
+import { getDefaultFormValues } from "./utils";
 
 export function useGymSettingsForm() {
   const [gymId, setGymId] = useState<string | null>(null);
@@ -22,25 +23,7 @@ export function useGymSettingsForm() {
   const [isInitialized, setIsInitialized] = useState(false);
   
   const form = useForm<GymSettingsFormValues>({
-    defaultValues: {
-      name: "",
-      address: "",
-      city: "",
-      postal_code: "",
-      country: "",
-      phone: "",
-      email: "",
-      website: "",
-      max_trials_per_client: 1,
-      enable_auto_followup: true,
-      days_to_first_followup: 7,
-      days_to_active_confirmation: 30,
-      template_sent_by: "both",
-      template_viewable_by_client: true,
-      allow_template_duplication: true,
-      default_trainer_assignment_logic: "manual",
-      sale_methods: ["both"],
-    }
+    defaultValues: getDefaultFormValues()
   });
 
   // Use useCallback to memoize the fetchSettings function to prevent infinite loops
@@ -93,6 +76,9 @@ export function useGymSettingsForm() {
         saleMethods = ["custom"];
       }
 
+      // Set default notification channels if not available
+      const notificationChannels = gymSettingsData?.notification_channels || ["app"];
+
       // Update the form with the fetched data
       form.reset({
         name: gymData?.name || "",
@@ -112,6 +98,11 @@ export function useGymSettingsForm() {
         allow_template_duplication: gymSettingsData?.allow_template_duplication ?? true,
         default_trainer_assignment_logic: gymSettingsData?.default_trainer_assignment_logic || "manual",
         sale_methods: saleMethods,
+        // New post-first-meeting workflow settings
+        require_default_template_assignment: gymSettingsData?.require_default_template_assignment ?? true,
+        package_confirmation_days: gymSettingsData?.package_confirmation_days || 30,
+        custom_plan_confirmation_days: gymSettingsData?.custom_plan_confirmation_days || 45,
+        notification_channels: notificationChannels,
       });
       
       console.log("Form reset with fetched data");
