@@ -1,4 +1,3 @@
-
 import { GymSettingsFormValues, TemplateSentBy } from "./types";
 
 export function normalizeTemplateSentBy(value: string | null): TemplateSentBy {
@@ -30,7 +29,6 @@ export function getDefaultFormValues(): GymSettingsFormValues {
     website: "",
     max_trials_per_client: 1,
     enable_auto_followup: true,
-    days_to_first_followup: 7,
     days_to_active_confirmation: 30,
     template_sent_by: "both",
     template_viewable_by_client: true,
@@ -42,5 +40,6 @@ export function getDefaultFormValues(): GymSettingsFormValues {
     package_confirmation_days: 30,
     custom_plan_confirmation_days: 45,
     notification_channels: ["app"],
+    days_to_first_followup: 7,
   };
 }

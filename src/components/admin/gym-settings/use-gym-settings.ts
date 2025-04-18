@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { User } from "@supabase/supabase-js";
@@ -26,7 +25,6 @@ export function useGymSettingsForm() {
     defaultValues: getDefaultFormValues()
   });
 
-  // Use useCallback to memoize the fetchSettings function to prevent infinite loops
   const fetchSettings = useCallback(async (user: User | null) => {
     if (!user) {
       setFetchError("Utente non autenticato");
@@ -35,14 +33,13 @@ export function useGymSettingsForm() {
       return;
     }
     
-    if (isLoading) return; // Prevent concurrent fetches
+    if (isLoading) return;
     
     setIsLoading(true);
     setFetchError(null);
 
     try {
       console.log("Fetching user gym ID for user:", user.id);
-      // Get the gym ID for the user
       const userGymId = await fetchUserGymId(user.id);
       if (!userGymId) {
         setFetchError("Non è stato possibile trovare la palestra associata all'utente");
@@ -54,12 +51,10 @@ export function useGymSettingsForm() {
       console.log("User gym ID fetched:", userGymId);
       setGymId(userGymId);
 
-      // Fetch gym data
       console.log("Fetching gym data for gym ID:", userGymId);
       const gymData = await fetchGymData(userGymId);
       console.log("Gym data fetched:", gymData);
       
-      // Fetch gym settings data - use maybeSingle instead of single to handle empty results
       console.log("Fetching gym settings data for gym ID:", userGymId);
       const gymSettingsData = await fetchGymSettingsData(userGymId);
       console.log("Gym settings data fetched:", gymSettingsData);
@@ -68,7 +63,6 @@ export function useGymSettingsForm() {
         setGymSettingsId(gymSettingsData.id);
       }
 
-      // Determine sale methods based on template_sent_by
       let saleMethods: string[] = ["both"];
       if (gymSettingsData?.template_sent_by === "trainer") {
         saleMethods = ["package"];
@@ -76,10 +70,8 @@ export function useGymSettingsForm() {
         saleMethods = ["custom"];
       }
 
-      // Set default notification channels if not available
       const notificationChannels = gymSettingsData?.notification_channels || ["app"];
 
-      // Update the form with the fetched data
       form.reset({
         name: gymData?.name || "",
         address: gymData?.address || "",
@@ -98,7 +90,6 @@ export function useGymSettingsForm() {
         allow_template_duplication: gymSettingsData?.allow_template_duplication ?? true,
         default_trainer_assignment_logic: gymSettingsData?.default_trainer_assignment_logic || "manual",
         sale_methods: saleMethods,
-        // New post-first-meeting workflow settings
         require_default_template_assignment: gymSettingsData?.require_default_template_assignment ?? true,
         package_confirmation_days: gymSettingsData?.package_confirmation_days || 30,
         custom_plan_confirmation_days: gymSettingsData?.custom_plan_confirmation_days || 45,
@@ -122,11 +113,9 @@ export function useGymSettingsForm() {
     
     try {
       console.log("Saving gym data for gym ID:", gymId, "with data:", data);
-      // Update gym data
       await updateGymData(gymId, data);
       
       console.log("Saving gym settings for gym ID:", gymId, "with settings ID:", gymSettingsId);
-      // Update gym settings
       await updateGymSettings(gymId, gymSettingsId, data);
       
       toast({
@@ -152,7 +141,7 @@ export function useGymSettingsForm() {
   const retryFetchSettings = (user: User | null) => {
     console.log("Retrying fetch settings...");
     setRetryCount(prev => prev + 1);
-    setIsInitialized(false); // Reset to allow re-initialization
+    setIsInitialized(false);
     fetchSettings(user);
   };
 
@@ -170,7 +159,6 @@ export function useGymSettingsForm() {
   };
 }
 
-// Helper function to normalize template_sent_by
 function normalizeTemplateSentBy(value: string | null): TemplateSentBy {
   if (value === "trainer" || value === "system" || value === "both") {
     return value;

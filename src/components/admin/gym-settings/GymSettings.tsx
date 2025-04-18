@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,6 +10,7 @@ import { ContactSettings } from "./ContactSettings";
 import { OperationalSettings } from "./OperationalSettings";
 import { AdvancedSettings } from "./AdvancedSettings";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { PostFirstMeetingSettings } from "./PostFirstMeetingSettings";
 
 export function GymSettings() {
   const { user } = useAuth();
@@ -95,6 +95,7 @@ export function GymSettings() {
           <TabsTrigger value="general">General</TabsTrigger>
           <TabsTrigger value="contact">Contact</TabsTrigger>
           <TabsTrigger value="operational">Operational</TabsTrigger>
+          <TabsTrigger value="post-first-meeting">Post-Primo Incontro</TabsTrigger>
           <TabsTrigger value="advanced">Advanced</TabsTrigger>
         </TabsList>
 
@@ -109,6 +110,10 @@ export function GymSettings() {
 
           <TabsContent value="operational">
             <OperationalSettings form={form} />
+          </TabsContent>
+
+          <TabsContent value="post-first-meeting">
+            <PostFirstMeetingSettings form={form} />
           </TabsContent>
 
           <TabsContent value="advanced">
