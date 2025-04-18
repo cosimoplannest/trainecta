@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -61,7 +62,8 @@ export function SendMessageForm() {
       if (data.targetRole === "all") {
         mappedTargetRole = null; // null means all users in the database
       } else if (data.targetRole === "clients") {
-        mappedTargetRole = "trainer"; // if targeting clients, we store "trainer" in database
+        // If targeting clients, we don't need to map anything as they're not users in the auth table
+        mappedTargetRole = null;
       } else if (data.targetRole === "trainers") {
         mappedTargetRole = "trainer"; // target trainers directly
       }
