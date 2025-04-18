@@ -71,7 +71,10 @@ export function useGymSettingsForm() {
         saleMethods = ["custom"];
       }
 
-      const notificationChannels: NotificationChannel[] = gymSettingsData?.notification_channels || ["app"];
+      // Handle notification channels with a fallback to default
+      const notificationChannels: NotificationChannel[] = 
+        Array.isArray(gymSettingsData?.notification_channels) ? 
+        gymSettingsData.notification_channels : ["app"];
 
       form.reset({
         name: gymData?.name || "",
