@@ -56,15 +56,23 @@ export const createTrainerInsurance = async (
       fileUrl = urlData.publicUrl;
     }
 
+    // Ensure all required fields are present
+    if (!insuranceData.trainer_id || !insuranceData.gym_id || !insuranceData.start_date || !insuranceData.end_date) {
+      throw new Error("Missing required fields for insurance creation");
+    }
+
     // Create insurance entry
     const { data, error } = await supabase
       .from("trainer_insurance")
-      .insert([
-        {
-          ...insuranceData,
-          file_url: fileUrl
-        }
-      ])
+      .insert({
+        trainer_id: insuranceData.trainer_id,
+        gym_id: insuranceData.gym_id,
+        policy_number: insuranceData.policy_number,
+        start_date: insuranceData.start_date,
+        end_date: insuranceData.end_date,
+        notes: insuranceData.notes,
+        file_url: fileUrl
+      })
       .select()
       .single();
 
@@ -107,11 +115,21 @@ export const updateTrainerInsurance = async (
       fileUrl = urlData.publicUrl;
     }
 
+    // Ensure we have data to update
+    if (!insuranceData.trainer_id || !insuranceData.gym_id || !insuranceData.start_date || !insuranceData.end_date) {
+      throw new Error("Missing required fields for insurance update");
+    }
+
     // Update insurance entry
     const { data, error } = await supabase
       .from("trainer_insurance")
       .update({
-        ...insuranceData,
+        trainer_id: insuranceData.trainer_id,
+        gym_id: insuranceData.gym_id,
+        policy_number: insuranceData.policy_number,
+        start_date: insuranceData.start_date,
+        end_date: insuranceData.end_date,
+        notes: insuranceData.notes,
         file_url: fileUrl,
         updated_at: new Date().toISOString()
       })

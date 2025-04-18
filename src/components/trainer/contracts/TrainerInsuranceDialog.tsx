@@ -65,14 +65,25 @@ export function TrainerInsuranceDialog({
   const onSubmit = async (values: any) => {
     try {
       setIsSubmitting(true);
+      
+      const gymId = user?.user_metadata?.gym_id;
+      if (!gymId) {
+        toast({
+          title: "Errore",
+          description: "ID della palestra mancante",
+          variant: "destructive",
+        });
+        return;
+      }
 
       const insuranceData = {
         trainer_id: trainerId,
-        gym_id: user?.user_metadata.gym_id,
+        gym_id: gymId,
         policy_number: values.policy_number,
         start_date: values.start_date.toISOString().split('T')[0],
         end_date: values.end_date.toISOString().split('T')[0],
-        notes: values.notes
+        notes: values.notes,
+        file_url: insurance?.file_url
       };
 
       let result;

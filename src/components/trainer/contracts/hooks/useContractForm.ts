@@ -59,6 +59,15 @@ export const useContractForm = ({
   };
 
   const onSubmit = async (values: ContractFormValues) => {
+    if (!gymId) {
+      toast({
+        title: "Errore",
+        description: "ID della palestra mancante",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       setIsSubmitting(true);
 
@@ -70,7 +79,8 @@ export const useContractForm = ({
         end_date: values.end_date ? values.end_date.toISOString().split('T')[0] : null,
         monthly_fee: values.contract_type !== 'vat_percentage' ? values.monthly_fee : null,
         percentage: values.contract_type === 'vat_percentage' ? values.percentage : null,
-        notes: values.notes
+        notes: values.notes,
+        file_url: contract?.file_url
       };
 
       let result;

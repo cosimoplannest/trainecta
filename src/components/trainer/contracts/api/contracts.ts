@@ -56,15 +56,25 @@ export const createTrainerContract = async (
       fileUrl = urlData.publicUrl;
     }
 
+    // Ensure all required fields are present
+    if (!contractData.trainer_id || !contractData.gym_id || !contractData.contract_type || !contractData.start_date) {
+      throw new Error("Missing required fields for contract creation");
+    }
+
     // Create contract entry
     const { data, error } = await supabase
       .from("trainer_contracts")
-      .insert([
-        {
-          ...contractData,
-          file_url: fileUrl
-        }
-      ])
+      .insert({
+        trainer_id: contractData.trainer_id,
+        gym_id: contractData.gym_id,
+        contract_type: contractData.contract_type,
+        start_date: contractData.start_date,
+        end_date: contractData.end_date,
+        monthly_fee: contractData.monthly_fee,
+        percentage: contractData.percentage,
+        notes: contractData.notes,
+        file_url: fileUrl
+      })
       .select()
       .single();
 
@@ -107,11 +117,23 @@ export const updateTrainerContract = async (
       fileUrl = urlData.publicUrl;
     }
 
+    // Ensure we have data to update
+    if (!contractData.trainer_id || !contractData.gym_id) {
+      throw new Error("Missing required fields for contract update");
+    }
+
     // Update contract entry
     const { data, error } = await supabase
       .from("trainer_contracts")
       .update({
-        ...contractData,
+        trainer_id: contractData.trainer_id,
+        gym_id: contractData.gym_id,
+        contract_type: contractData.contract_type,
+        start_date: contractData.start_date,
+        end_date: contractData.end_date,
+        monthly_fee: contractData.monthly_fee,
+        percentage: contractData.percentage,
+        notes: contractData.notes,
         file_url: fileUrl,
         updated_at: new Date().toISOString()
       })
