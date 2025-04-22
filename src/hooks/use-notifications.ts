@@ -20,9 +20,10 @@ export function useNotifications() {
   const fetchNotifications = async () => {
     setLoading(true);
     try {
-      // Use raw SQL query instead of using the 'from' method
+      // We need to use a type assertion since the "notifications" table 
+      // isn't in the TypeScript schema definition
       const { data, error } = await supabase
-        .from('notifications')
+        .from('notifications' as any)
         .select('*')
         .order('created_at', { ascending: false }) as { data: Notification[] | null, error: any };
 
@@ -44,10 +45,11 @@ export function useNotifications() {
 
   const markNotificationAsRead = async (notificationId: string) => {
     try {
-      // Use raw SQL query with a parameterized query
-      const { error } = await supabase.rpc('mark_notification_read', { 
-        p_notification_id: notificationId 
-      }) as { data: any, error: any };
+      // Using type assertion for the RPC function that isn't in the TypeScript definitions
+      const { error } = await supabase
+        .rpc('mark_notification_read' as any, { 
+          p_notification_id: notificationId 
+        }) as { data: any, error: any };
 
       if (error) throw error;
 
@@ -65,10 +67,12 @@ export function useNotifications() {
 
   const markAllNotificationsAsRead = async () => {
     try {
-      const { data, error } = await supabase.rpc('mark_all_notifications_read') as { 
-        data: number | null, 
-        error: any 
-      };
+      // Using type assertion for the RPC function that isn't in the TypeScript definitions
+      const { data, error } = await supabase
+        .rpc('mark_all_notifications_read' as any) as { 
+          data: number | null, 
+          error: any 
+        };
 
       if (error) throw error;
 
@@ -106,7 +110,8 @@ export function useNotifications() {
           table: 'notifications' 
         },
         (payload) => {
-          setNotifications(prev => [payload.new as Notification, ...prev]);
+          const newNotification = payload.new as Notification;
+          setNotifications(prev => [newNotification, ...prev]);
           setUnreadCount(prev => prev + 1);
         }
       )
