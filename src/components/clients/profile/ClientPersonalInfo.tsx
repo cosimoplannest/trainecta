@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { User, Calendar, Phone, Mail, Users, Clock, Edit, Info } from "lucide-react";
+import { User, Calendar, Phone, Mail, Users, Clock, Edit, Info, MessageSquare } from "lucide-react";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { AssignTrainer } from "../AssignTrainer";
 import EditClientDialog from "./EditClientDialog";
+import { InfoItem } from "@/components/trainer/profile/info/InfoItem";
 
 interface ClientData {
   id: string;
@@ -21,6 +22,10 @@ interface ClientData {
   internal_notes: string | null;
   assigned_to: string | null;
   user?: { full_name: string } | null;
+  // Additional client fields that might be used
+  subscription_type?: string | null;
+  preferred_time?: string | null;
+  primary_goal?: string | null;
 }
 
 interface ClientPersonalInfoProps {
@@ -30,6 +35,14 @@ interface ClientPersonalInfoProps {
 
 const ClientPersonalInfo = ({ client, onRefresh }: ClientPersonalInfoProps) => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+
+  const openWhatsApp = () => {
+    if (client.phone) {
+      // Remove any non-digit characters from phone
+      const phoneDigits = client.phone.replace(/\D/g, '');
+      window.open(`https://wa.me/${phoneDigits}`, '_blank');
+    }
+  };
 
   return (
     <>
@@ -60,9 +73,20 @@ const ClientPersonalInfo = ({ client, onRefresh }: ClientPersonalInfoProps) => {
             {client.phone && (
               <div className="flex items-start gap-2">
                 <Phone className="h-4 w-4 mt-0.5 text-muted-foreground" />
-                <div>
+                <div className="flex-1">
                   <p className="text-sm">Telefono</p>
-                  <p className="font-medium">{client.phone}</p>
+                  <div className="flex items-center justify-between">
+                    <p className="font-medium">{client.phone}</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="ml-2 text-green-600 border-green-600 hover:bg-green-50"
+                      onClick={openWhatsApp}
+                    >
+                      <MessageSquare className="mr-1 h-4 w-4" />
+                      WhatsApp
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}
@@ -74,6 +98,25 @@ const ClientPersonalInfo = ({ client, onRefresh }: ClientPersonalInfoProps) => {
                   <p className="text-sm">Email</p>
                   <p className="font-medium">{client.email}</p>
                 </div>
+              </div>
+            )}
+
+            {/* Additional Client Information */}
+            {client.subscription_type && (
+              <div className="pt-2">
+                <InfoItem label="Abbonamento" value={client.subscription_type} />
+              </div>
+            )}
+
+            {client.preferred_time && (
+              <div className="pt-2">
+                <InfoItem label="Orario Allenamento" value={client.preferred_time} />
+              </div>
+            )}
+
+            {client.primary_goal && (
+              <div className="pt-2">
+                <InfoItem label="Obiettivo" value={client.primary_goal} />
               </div>
             )}
           </div>
