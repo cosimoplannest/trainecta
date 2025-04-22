@@ -1,4 +1,3 @@
-
 import { Bell, Menu, User, MessageSquare, Settings, LogOut, Search, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -22,6 +21,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { NotificationCenter } from "@/components/NotificationCenter";
 
 const Header = () => {
   const isMobile = useIsMobile();
@@ -35,7 +35,6 @@ const Header = () => {
     { id: 3, title: "Aggiornamento sistema", message: "Il sistema è stato aggiornato alla versione 2.5", time: "5 ore fa", read: true },
   ]);
 
-  // Determine page title based on current route
   useEffect(() => {
     const path = location.pathname;
     if (path.includes("/dashboard/admin")) setPageTitle("Dashboard Admin");
@@ -98,53 +97,7 @@ const Header = () => {
           </Link>
         </Button>
         
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-5 w-5" />
-              {unreadCount > 0 && (
-                <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center bg-primary text-primary-foreground text-xs">
-                  {unreadCount}
-                </Badge>
-              )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent align="end" className="w-80 p-0">
-            <div className="flex items-center justify-between p-4 border-b">
-              <h3 className="font-medium">Notifiche</h3>
-              {unreadCount > 0 && (
-                <Button variant="ghost" size="sm" onClick={markAllAsRead} className="text-xs h-8">
-                  Segna tutte come lette
-                </Button>
-              )}
-            </div>
-            <div className="max-h-80 overflow-auto divide-y">
-              {notifications.length > 0 ? (
-                notifications.map((notification) => (
-                  <div 
-                    key={notification.id} 
-                    className={`p-4 hover:bg-muted/50 transition-colors ${notification.read ? '' : 'bg-primary/5'}`}
-                  >
-                    <div className="flex justify-between items-start mb-1">
-                      <h4 className="font-medium text-sm">{notification.title}</h4>
-                      <span className="text-xs text-muted-foreground">{notification.time}</span>
-                    </div>
-                    <p className="text-sm text-muted-foreground">{notification.message}</p>
-                  </div>
-                ))
-              ) : (
-                <div className="p-4 text-center text-muted-foreground text-sm">
-                  Nessuna notifica
-                </div>
-              )}
-            </div>
-            <div className="p-2 border-t text-center">
-              <Button variant="ghost" size="sm" asChild className="w-full">
-                <Link to="/notifications">Vedi tutte le notifiche</Link>
-              </Button>
-            </div>
-          </PopoverContent>
-        </Popover>
+        <NotificationCenter />
         
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
