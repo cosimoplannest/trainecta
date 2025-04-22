@@ -1,4 +1,4 @@
-import { Bell, Menu, User, MessageSquare, Settings, LogOut, Search, HelpCircle } from "lucide-react";
+import { Menu, User, MessageSquare, Settings, LogOut, Search, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { 
   DropdownMenu, 
@@ -13,13 +13,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/use-auth";
-import { 
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { NotificationCenter } from "@/components/NotificationCenter";
 
@@ -29,11 +23,6 @@ const Header = () => {
   const { signOut, user } = useAuth();
   const location = useLocation();
   const [pageTitle, setPageTitle] = useState("");
-  const [notifications, setNotifications] = useState([
-    { id: 1, title: "Nuova registrazione", message: "Un nuovo cliente si è registrato", time: "5 min fa", read: false },
-    { id: 2, title: "Appuntamento", message: "Appuntamento con Mario Rossi alle 15:00", time: "1 ora fa", read: false },
-    { id: 3, title: "Aggiornamento sistema", message: "Il sistema è stato aggiornato alla versione 2.5", time: "5 ore fa", read: true },
-  ]);
 
   useEffect(() => {
     const path = location.pathname;
@@ -51,12 +40,6 @@ const Header = () => {
     else if (path.includes("/admin-settings")) setPageTitle("Impostazioni Admin");
     else setPageTitle("Dashboard");
   }, [location]);
-
-  const markAllAsRead = () => {
-    setNotifications(prev => prev.map(notification => ({ ...notification, read: true })));
-  };
-
-  const unreadCount = notifications.filter(notification => !notification.read).length;
 
   return (
     <header className="sticky top-0 z-10 border-b px-4 py-2 flex items-center justify-between bg-background shadow-sm">

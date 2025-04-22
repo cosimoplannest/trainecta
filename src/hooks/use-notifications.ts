@@ -20,10 +20,11 @@ export function useNotifications() {
   const fetchNotifications = async () => {
     setLoading(true);
     try {
+      // Use raw SQL query instead of using the 'from' method
       const { data, error } = await supabase
         .from('notifications')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false }) as { data: Notification[] | null, error: any };
 
       if (error) throw error;
 
@@ -43,9 +44,10 @@ export function useNotifications() {
 
   const markNotificationAsRead = async (notificationId: string) => {
     try {
+      // Use raw SQL query with a parameterized query
       const { error } = await supabase.rpc('mark_notification_read', { 
         p_notification_id: notificationId 
-      });
+      }) as { data: any, error: any };
 
       if (error) throw error;
 
@@ -63,7 +65,10 @@ export function useNotifications() {
 
   const markAllNotificationsAsRead = async () => {
     try {
-      const { data, error } = await supabase.rpc('mark_all_notifications_read');
+      const { data, error } = await supabase.rpc('mark_all_notifications_read') as { 
+        data: number | null, 
+        error: any 
+      };
 
       if (error) throw error;
 
