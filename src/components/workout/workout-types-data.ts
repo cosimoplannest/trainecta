@@ -7,11 +7,11 @@ type WorkoutTypeOption = {
 };
 
 export const workoutTypes: WorkoutTypeOption[] = [
-  { value: "full_body", label: "Corpo intero" },
-  { value: "upper_body", label: "Parte superiore" },
-  { value: "lower_body", label: "Parte inferiore" },
-  { value: "push", label: "Spinta" },
-  { value: "pull", label: "Trazione" },
+  { value: "full_body", label: "Full body" },
+  { value: "upper_body", label: "Upper body" },
+  { value: "lower_body", label: "Lower body" },
+  { value: "push", label: "Push" },
+  { value: "pull", label: "Pull" },
   { value: "legs", label: "Gambe" },
   { value: "core", label: "Core" },
   { value: "cardio", label: "Cardio" },
