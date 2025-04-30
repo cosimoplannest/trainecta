@@ -23,7 +23,8 @@ export function AssignTemplateForm({ template, onAssigned, onOpenChange, open }:
     setSearchQuery,
     loading,
     fetchClients,
-    handleAssignTemplate
+    handleAssignTemplate,
+    clients
   } = useAssignTemplate(template, onAssigned, onOpenChange);
 
   useEffect(() => {
@@ -38,6 +39,8 @@ export function AssignTemplateForm({ template, onAssigned, onOpenChange, open }:
         <ClientSearch 
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
+          resultCount={filteredClients.length}
+          totalCount={clients.length}
         />
 
         <ClientSelect 

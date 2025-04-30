@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
@@ -12,12 +11,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 import { 
   Search, 
   Eye, 
   Dumbbell, 
-  MessageSquare, 
-  Calendar 
+  MessageSquare,
+  User
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
@@ -89,19 +89,33 @@ export function AssignedClientsTable() {
            (client.phone && client.phone.includes(query));
   });
 
+  const showNoResults = searchQuery.trim().length > 0 && filteredClients.length === 0;
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium">I Miei Clienti</h3>
-        <div className="flex w-full max-w-sm items-center space-x-2">
-          <Search className="h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Cerca cliente..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="h-9"
-          />
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-medium">I Miei Clienti</h3>
+          <div className="flex w-full max-w-sm items-center gap-2 ml-auto">
+            <div className="relative flex-1">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Cerca cliente..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-8 h-9"
+              />
+            </div>
+          </div>
         </div>
+        
+        {searchQuery.trim().length > 0 && (
+          <div className="flex items-center">
+            <Badge variant="outline" className="text-xs">
+              {filteredClients.length} risultati su {clients.length}
+            </Badge>
+          </div>
+        )}
       </div>
 
       <div className="rounded-md border">
@@ -124,6 +138,16 @@ export function AssignedClientsTable() {
                   <TableCell><Skeleton className="h-5 w-[120px] float-right" /></TableCell>
                 </TableRow>
               ))
+            ) : showNoResults ? (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center py-8">
+                  <div className="flex flex-col items-center justify-center">
+                    <Search className="h-8 w-8 text-muted-foreground/50 mb-2" />
+                    <span className="text-muted-foreground font-medium">Nessun cliente trovato con "{searchQuery}"</span>
+                    <span className="text-xs text-muted-foreground mt-1">Prova a cercare con altri termini</span>
+                  </div>
+                </TableCell>
+              </TableRow>
             ) : filteredClients.length > 0 ? (
               filteredClients.map((client) => (
                 <TableRow key={client.id}>
@@ -171,9 +195,10 @@ export function AssignedClientsTable() {
             ) : (
               <TableRow>
                 <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
-                  {searchQuery 
-                    ? "Nessun cliente trovato con i criteri di ricerca" 
-                    : "Nessun cliente assegnato"}
+                  <div className="flex flex-col items-center justify-center">
+                    <User className="h-8 w-8 text-muted-foreground/50 mb-2" />
+                    <span>Nessun cliente assegnato</span>
+                  </div>
                 </TableCell>
               </TableRow>
             )}

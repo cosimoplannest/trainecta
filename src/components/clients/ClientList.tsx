@@ -18,6 +18,7 @@ const ClientList = () => {
     paginatedClients, 
     handleRefreshClients,
     userRole,
+    filteredClients,
     // Pagination
     currentPage,
     totalPages,
@@ -38,6 +39,8 @@ const ClientList = () => {
           setSearchQuery={setSearchQuery}
           handleRefreshClients={handleRefreshClients}
           loading={loading}
+          totalResults={filteredClients.length}
+          totalItems={totalItems}
         />
 
         <ClientListTable 
@@ -45,6 +48,7 @@ const ClientList = () => {
           loading={loading}
           filteredClients={paginatedClients}
           handleViewProfile={handleViewProfile}
+          searchQuery={searchQuery}
         />
         
         {!loading && (

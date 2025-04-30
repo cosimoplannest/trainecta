@@ -1,7 +1,6 @@
-
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { User, UserCheck, Calendar, ShoppingBag } from "lucide-react";
+import { User, UserCheck, Calendar, ShoppingBag, Search } from "lucide-react";
 import { format } from "date-fns";
 import { ClientData } from "../types/client-types";
 import { ClientActions } from "./ClientActions";
@@ -11,13 +10,15 @@ interface ClientListTableProps {
   loading: boolean;
   filteredClients: ClientData[];
   handleViewProfile: (clientId: string) => void;
+  searchQuery?: string;
 }
 
 export function ClientListTable({ 
   clients, 
   loading, 
   filteredClients, 
-  handleViewProfile 
+  handleViewProfile,
+  searchQuery = "" 
 }: ClientListTableProps) {
   const getPurchaseStatusBadge = (purchaseType: string | null) => {
     if (!purchaseType || purchaseType === 'none') {
@@ -41,8 +42,10 @@ export function ClientListTable({
     );
   };
 
+  const showNoResults = filteredClients.length === 0 && searchQuery.trim().length > 0;
+
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border mt-4">
       <Table>
         <TableHeader>
           <TableRow>
@@ -61,6 +64,16 @@ export function ClientListTable({
                 <div className="flex flex-col items-center justify-center">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-2"></div>
                   <span className="text-muted-foreground">Caricamento clienti...</span>
+                </div>
+              </TableCell>
+            </TableRow>
+          ) : showNoResults ? (
+            <TableRow>
+              <TableCell colSpan={6} className="text-center py-10">
+                <div className="flex flex-col items-center justify-center">
+                  <Search className="h-10 w-10 text-muted-foreground/50 mb-2" />
+                  <span className="text-muted-foreground font-medium mb-1">Nessun risultato per "{searchQuery}"</span>
+                  <span className="text-xs text-muted-foreground">Prova a cercare con un altro nome, email o numero di telefono</span>
                 </div>
               </TableCell>
             </TableRow>
