@@ -9,13 +9,16 @@ import { Button } from "@/components/ui/button";
 import { Bell, CheckCircle } from "lucide-react";
 import { useNotifications } from "@/hooks/use-notifications";
 import { formatDistanceToNow } from "date-fns";
+import { it } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function NotificationCenter() {
   const { 
     notifications, 
     unreadCount, 
+    loading,
     markNotificationAsRead,
     markAllNotificationsAsRead 
   } = useNotifications();
@@ -34,7 +37,7 @@ export function NotificationCenter() {
       </PopoverTrigger>
       <PopoverContent align="end" className="w-80 p-0">
         <div className="flex items-center justify-between p-4 border-b">
-          <h3 className="font-medium">Notifications</h3>
+          <h3 className="font-medium">Notifiche</h3>
           {unreadCount > 0 && (
             <Button 
               variant="ghost" 
@@ -42,12 +45,24 @@ export function NotificationCenter() {
               onClick={markAllNotificationsAsRead} 
               className="text-xs h-8"
             >
-              Mark all as read
+              Segna tutti come letti
             </Button>
           )}
         </div>
         <ScrollArea className="h-96">
-          {notifications.length > 0 ? (
+          {loading ? (
+            <div className="p-4 space-y-4">
+              {Array(3).fill(0).map((_, i) => (
+                <div key={i} className="space-y-2">
+                  <div className="flex justify-between">
+                    <Skeleton className="h-4 w-1/2" />
+                    <Skeleton className="h-4 w-1/4" />
+                  </div>
+                  <Skeleton className="h-12 w-full" />
+                </div>
+              ))}
+            </div>
+          ) : notifications.length > 0 ? (
             notifications.map((notification) => (
               <div 
                 key={notification.id} 
@@ -66,17 +81,24 @@ export function NotificationCenter() {
                     )}
                   </h4>
                   <span className="text-xs text-muted-foreground">
-                    {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
+                    {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true, locale: it })}
                   </span>
                 </div>
                 <p className="text-sm text-muted-foreground">
                   {notification.message}
                 </p>
+                {notification.notification_type !== 'app' && (
+                  <div className="mt-2">
+                    <Badge variant="outline" className="text-xs">
+                      {notification.notification_type === 'email' ? 'Email' : 'Email & App'}
+                    </Badge>
+                  </div>
+                )}
               </div>
             ))
           ) : (
             <div className="p-4 text-center text-muted-foreground text-sm">
-              No notifications
+              Nessuna notifica
             </div>
           )}
         </ScrollArea>

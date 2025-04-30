@@ -1,7 +1,8 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from '@/hooks/use-auth';
 
 export interface Notification {
   id: string;
@@ -16,16 +17,19 @@ export function useNotifications() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
+  const { toast } = useToast();
+  const { user } = useAuth();
 
   const fetchNotifications = async () => {
+    if (!user) return;
+    
     setLoading(true);
     try {
-      // We need to use a type assertion since the "notifications" table 
-      // isn't in the TypeScript schema definition
       const { data, error } = await supabase
-        .from('notifications' as any)
+        .from('notifications')
         .select('*')
-        .order('created_at', { ascending: false }) as { data: Notification[] | null, error: any };
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
 
@@ -44,12 +48,13 @@ export function useNotifications() {
   };
 
   const markNotificationAsRead = async (notificationId: string) => {
+    if (!user) return;
+    
     try {
-      // Using type assertion for the RPC function that isn't in the TypeScript definitions
       const { error } = await supabase
-        .rpc('mark_notification_read' as any, { 
+        .rpc('mark_notification_read', { 
           p_notification_id: notificationId 
-        }) as { data: any, error: any };
+        });
 
       if (error) throw error;
 
@@ -62,17 +67,20 @@ export function useNotifications() {
       setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (error) {
       console.error('Error marking notification as read:', error);
+      toast({
+        title: "Error",
+        description: "Failed to mark notification as read",
+        variant: "destructive"
+      });
     }
   };
 
   const markAllNotificationsAsRead = async () => {
+    if (!user) return;
+    
     try {
-      // Using type assertion for the RPC function that isn't in the TypeScript definitions
       const { data, error } = await supabase
-        .rpc('mark_all_notifications_read' as any) as { 
-          data: number | null, 
-          error: any 
-        };
+        .rpc('mark_all_notifications_read');
 
       if (error) throw error;
 
@@ -83,7 +91,7 @@ export function useNotifications() {
       setUnreadCount(0);
 
       toast({
-        title: "Notifications",
+        title: "Success",
         description: `Marked ${data} notifications as read`
       });
     } catch (error) {
@@ -96,31 +104,146 @@ export function useNotifications() {
     }
   };
 
-  useEffect(() => {
-    fetchNotifications();
+  const sendNotification = async ({
+    userId,
+    title,
+    message,
+    type = 'app'
+  }: {
+    userId: string;
+    title: string;
+    message: string;
+    type?: 'email' | 'app' | 'both';
+  }) => {
+    try {
+      const { data, error } = await supabase.rpc('create_notification', {
+        p_user_id: userId,
+        p_title: title,
+        p_message: message,
+        p_notification_type: type
+      });
 
-    // Set up real-time subscription
-    const channel = supabase
-      .channel('notifications')
-      .on(
-        'postgres_changes', 
-        { 
-          event: 'INSERT', 
-          schema: 'public', 
-          table: 'notifications' 
-        },
-        (payload) => {
-          const newNotification = payload.new as Notification;
-          setNotifications(prev => [newNotification, ...prev]);
-          setUnreadCount(prev => prev + 1);
+      if (error) throw error;
+
+      if (type === 'email' || type === 'both') {
+        const userResponse = await supabase
+          .from('users')
+          .select('email')
+          .eq('id', userId)
+          .single();
+          
+        if (userResponse.error) throw userResponse.error;
+
+        const emailResponse = await supabase.functions.invoke('send-notification-email', {
+          body: {
+            to: userResponse.data.email,
+            title: title,
+            message: message,
+            notificationId: data
+          }
+        });
+
+        if (emailResponse.error) {
+          console.error('Error sending email notification:', emailResponse.error);
         }
-      )
-      .subscribe();
+      }
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
+      return data;
+    } catch (error) {
+      console.error('Error sending notification:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send notification",
+        variant: "destructive"
+      });
+      throw error;
+    }
+  };
+
+  const sendNotificationToRole = async ({
+    role,
+    title,
+    message,
+    type = 'app'
+  }: {
+    role: string;
+    title: string;
+    message: string;
+    type?: 'email' | 'app' | 'both';
+  }) => {
+    try {
+      const { data, error } = await supabase.rpc('create_notification_for_role', {
+        p_role: role,
+        p_title: title,
+        p_message: message,
+        p_notification_type: type
+      });
+
+      if (error) throw error;
+
+      // If email notifications are required, we'd need to send them in a separate call
+      // or modify the database function to handle that
+
+      return data;
+    } catch (error) {
+      console.error('Error sending role notification:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send notifications to role",
+        variant: "destructive"
+      });
+      throw error;
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      fetchNotifications();
+
+      // Set up real-time subscription
+      const channel = supabase
+        .channel('notifications-changes')
+        .on(
+          'postgres_changes', 
+          { 
+            event: '*', 
+            schema: 'public', 
+            table: 'notifications',
+            filter: `user_id=eq.${user.id}`
+          },
+          (payload) => {
+            console.log('Notification change received:', payload);
+            
+            if (payload.eventType === 'INSERT') {
+              const newNotification = payload.new as Notification;
+              setNotifications(prev => [newNotification, ...prev]);
+              if (!newNotification.read) {
+                setUnreadCount(prev => prev + 1);
+              }
+              
+              // Show toast for new notifications
+              toast({
+                title: newNotification.title,
+                description: newNotification.message,
+              });
+            } else if (payload.eventType === 'UPDATE') {
+              // Update the notification in the list
+              setNotifications(prev => 
+                prev.map(n => n.id === payload.new.id ? { ...n, ...payload.new } : n)
+              );
+              
+              // Recalculate unread count
+              fetchNotifications();
+            }
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [user]);
 
   return {
     notifications,
@@ -128,6 +251,8 @@ export function useNotifications() {
     unreadCount,
     markNotificationAsRead,
     markAllNotificationsAsRead,
+    sendNotification,
+    sendNotificationToRole,
     fetchNotifications
   };
 }
