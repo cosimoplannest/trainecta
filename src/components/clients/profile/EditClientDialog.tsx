@@ -28,6 +28,11 @@ const clientFormSchema = z.object({
   gender: z.string().nullable(),
   birth_date: z.date().optional(),
   internal_notes: z.string().nullable(),
+  preferred_time: z.string().nullable().optional(),
+  primary_goal: z.string().nullable().optional(),
+  fitness_level: z.string().nullable().optional(),
+  contact_method: z.string().nullable().optional(),
+  contact_time: z.string().nullable().optional(),
 });
 
 const EditClientDialog = ({ client, open, onClose, onSuccess }: EditClientDialogProps) => {
@@ -44,6 +49,11 @@ const EditClientDialog = ({ client, open, onClose, onSuccess }: EditClientDialog
       gender: client.gender,
       birth_date: client.birth_date ? new Date(client.birth_date) : undefined,
       internal_notes: client.internal_notes,
+      preferred_time: client.preferred_time || null,
+      primary_goal: client.primary_goal || null,
+      fitness_level: client.fitness_level || null,
+      contact_method: client.contact_method || null,
+      contact_time: client.contact_time || null,
     }
   });
 
@@ -61,6 +71,11 @@ const EditClientDialog = ({ client, open, onClose, onSuccess }: EditClientDialog
           gender: data.gender || null,
           birth_date: data.birth_date ? data.birth_date.toISOString() : null,
           internal_notes: data.internal_notes || null,
+          preferred_time: data.preferred_time || null,
+          primary_goal: data.primary_goal || null,
+          fitness_level: data.fitness_level || null,
+          contact_method: data.contact_method || null,
+          contact_time: data.contact_time || null,
         })
         .eq("id", client.id);
       
@@ -87,11 +102,11 @@ const EditClientDialog = ({ client, open, onClose, onSuccess }: EditClientDialog
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Modifica Cliente</DialogTitle>
           <DialogDescription>
-            Modifica i dati personali del cliente
+            Modifica i dati personali e le preferenze del cliente
           </DialogDescription>
         </DialogHeader>
 
