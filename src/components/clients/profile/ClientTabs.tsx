@@ -3,31 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ClientTemplates from "./ClientTemplates";
 import ClientActivities from "./ClientActivities";
 import ClientFollowups from "./ClientFollowups";
-
-interface AssignedTemplate {
-  id: string;
-  assigned_at: string;
-  workout_template: { 
-    id: string;
-    name: string; 
-    type: string; 
-    category: string;
-    template_exercises?: {
-      id: string;
-      sets: number;
-      reps: string;
-      exercise: {
-        id: string;
-        name: string;
-        video_url?: string;
-      }
-    }[]
-  } | null;
-  assigned_by_user: { full_name: string } | null;
-  delivery_status: string;
-  delivery_channel: string;
-  conversion_status: string | null;
-}
+import { AssignedTemplate } from "@/types/workout";
 
 interface ClientActivity {
   id: string;

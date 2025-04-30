@@ -3,33 +3,7 @@ import { useState } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import TemplateItem from "./template/TemplateItem";
 import EmptyTemplates from "./template/EmptyTemplates";
-
-interface TemplateExercise {
-  id: string;
-  sets: number;
-  reps: string;
-  exercise: {
-    id: string;
-    name: string;
-    video_url?: string;
-  }
-}
-
-interface AssignedTemplate {
-  id: string;
-  assigned_at: string;
-  workout_template: { 
-    id: string;
-    name: string; 
-    type: string; 
-    category: string;
-    template_exercises?: TemplateExercise[];
-  } | null;
-  assigned_by_user: { full_name: string } | null;
-  delivery_status: string;
-  delivery_channel: string;
-  conversion_status: string | null;
-}
+import { AssignedTemplate } from "@/types/workout";
 
 interface ClientTemplatesProps {
   templates: AssignedTemplate[];

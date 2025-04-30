@@ -1,21 +1,9 @@
 
 import { Video } from "lucide-react";
-
-interface TemplateExercise {
-  id: string;
-  sets: number;
-  reps: string;
-  order_index: number;
-  exercise: {
-    id: string;
-    name: string;
-    video_url?: string;
-  }
-  notes?: string;
-}
+import { TemplateExerciseWithNestedExercise } from "@/types/workout";
 
 interface TemplateExerciseDetailsProps {
-  exercises: TemplateExercise[];
+  exercises: TemplateExerciseWithNestedExercise[];
 }
 
 const TemplateExerciseDetails = ({ exercises }: TemplateExerciseDetailsProps) => {

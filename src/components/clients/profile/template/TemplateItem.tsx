@@ -8,36 +8,7 @@ import TemplateStatusBadges from "./TemplateStatusBadges";
 import TemplateExerciseDetails from "./TemplateExerciseDetails";
 import { formatTemplateForWhatsApp, openWhatsApp } from "@/utils/whatsapp-utils";
 import { toast } from "sonner";
-
-interface TemplateExercise {
-  id: string;
-  sets: number;
-  reps: string;
-  order_index: number;
-  exercise: {
-    id: string;
-    name: string;
-    video_url?: string;
-  }
-  notes?: string;
-}
-
-interface AssignedTemplate {
-  id: string;
-  assigned_at: string;
-  workout_template: { 
-    id: string;
-    name: string; 
-    type: string; 
-    category: string;
-    description?: string;
-    template_exercises?: TemplateExercise[];
-  } | null;
-  assigned_by_user: { full_name: string } | null;
-  delivery_status: string;
-  delivery_channel: string;
-  conversion_status: string | null;
-}
+import { AssignedTemplate } from "@/types/workout";
 
 interface TemplateItemProps {
   template: AssignedTemplate;
