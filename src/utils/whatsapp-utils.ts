@@ -1,7 +1,7 @@
 
 import { WorkoutTemplate } from "@/types/workout";
 
-export const formatTemplateForWhatsApp = (template: WorkoutTemplate): string => {
+export const formatTemplateForWhatsApp = (template: Partial<WorkoutTemplate> | null): string => {
   if (!template || !template.template_exercises) {
     return '';
   }

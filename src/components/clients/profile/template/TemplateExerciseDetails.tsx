@@ -5,11 +5,13 @@ interface TemplateExercise {
   id: string;
   sets: number;
   reps: string;
+  order_index: number;
   exercise: {
     id: string;
     name: string;
     video_url?: string;
   }
+  notes?: string;
 }
 
 interface TemplateExerciseDetailsProps {

@@ -13,11 +13,13 @@ interface TemplateExercise {
   id: string;
   sets: number;
   reps: string;
+  order_index: number;
   exercise: {
     id: string;
     name: string;
     video_url?: string;
   }
+  notes?: string;
 }
 
 interface AssignedTemplate {
@@ -28,6 +30,7 @@ interface AssignedTemplate {
     name: string; 
     type: string; 
     category: string;
+    description?: string;
     template_exercises?: TemplateExercise[];
   } | null;
   assigned_by_user: { full_name: string } | null;
