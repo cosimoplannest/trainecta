@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { AssignedTemplate } from "@/types/workout";
 
 interface ClientData {
   id: string;
@@ -23,31 +24,6 @@ interface ClientActivity {
   created_at: string;
   notes: string | null;
   user?: { full_name: string } | null;
-}
-
-interface AssignedTemplate {
-  id: string;
-  assigned_at: string;
-  workout_template: { 
-    id: string;
-    name: string; 
-    type: string; 
-    category: string;
-    template_exercises?: {
-      id: string;
-      sets: number;
-      reps: string;
-      exercise: {
-        id: string;
-        name: string;
-        video_url?: string;
-      }
-    }[]
-  } | null;
-  assigned_by_user: { full_name: string } | null;
-  delivery_status: string;
-  delivery_channel: string;
-  conversion_status: string | null;
 }
 
 interface ClientFollowup {
@@ -116,6 +92,9 @@ export const useClientData = (clientId: string | undefined): ClientProfileData =
         .from("assigned_templates")
         .select(`
           id,
+          template_id,
+          client_id,
+          assigned_by,
           assigned_at,
           delivery_status,
           delivery_channel,
@@ -125,10 +104,16 @@ export const useClientData = (clientId: string | undefined): ClientProfileData =
             name, 
             type, 
             category,
+            description,
+            locked,
+            created_at,
+            gym_id,
             template_exercises(
               id,
               sets,
               reps,
+              order_index,
+              notes,
               exercise:exercises(
                 id,
                 name,

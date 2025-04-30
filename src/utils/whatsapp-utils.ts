@@ -1,5 +1,5 @@
 
-import { WorkoutTemplate } from "@/types/workout";
+import { WorkoutTemplate, TemplateExerciseWithNestedExercise } from "@/types/workout";
 
 export const formatTemplateForWhatsApp = (template: Partial<WorkoutTemplate> | null): string => {
   if (!template || !template.template_exercises) {
@@ -23,7 +23,9 @@ export const formatTemplateForWhatsApp = (template: Partial<WorkoutTemplate> | n
     .sort((a, b) => a.order_index - b.order_index);
   
   sortedExercises.forEach((ex, index) => {
-    const exerciseName = 'exercise' in ex && ex.exercise ? ex.exercise.name : 'Esercizio sconosciuto';
+    // Check if the exercise has nested exercise property (should always be the case)
+    const exerciseObj = ex as TemplateExerciseWithNestedExercise;
+    const exerciseName = exerciseObj.exercise ? exerciseObj.exercise.name : 'Esercizio sconosciuto';
     
     message += `${index + 1}. *${exerciseName}*\n`;
     message += `   Serie: ${ex.sets} | Ripetizioni: ${ex.reps}\n`;

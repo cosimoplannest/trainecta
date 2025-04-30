@@ -8,7 +8,7 @@ import TemplateStatusBadges from "./TemplateStatusBadges";
 import TemplateExerciseDetails from "./TemplateExerciseDetails";
 import { formatTemplateForWhatsApp, openWhatsApp } from "@/utils/whatsapp-utils";
 import { toast } from "sonner";
-import { AssignedTemplate } from "@/types/workout";
+import { AssignedTemplate, TemplateExerciseWithNestedExercise } from "@/types/workout";
 
 interface TemplateItemProps {
   template: AssignedTemplate;
@@ -106,7 +106,9 @@ const TemplateItem = ({ template, isActive, onToggle, clientPhone }: TemplateIte
       </div>
       
       {isActive && template.workout_template?.template_exercises && (
-        <TemplateExerciseDetails exercises={template.workout_template.template_exercises} />
+        <TemplateExerciseDetails 
+          exercises={template.workout_template.template_exercises as TemplateExerciseWithNestedExercise[]} 
+        />
       )}
     </div>
   );
