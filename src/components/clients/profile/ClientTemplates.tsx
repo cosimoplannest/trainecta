@@ -33,9 +33,10 @@ interface AssignedTemplate {
 
 interface ClientTemplatesProps {
   templates: AssignedTemplate[];
+  clientPhone?: string;
 }
 
-const ClientTemplates = ({ templates }: ClientTemplatesProps) => {
+const ClientTemplates = ({ templates, clientPhone }: ClientTemplatesProps) => {
   const [activeTemplate, setActiveTemplate] = useState<string | null>(null);
 
   const toggleTemplateDetails = (templateId: string) => {
@@ -61,6 +62,7 @@ const ClientTemplates = ({ templates }: ClientTemplatesProps) => {
                 template={template}
                 isActive={activeTemplate === template.id}
                 onToggle={() => toggleTemplateDetails(template.id)}
+                clientPhone={clientPhone}
               />
             ))}
           </div>

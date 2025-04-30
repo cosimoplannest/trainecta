@@ -36,7 +36,8 @@ const ClientProfile = () => {
           <ClientTabs 
             templates={templates} 
             activities={activities} 
-            followups={followups} 
+            followups={followups}
+            clientPhone={client.phone}
           />
         </div>
       </div>

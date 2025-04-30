@@ -12,6 +12,7 @@ export function useAssignTemplate(template: WorkoutTemplate | null, onAssigned: 
   const [loading, setLoading] = useState(false);
   const [clientsLoading, setClientsLoading] = useState(false);
   const [selectedClient, setSelectedClient] = useState("");
+  const [selectedClientData, setSelectedClientData] = useState<Client & { phone?: string } | null>(null);
   const [deliveryChannel, setDeliveryChannel] = useState("whatsapp");
   const [notes, setNotes] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -33,6 +34,32 @@ export function useAssignTemplate(template: WorkoutTemplate | null, onAssigned: 
     setFilteredClients(filtered);
   }, [searchQuery, clients]);
 
+  // Effect to fetch selected client details when selectedClient changes
+  useEffect(() => {
+    const fetchSelectedClientData = async () => {
+      if (!selectedClient) {
+        setSelectedClientData(null);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from("clients")
+          .select("id, first_name, last_name, phone")
+          .eq("id", selectedClient)
+          .single();
+
+        if (error) throw error;
+        setSelectedClientData(data);
+      } catch (error) {
+        console.error("Error fetching client details:", error);
+        toast.error("Errore durante il recupero dei dettagli del cliente");
+      }
+    };
+
+    fetchSelectedClientData();
+  }, [selectedClient]);
+
   const fetchClients = async (isOpen: boolean) => {
     if (!isOpen) return;
     
@@ -40,7 +67,7 @@ export function useAssignTemplate(template: WorkoutTemplate | null, onAssigned: 
     try {
       let query = supabase
         .from("clients")
-        .select("id, first_name, last_name");
+        .select("id, first_name, last_name, phone");
         
       // If user is a trainer, only fetch their assigned clients
       if (userRole === 'trainer' && user) {
@@ -76,7 +103,7 @@ export function useAssignTemplate(template: WorkoutTemplate | null, onAssigned: 
         .insert({
           template_id: template.id,
           client_id: selectedClient,
-          assigned_by: "11111111-1111-1111-1111-111111111111",
+          assigned_by: user?.id || "11111111-1111-1111-1111-111111111111",
           delivery_channel: deliveryChannel,
           delivery_status: "sent",
           conversion_status: "pending",
@@ -85,19 +112,22 @@ export function useAssignTemplate(template: WorkoutTemplate | null, onAssigned: 
         
       if (error) throw error;
       
-      const selectedClientData = clients.find(c => c.id === selectedClient);
       await supabase.from("activity_logs").insert({
         action: "template_assigned",
         target_id: template.id,
         target_type: "workout_template",
-        user_id: "11111111-1111-1111-1111-111111111111",
+        user_id: user?.id || "11111111-1111-1111-1111-111111111111",
         gym_id: template.gym_id,
         notes: `Template '${template.name}' assegnato al cliente ${selectedClientData?.first_name} ${selectedClientData?.last_name}`,
       });
       
       toast.success("Template assegnato con successo");
       onAssigned();
-      onOpenChange(false);
+      
+      // Don't close the dialog yet if using WhatsApp delivery
+      if (deliveryChannel !== "whatsapp") {
+        onOpenChange(false);
+      }
       
       // Reset form
       setSelectedClient("");
@@ -119,6 +149,7 @@ export function useAssignTemplate(template: WorkoutTemplate | null, onAssigned: 
     clientsLoading,
     selectedClient,
     setSelectedClient,
+    selectedClientData,
     deliveryChannel,
     setDeliveryChannel,
     notes,

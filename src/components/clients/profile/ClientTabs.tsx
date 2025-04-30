@@ -51,9 +51,10 @@ interface ClientTabsProps {
   templates: AssignedTemplate[];
   activities: ClientActivity[];
   followups: ClientFollowup[];
+  clientPhone?: string;
 }
 
-const ClientTabs = ({ templates, activities, followups }: ClientTabsProps) => {
+const ClientTabs = ({ templates, activities, followups, clientPhone }: ClientTabsProps) => {
   return (
     <Tabs defaultValue="templates" className="space-y-6">
       <TabsList>
@@ -63,7 +64,7 @@ const ClientTabs = ({ templates, activities, followups }: ClientTabsProps) => {
       </TabsList>
       
       <TabsContent value="templates" className="space-y-4">
-        <ClientTemplates templates={templates} />
+        <ClientTemplates templates={templates} clientPhone={clientPhone} />
       </TabsContent>
       
       <TabsContent value="activities" className="space-y-4">
