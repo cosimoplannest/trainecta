@@ -24,6 +24,7 @@ import GenericRegistration from './pages/registration/GenericRegistration';
 import TrainerProfile from './pages/TrainerProfile';
 import WorkoutTemplates from './pages/WorkoutTemplates';
 import ClientManagement from './pages/ClientManagement';
+import ClientProfile from './components/clients/ClientProfile';
 import Statistics from './pages/Statistics';
 import TrackingPage from './pages/TrackingPage';
 import Communications from './pages/Communications';
@@ -114,6 +115,13 @@ function App() {
         <RequireAuth>
           <Layout>
             <ClientManagement />
+          </Layout>
+        </RequireAuth>
+      } />
+      <Route path="/client/:id" element={
+        <RequireAuth>
+          <Layout>
+            <ClientProfile />
           </Layout>
         </RequireAuth>
       } />
