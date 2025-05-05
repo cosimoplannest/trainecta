@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { WorkoutTemplate, TemplateExerciseWithNestedExercise, Exercise, TemplateExercise } from '@/types/workout';
+import { WorkoutTemplate, TemplateExerciseWithNestedExercise, Exercise, TemplateExercise, WorkoutType } from '@/types/workout';
 import { useWorkoutTemplates } from '@/hooks/use-workout-templates';
 import { CreateTemplateForm } from '@/components/workout/CreateTemplateForm';
 import { AddExerciseForm } from '@/components/workout/AddExerciseForm';
@@ -26,12 +25,12 @@ export const TemplateCreation: React.FC<TemplateCreationProps> = ({ onComplete }
     }
   }, [availableExercises]);
 
-  // Make sure to define this with required name and category properties
+  // Define newTemplate with proper types
   const [newTemplate, setNewTemplate] = useState<{
     name: string;
     category: string;
     description?: string;
-    type?: string;
+    type?: WorkoutType;
   }>({
     name: "",
     category: "",
@@ -165,7 +164,7 @@ export const TemplateCreation: React.FC<TemplateCreationProps> = ({ onComplete }
       {isCreatingTemplate && (
         <CreateTemplateForm
           newTemplate={newTemplate}
-          setNewTemplate={setNewTemplate}
+          setNewTemplate={(template: typeof newTemplate) => setNewTemplate(template)}
           createTemplate={handleCreateTemplate}
           cancelCreate={() => onComplete()}
           loading={loading}
