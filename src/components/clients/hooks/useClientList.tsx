@@ -9,6 +9,7 @@ export function useClientList(itemsPerPage = 10) {
   const [clients, setClients] = useState<ClientData[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [displaySearchQuery, setDisplaySearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const { toast } = useToast();
   const { user, userRole } = useAuth();
@@ -94,7 +95,13 @@ export function useClientList(itemsPerPage = 10) {
     }
   };
 
+  const handleSearch = () => {
+    setSearchQuery(displaySearchQuery);
+  };
+
   const filteredClients = clients.filter(client => {
+    if (!searchQuery.trim()) return true;
+    
     const fullName = `${client.first_name} ${client.last_name}`.toLowerCase();
     const query = searchQuery.toLowerCase();
     return fullName.includes(query) || 
@@ -124,6 +131,9 @@ export function useClientList(itemsPerPage = 10) {
     loading,
     searchQuery,
     setSearchQuery,
+    displaySearchQuery,
+    setDisplaySearchQuery,
+    handleSearch,
     filteredClients,
     paginatedClients,
     handleRefreshClients,

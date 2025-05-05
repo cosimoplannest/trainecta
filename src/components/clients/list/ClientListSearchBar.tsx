@@ -3,39 +3,61 @@ import { Search, RefreshCw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { KeyboardEvent } from "react";
 
 interface ClientListSearchBarProps {
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
+  displaySearchQuery: string;
+  setDisplaySearchQuery: (query: string) => void;
+  handleSearch: () => void;
   handleRefreshClients: () => void;
   loading: boolean;
   totalResults?: number;
   totalItems?: number;
+  searchQuery: string;
 }
 
 export function ClientListSearchBar({ 
-  searchQuery, 
-  setSearchQuery, 
+  displaySearchQuery, 
+  setDisplaySearchQuery, 
+  handleSearch,
   handleRefreshClients, 
   loading,
   totalResults = 0,
-  totalItems = 0
+  totalItems = 0,
+  searchQuery
 }: ClientListSearchBarProps) {
   // Mostra il conteggio dei risultati solo se c'è una query di ricerca
   const showResultCount = searchQuery.trim().length > 0;
   
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+  
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder="Cerca cliente per nome, email o telefono..."
-            className="pl-9 pr-4 w-full"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+        <div className="relative flex-1 flex items-center gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Cerca cliente per nome, email o telefono..."
+              className="pl-9 pr-4 w-full"
+              value={displaySearchQuery}
+              onChange={(e) => setDisplaySearchQuery(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+          </div>
+          <Button 
+            onClick={handleSearch}
+            disabled={loading}
+            className="whitespace-nowrap"
+          >
+            <Search className="h-4 w-4 mr-2" />
+            Cerca
+          </Button>
         </div>
         <Button 
           variant="outline" 

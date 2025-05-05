@@ -14,7 +14,10 @@ const ClientList = () => {
   const { 
     loading, 
     searchQuery, 
-    setSearchQuery, 
+    setSearchQuery,
+    displaySearchQuery,
+    setDisplaySearchQuery,
+    handleSearch,
     paginatedClients, 
     handleRefreshClients,
     userRole,
@@ -35,12 +38,14 @@ const ClientList = () => {
       <ClientListHeader userRole={userRole} />
       <CardContent className="p-6">
         <ClientListSearchBar 
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
+          displaySearchQuery={displaySearchQuery}
+          setDisplaySearchQuery={setDisplaySearchQuery}
+          handleSearch={handleSearch}
           handleRefreshClients={handleRefreshClients}
           loading={loading}
           totalResults={filteredClients.length}
           totalItems={totalItems}
+          searchQuery={searchQuery}
         />
 
         <ClientListTable 
