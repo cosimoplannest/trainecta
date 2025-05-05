@@ -626,6 +626,36 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          notification_type: string
+          read: boolean
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          notification_type?: string
+          read?: boolean
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          notification_type?: string
+          read?: boolean
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           auto_renewal: boolean | null
@@ -1097,6 +1127,24 @@ export type Database = {
         Args: { user_id: string; gym_id: string }
         Returns: boolean
       }
+      create_notification: {
+        Args: {
+          p_user_id: string
+          p_title: string
+          p_message: string
+          p_notification_type?: string
+        }
+        Returns: string
+      }
+      create_notification_for_role: {
+        Args: {
+          p_role: string
+          p_title: string
+          p_message: string
+          p_notification_type?: string
+        }
+        Returns: string
+      }
       get_gym_id_from_code: {
         Args: { registration_code: string }
         Returns: string
@@ -1124,6 +1172,14 @@ export type Database = {
       is_trainer: {
         Args: { user_id: string }
         Returns: boolean
+      }
+      mark_all_notifications_read: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      mark_notification_read: {
+        Args: { p_notification_id: string }
+        Returns: undefined
       }
     }
     Enums: {
