@@ -1,5 +1,4 @@
 
-import { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import Index from './pages/Index';
@@ -47,27 +46,112 @@ function App() {
       <Route path="/join/:code" element={<JoinWithCode />} />
       <Route path="/dashboard" element={<Dashboard />} />
 
-      <Route element={<RequireAuth>
-        <Layout>
-          <Routes>
-            <Route path="/dashboard/admin" element={<AdminDashboard />} />
-            <Route path="/dashboard/trainer" element={<TrainerDashboard />} />
-            <Route path="/dashboard/operator" element={<OperatorDashboard />} />
-            <Route path="/dashboard/assistant" element={<AssistantDashboard />} />
-            <Route path="/dashboard/instructor" element={<InstructorDashboard />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/admin-settings" element={<AdminSettings />} />
-            <Route path="/trainer-profile" element={<TrainerProfile />} />
-            <Route path="/workout-templates" element={<WorkoutTemplates />} />
-            <Route path="/client-management" element={<ClientManagement />} />
-            <Route path="/statistics" element={<Statistics />} />
-            <Route path="/tracking" element={<TrackingPage />} />
-            <Route path="/communications" element={<Communications />} />
-            <Route path="/notifications" element={<NotificationManagement />} />
-            <Route path="/notification-history" element={<NotificationHistoryPage />} />
-          </Routes>
-        </Layout>
-      </RequireAuth>} />
+      <Route path="/dashboard/admin" element={
+        <RequireAuth>
+          <Layout>
+            <AdminDashboard />
+          </Layout>
+        </RequireAuth>
+      } />
+      <Route path="/dashboard/trainer" element={
+        <RequireAuth>
+          <Layout>
+            <TrainerDashboard />
+          </Layout>
+        </RequireAuth>
+      } />
+      <Route path="/dashboard/operator" element={
+        <RequireAuth>
+          <Layout>
+            <OperatorDashboard />
+          </Layout>
+        </RequireAuth>
+      } />
+      <Route path="/dashboard/assistant" element={
+        <RequireAuth>
+          <Layout>
+            <AssistantDashboard />
+          </Layout>
+        </RequireAuth>
+      } />
+      <Route path="/dashboard/instructor" element={
+        <RequireAuth>
+          <Layout>
+            <InstructorDashboard />
+          </Layout>
+        </RequireAuth>
+      } />
+      
+      <Route path="/settings" element={
+        <RequireAuth>
+          <Layout>
+            <Settings />
+          </Layout>
+        </RequireAuth>
+      } />
+      <Route path="/admin-settings" element={
+        <RequireAuth>
+          <Layout>
+            <AdminSettings />
+          </Layout>
+        </RequireAuth>
+      } />
+      <Route path="/trainer-profile" element={
+        <RequireAuth>
+          <Layout>
+            <TrainerProfile />
+          </Layout>
+        </RequireAuth>
+      } />
+      <Route path="/workout-templates" element={
+        <RequireAuth>
+          <Layout>
+            <WorkoutTemplates />
+          </Layout>
+        </RequireAuth>
+      } />
+      <Route path="/client-management" element={
+        <RequireAuth>
+          <Layout>
+            <ClientManagement />
+          </Layout>
+        </RequireAuth>
+      } />
+      <Route path="/statistics" element={
+        <RequireAuth>
+          <Layout>
+            <Statistics />
+          </Layout>
+        </RequireAuth>
+      } />
+      <Route path="/tracking" element={
+        <RequireAuth>
+          <Layout>
+            <TrackingPage />
+          </Layout>
+        </RequireAuth>
+      } />
+      <Route path="/communications" element={
+        <RequireAuth>
+          <Layout>
+            <Communications />
+          </Layout>
+        </RequireAuth>
+      } />
+      <Route path="/notifications" element={
+        <RequireAuth>
+          <Layout>
+            <NotificationManagement />
+          </Layout>
+        </RequireAuth>
+      } />
+      <Route path="/notification-history" element={
+        <RequireAuth>
+          <Layout>
+            <NotificationHistoryPage />
+          </Layout>
+        </RequireAuth>
+      } />
 
       <Route path="*" element={<NotFound />} />
     </Routes>
