@@ -1,4 +1,3 @@
-
 import { useRef, useEffect } from 'react';
 import {
   useReactTable,
@@ -6,6 +5,8 @@ import {
   flexRender,
   createColumnHelper,
   SortingState,
+  ColumnDef,
+  Row
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
