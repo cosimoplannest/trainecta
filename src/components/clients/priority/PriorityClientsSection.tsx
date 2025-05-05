@@ -7,69 +7,92 @@ import { PriorityClientsList } from "./PriorityClientsList";
 import { useToast } from "@/hooks/use-toast";
 
 export const PriorityClientsSection = () => {
-  const { userRole } = useAuth();
+  const { userRole, user } = useAuth();
   const { toast } = useToast();
+  const isTrainer = userRole === 'trainer';
 
   const { data: firstMeetingClients = [], isLoading: isLoadingFirstMeeting } = useQuery({
-    queryKey: ['priority-clients', 'first-meeting'],
+    queryKey: ['priority-clients', 'first-meeting', userRole, user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('clients')
-        .select(`
-          id,
-          first_name,
-          last_name,
-          created_at,
-          joined_at,
-          assigned_to,
-          users!clients_assigned_to_fkey(full_name)
-        `)
-        .eq('first_meeting_completed', false)
-        .order('created_at', { ascending: false });
+      try {
+        let query = supabase
+          .from('clients')
+          .select(`
+            id,
+            first_name,
+            last_name,
+            created_at,
+            joined_at,
+            assigned_to,
+            users!clients_assigned_to_fkey(full_name)
+          `)
+          .eq('first_meeting_completed', false);
+        
+        // Filter by trainer if the user is a trainer
+        if (isTrainer && user?.id) {
+          query = query.eq('assigned_to', user.id);
+        }
+          
+        const { data, error } = await query.order('created_at', { ascending: false });
 
-      if (error) {
-        toast({
-          title: "Errore",
-          description: "Impossibile caricare i clienti in attesa del primo incontro",
-          variant: "destructive",
-        });
-        throw error;
+        if (error) {
+          toast({
+            title: "Errore",
+            description: "Impossibile caricare i clienti in attesa del primo incontro",
+            variant: "destructive",
+          });
+          throw error;
+        }
+        return data;
+      } catch (error) {
+        console.error("Error loading first meeting clients:", error);
+        return [];
       }
-      return data;
     },
   });
 
   const { data: followUpClients = [], isLoading: isLoadingFollowUp } = useQuery({
-    queryKey: ['priority-clients', 'follow-up'],
+    queryKey: ['priority-clients', 'follow-up', userRole, user?.id],
     queryFn: async () => {
-      const twoWeeksAgo = new Date();
-      twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+      try {
+        // Only include clients with:
+        // 1. joined_at is not null (already had first meeting)
+        // 2. next_confirmation_due date is in the past
+        let query = supabase
+          .from('clients')
+          .select(`
+            id,
+            first_name,
+            last_name,
+            created_at,
+            joined_at,
+            assigned_to,
+            next_confirmation_due,
+            users!clients_assigned_to_fkey(full_name)
+          `)
+          .not('joined_at', 'is', null)
+          .lt('next_confirmation_due', new Date().toISOString());
+        
+        // Filter by trainer if the user is a trainer
+        if (isTrainer && user?.id) {
+          query = query.eq('assigned_to', user.id);
+        }
+          
+        const { data, error } = await query.order('next_confirmation_due', { ascending: true });
 
-      const { data, error } = await supabase
-        .from('clients')
-        .select(`
-          id,
-          first_name,
-          last_name,
-          created_at,
-          joined_at,
-          assigned_to,
-          next_confirmation_due,
-          users!clients_assigned_to_fkey(full_name)
-        `)
-        .not('joined_at', 'is', null)
-        .lt('next_confirmation_due', new Date().toISOString())
-        .order('next_confirmation_due', { ascending: true });
-
-      if (error) {
-        toast({
-          title: "Errore",
-          description: "Impossibile caricare i clienti in attesa di follow-up",
-          variant: "destructive",
-        });
-        throw error;
+        if (error) {
+          toast({
+            title: "Errore",
+            description: "Impossibile caricare i clienti in attesa di follow-up",
+            variant: "destructive",
+          });
+          throw error;
+        }
+        return data;
+      } catch (error) {
+        console.error("Error loading follow-up clients:", error);
+        return [];
       }
-      return data;
     },
   });
 
