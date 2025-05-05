@@ -1,5 +1,5 @@
 
-import { Search, RefreshCw } from "lucide-react";
+import { Search, RefreshCw, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,7 +11,6 @@ interface ClientListSearchBarProps {
   handleSearch: () => void;
   handleRefreshClients: () => void;
   loading: boolean;
-  totalResults?: number;
   totalItems?: number;
   searchQuery: string;
 }
@@ -22,7 +21,6 @@ export function ClientListSearchBar({
   handleSearch,
   handleRefreshClients, 
   loading,
-  totalResults = 0,
   totalItems = 0,
   searchQuery
 }: ClientListSearchBarProps) {
@@ -59,24 +57,27 @@ export function ClientListSearchBar({
             Cerca
           </Button>
         </div>
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={handleRefreshClients}
-          disabled={loading}
-          className="whitespace-nowrap"
-        >
-          <RefreshCw className={`h-3.5 w-3.5 mr-2 ${loading ? 'animate-spin' : ''}`} />
-          {loading ? "Caricamento..." : "Aggiorna"}
-        </Button>
+
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={handleRefreshClients}
+            disabled={loading}
+            className="whitespace-nowrap"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            {loading ? "Caricamento..." : "Aggiorna"}
+          </Button>
+        </div>
       </div>
       
       {showResultCount && (
         <div className="flex items-center">
           <Badge variant="outline" className="text-xs font-normal">
-            {totalResults} risultati trovati su {totalItems} clienti
+            {totalItems} clienti trovati
           </Badge>
-          {searchQuery.trim().length > 0 && totalResults === 0 && (
+          {searchQuery.trim().length > 0 && totalItems === 0 && (
             <span className="ml-2 text-xs text-muted-foreground">
               Nessun cliente trovato con "{searchQuery}"
             </span>
