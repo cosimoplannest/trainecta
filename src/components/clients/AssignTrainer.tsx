@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 
 interface AssignTrainerProps {
   clientId: string;
@@ -21,7 +22,36 @@ export const AssignTrainer = ({ clientId, currentTrainerId, onAssigned }: Assign
   const [selectedTrainer, setSelectedTrainer] = useState<string>(currentTrainerId || "");
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
+  const [gymId, setGymId] = useState<string | null>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    // Fetch the user's gym_id when the component mounts
+    const fetchUserGymId = async () => {
+      if (!user?.id) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from("users")
+          .select("gym_id")
+          .eq("id", user.id)
+          .single();
+
+        if (error) throw error;
+        setGymId(data.gym_id);
+      } catch (error) {
+        console.error("Error fetching user gym ID:", error);
+        toast({
+          title: "Errore",
+          description: "Impossibile recuperare l'ID della palestra",
+          variant: "destructive",
+        });
+      }
+    };
+
+    fetchUserGymId();
+  }, [user, toast]);
 
   useEffect(() => {
     const fetchTrainers = async () => {
@@ -59,6 +89,15 @@ export const AssignTrainer = ({ clientId, currentTrainerId, onAssigned }: Assign
       return;
     }
 
+    if (!gymId) {
+      toast({
+        title: "Errore",
+        description: "ID palestra non disponibile. Riprova più tardi.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       // Update client with assigned trainer
@@ -69,30 +108,37 @@ export const AssignTrainer = ({ clientId, currentTrainerId, onAssigned }: Assign
 
       if (updateError) throw updateError;
 
-      // Log activity instead of creating a followup
+      // Log activity
       const { error: activityError } = await supabase.from("activity_logs").insert({
         action: "trainer_assigned",
         target_id: clientId,
         target_type: "client",
-        user_id: selectedTrainer,
+        user_id: user?.id,
         notes: notes || `Cliente assegnato al trainer ${selectedTrainer}`,
-        gym_id: "11111111-1111-1111-1111-111111111111", // Hardcoded for now
+        gym_id: gymId, // Use the correctly retrieved gym_id
       });
 
-      if (activityError) throw activityError;
-
-      toast({
-        title: "Successo",
-        description: "Cliente assegnato al trainer con successo",
-      });
+      if (activityError) {
+        console.error("Activity log error:", activityError);
+        // Continue even if activity logging fails
+        toast({
+          title: "Avviso",
+          description: "Trainer assegnato, ma si è verificato un errore nel registrare l'attività",
+        });
+      } else {
+        toast({
+          title: "Successo",
+          description: "Cliente assegnato al trainer con successo",
+        });
+      }
       
       setOpen(false);
       onAssigned();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error assigning trainer:", error);
       toast({
         title: "Errore",
-        description: "Impossibile assegnare il trainer al cliente",
+        description: error.message || "Impossibile assegnare il trainer al cliente",
         variant: "destructive",
       });
     } finally {
