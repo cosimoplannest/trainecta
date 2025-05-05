@@ -26,7 +26,13 @@ export const TemplateCreation: React.FC<TemplateCreationProps> = ({ onComplete }
     }
   }, [availableExercises]);
 
-  const [newTemplate, setNewTemplate] = useState<Partial<WorkoutTemplate>>({
+  // Make sure to define this with required name and category properties
+  const [newTemplate, setNewTemplate] = useState<{
+    name: string;
+    category: string;
+    description?: string;
+    type?: string;
+  }>({
     name: "",
     category: "",
     description: "",
