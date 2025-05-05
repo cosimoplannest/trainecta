@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Notification } from "@/types/notification-types";
+import { Notification, SendNotificationParams, SendRoleNotificationParams } from "@/types/notification-types";
 
 export async function fetchUserNotifications(userId: string): Promise<Notification[]> {
   try {
@@ -48,12 +48,7 @@ export async function sendNotification({
   title,
   message,
   type = 'app'
-}: {
-  userId: string;
-  title: string;
-  message: string;
-  type?: 'email' | 'app' | 'both';
-}): Promise<string> {
+}: SendNotificationParams): Promise<string> {
   try {
     const { data, error } = await (supabase.rpc as any)('create_notification', {
       p_user_id: userId,
@@ -99,12 +94,7 @@ export async function sendNotificationToRole({
   title,
   message,
   type = 'app'
-}: {
-  role: string;
-  title: string;
-  message: string;
-  type?: 'email' | 'app' | 'both';
-}): Promise<string> {
+}: SendRoleNotificationParams): Promise<string> {
   try {
     const { data, error } = await (supabase.rpc as any)('create_notification_for_role', {
       p_role: role,

@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/hooks/use-auth';
-import { Notification } from '@/types/notification-types';
+import { Notification, SendNotificationParams, SendRoleNotificationParams } from '@/types/notification-types';
 import { useNotificationSubscription } from '@/hooks/use-notification-subscription';
 import { 
   fetchUserNotifications, 
@@ -95,7 +95,7 @@ export function useNotifications() {
     title,
     message,
     type = 'app'
-  }) => {
+  }: SendNotificationParams) => {
     try {
       return await sendNotification({ userId, title, message, type });
     } catch (error) {
@@ -114,7 +114,7 @@ export function useNotifications() {
     title,
     message,
     type = 'app'
-  }) => {
+  }: SendRoleNotificationParams) => {
     try {
       return await sendNotificationToRole({ role, title, message, type });
     } catch (error) {
