@@ -1,4 +1,3 @@
-
 import { useRef, useEffect } from 'react';
 import {
   useReactTable,
@@ -220,20 +219,20 @@ export function ClientListVirtualTable({
     if (!purchaseType || purchaseType === 'none') {
       return <Badge variant="outline" className="bg-yellow-50">In attesa</Badge>;
     }
-    const variants = {
+    const variants: {[key: string]: string} = {
       'package': 'bg-green-50 text-green-700 border-green-200',
       'custom_plan': 'bg-blue-50 text-blue-700 border-blue-200'
     };
-    const labels = {
+    const labels: {[key: string]: string} = {
       'package': 'Pacchetto',
       'custom_plan': 'Scheda personalizzata'
     };
     return (
       <Badge 
         variant="outline" 
-        className={variants[purchaseType as keyof typeof variants]}
+        className={variants[purchaseType]}
       >
-        {labels[purchaseType as keyof typeof labels]}
+        {labels[purchaseType]}
       </Badge>
     );
   };
