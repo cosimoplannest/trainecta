@@ -29,7 +29,7 @@ export function useNotifications() {
     try {
       // Using raw query to avoid TypeScript errors until database types are regenerated
       const { data, error } = await supabase
-        .from('notifications')
+        .from('notifications' as any)
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
@@ -57,9 +57,9 @@ export function useNotifications() {
     
     try {
       // Using raw query to bypass TypeScript limitations
-      const { error } = await supabase.rpc('mark_notification_read', { 
+      const { error } = await (supabase.rpc as any)('mark_notification_read', { 
         p_notification_id: notificationId 
-      } as any);
+      });
 
       if (error) throw error;
 
@@ -85,7 +85,7 @@ export function useNotifications() {
     
     try {
       // Using raw query to bypass TypeScript limitations
-      const { data, error } = await supabase.rpc('mark_all_notifications_read') as any;
+      const { data, error } = await (supabase.rpc as any)('mark_all_notifications_read');
 
       if (error) throw error;
 
@@ -122,12 +122,12 @@ export function useNotifications() {
   }) => {
     try {
       // Using raw query to bypass TypeScript limitations
-      const { data, error } = await supabase.rpc('create_notification', {
+      const { data, error } = await (supabase.rpc as any)('create_notification', {
         p_user_id: userId,
         p_title: title,
         p_message: message,
         p_notification_type: type
-      } as any);
+      });
 
       if (error) throw error;
 
@@ -179,12 +179,12 @@ export function useNotifications() {
   }) => {
     try {
       // Using raw query to bypass TypeScript limitations
-      const { data, error } = await supabase.rpc('create_notification_for_role', {
+      const { data, error } = await (supabase.rpc as any)('create_notification_for_role', {
         p_role: role,
         p_title: title,
         p_message: message,
         p_notification_type: type
-      } as any);
+      });
 
       if (error) throw error;
 
