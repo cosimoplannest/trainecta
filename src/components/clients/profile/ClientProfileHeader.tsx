@@ -28,7 +28,7 @@ const ClientProfileHeader = ({ firstName, lastName, joinedAt }: ClientProfileHea
           {firstName} {lastName}
         </h2>
         <p className="text-muted-foreground">
-          Cliente dal {joinedAt && format(new Date(joinedAt), "d MMMM yyyy", { locale: it })}
+          Cliente dal {joinedAt ? format(new Date(joinedAt), "d MMMM yyyy", { locale: it }) : "data non disponibile"}
         </p>
       </div>
     </div>

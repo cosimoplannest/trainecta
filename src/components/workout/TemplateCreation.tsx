@@ -33,7 +33,7 @@ export const TemplateCreation: React.FC<TemplateCreationProps> = ({ onComplete }
     type: "full_body"
   });
   
-  const [newExercise, setNewExercise] = useState({
+  const [newExercise, setNewExercise] = useState<Partial<TemplateExercise>>({
     sets: 3,
     reps: "12",
     order_index: 1,
@@ -73,12 +73,16 @@ export const TemplateCreation: React.FC<TemplateCreationProps> = ({ onComplete }
     try {
       // Calculate next order index
       const nextOrderIndex = templateExercises.length > 0 
-        ? Math.max(...templateExercises.map(e => e.order_index)) + 1 
+        ? Math.max(...templateExercises.map(e => e.order_index || 0)) + 1 
         : 1;
       
-      const exerciseToAdd = {
-        ...newExercise,
-        order_index: nextOrderIndex
+      const exerciseToAdd: TemplateExercise = {
+        id: "", // Will be set by the backend
+        sets: newExercise.sets || 3,
+        reps: newExercise.reps || "12",
+        order_index: nextOrderIndex,
+        exercise_id: newExercise.exercise_id || "",
+        notes: newExercise.notes || ""
       };
       
       const addedExercise = await addExerciseToTemplate(
@@ -154,7 +158,7 @@ export const TemplateCreation: React.FC<TemplateCreationProps> = ({ onComplete }
     <>
       {isCreatingTemplate && (
         <CreateTemplateForm
-          newTemplate={newTemplate as any}
+          newTemplate={newTemplate}
           setNewTemplate={setNewTemplate}
           createTemplate={handleCreateTemplate}
           cancelCreate={() => onComplete()}
@@ -164,8 +168,8 @@ export const TemplateCreation: React.FC<TemplateCreationProps> = ({ onComplete }
       
       {isAddingExercises && currentTemplate && (
         <AddExerciseForm
-          newExercise={newExercise}
-          setNewExercise={handleNewExerciseChange} // Use our adapter function here
+          newExercise={newExercise as any}
+          setNewExercise={handleNewExerciseChange}
           templateExercises={templateExercises}
           exercises={exercises}
           onAddExercise={handleAddExercise}
