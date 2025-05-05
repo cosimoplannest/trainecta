@@ -31,26 +31,25 @@ import Communications from './pages/Communications';
 import NotificationManagement from './pages/NotificationManagement';
 import NotificationHistoryPage from './pages/NotificationHistory';
 import './App.css';
-import { BrowserRouter } from 'react-router-dom';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/register/gym" element={<GymRegistration />} />
-        <Route path="/register/trainer" element={<TrainerRegistration />} />
-        <Route path="/register/instructor" element={<InstructorRegistration />} />
-        <Route path="/register/assistant" element={<AssistantRegistration />} />
-        <Route path="/register/operator" element={<OperatorRegistration />} />
-        <Route path="/register/:type" element={<GenericRegistration />} />
-        <Route path="/join/:code" element={<JoinWithCode />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+    <Routes>
+      <Route path="/" element={<Index />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/register/gym" element={<GymRegistration />} />
+      <Route path="/register/trainer" element={<TrainerRegistration />} />
+      <Route path="/register/instructor" element={<InstructorRegistration />} />
+      <Route path="/register/assistant" element={<AssistantRegistration />} />
+      <Route path="/register/operator" element={<OperatorRegistration />} />
+      <Route path="/register/:type" element={<GenericRegistration roleName="User" roleId="user" />} />
+      <Route path="/join/:code" element={<JoinWithCode />} />
+      <Route path="/dashboard" element={<Dashboard />} />
 
-        <Route element={<RequireAuth />}>
-          <Route element={<Layout />}>
+      <Route element={<RequireAuth>
+        <Layout>
+          <Routes>
             <Route path="/dashboard/admin" element={<AdminDashboard />} />
             <Route path="/dashboard/trainer" element={<TrainerDashboard />} />
             <Route path="/dashboard/operator" element={<OperatorDashboard />} />
@@ -66,12 +65,12 @@ function App() {
             <Route path="/communications" element={<Communications />} />
             <Route path="/notifications" element={<NotificationManagement />} />
             <Route path="/notification-history" element={<NotificationHistoryPage />} />
-          </Route>
-        </Route>
+          </Routes>
+        </Layout>
+      </RequireAuth>} />
 
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </BrowserRouter>
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 }
 
