@@ -6,6 +6,7 @@ import { AssignTrainerButton } from "./AssignTrainerButton";
 import { TrainerSelect } from "./TrainerSelect";
 import { NotesInput } from "./NotesInput";
 import { useTrainerAssignment } from "./useTrainerAssignment";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface AssignTrainerProps {
   clientId: string;
@@ -15,6 +16,7 @@ interface AssignTrainerProps {
 
 export const AssignTrainer = ({ clientId, currentTrainerId, onAssigned }: AssignTrainerProps) => {
   const [open, setOpen] = useState(false);
+  const isMobile = useIsMobile();
   
   const {
     trainers,
@@ -37,9 +39,11 @@ export const AssignTrainer = ({ clientId, currentTrainerId, onAssigned }: Assign
     <Dialog open={open} onOpenChange={setOpen}>
       <AssignTrainerButton currentTrainerId={currentTrainerId} />
       
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className={`${isMobile ? 'w-[calc(100%-32px)] p-4' : 'sm:max-w-[425px]'}`}>
         <DialogHeader>
-          <DialogTitle>Assegna Trainer al Cliente</DialogTitle>
+          <DialogTitle className="text-center text-lg">
+            {currentTrainerId ? "Cambia Trainer" : "Assegna Trainer"}
+          </DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <TrainerSelect 
@@ -52,9 +56,19 @@ export const AssignTrainer = ({ clientId, currentTrainerId, onAssigned }: Assign
             onChange={setNotes}
           />
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>Annulla</Button>
-          <Button onClick={onSubmit} disabled={loading}>
+        <DialogFooter className={isMobile ? "flex-col space-y-2" : ""}>
+          <Button 
+            variant="outline" 
+            onClick={() => setOpen(false)}
+            className={isMobile ? "w-full" : ""}
+          >
+            Annulla
+          </Button>
+          <Button 
+            onClick={onSubmit} 
+            disabled={loading}
+            className={isMobile ? "w-full" : ""}
+          >
             {loading ? "Assegnazione..." : "Assegna Trainer"}
           </Button>
         </DialogFooter>

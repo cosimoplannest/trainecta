@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ClientData } from "../types/client-types";
-import { Calendar, Mail, Phone, User, UserCheck } from "lucide-react";
+import { Calendar, Mail, Phone, User, UserCheck, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { ClientActions } from "./ClientActions";
@@ -76,57 +76,68 @@ export function ClientListMobileView({
   }
 
   return (
-    <div className="space-y-4 pt-4">
+    <div className="space-y-3 pt-4">
       {clients.map((client) => (
-        <Card key={client.id} className="overflow-hidden">
+        <Card 
+          key={client.id} 
+          className="overflow-hidden border-l-4 hover:shadow-md transition-shadow"
+          style={{ 
+            borderLeftColor: client.first_meeting_completed ? '#10b981' : 
+                             new Date(client.next_confirmation_due || '') < new Date() ? '#ef4444' : '#f59e0b'
+          }}
+        >
           <CardContent className="p-4">
-            <div className="flex justify-between items-start">
-              <div className="flex items-center gap-3 mb-3">
-                <Avatar className={getAvatarColor(`${client.first_name} ${client.last_name}`)}>
-                  <AvatarFallback>{getInitials(client.first_name, client.last_name)}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <h3 className="font-medium text-base">
-                    {client.first_name} {client.last_name}
-                  </h3>
-                  {client.joined_at && (
-                    <p className="text-xs text-muted-foreground">
-                      Cliente dal {format(new Date(client.joined_at), "dd/MM/yyyy")}
-                    </p>
-                  )}
+            <div 
+              className="flex flex-col gap-3 cursor-pointer"
+              onClick={() => handleViewProfile(client.id)}
+            >
+              <div className="flex justify-between items-start">
+                <div className="flex items-center gap-3">
+                  <Avatar className={getAvatarColor(`${client.first_name} ${client.last_name}`)}>
+                    <AvatarFallback>{getInitials(client.first_name, client.last_name)}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h3 className="font-medium text-base flex items-center">
+                      {client.first_name} {client.last_name}
+                      <ChevronRight className="h-4 w-4 ml-1 text-muted-foreground" />
+                    </h3>
+                    {client.joined_at && (
+                      <p className="text-xs text-muted-foreground">
+                        Cliente dal {format(new Date(client.joined_at), "dd/MM/yyyy")}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
               
-              <ClientActions client={client} handleViewProfile={handleViewProfile} />
-            </div>
-            
-            <div className="mt-3 space-y-2 text-sm">
-              {client.email && (
-                <div className="flex items-center gap-2">
-                  <Mail className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-                  <span className="truncate">{client.email}</span>
-                </div>
-              )}
-              
-              {client.phone && (
-                <div className="flex items-center gap-2">
-                  <Phone className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-                  <span>{client.phone}</span>
-                </div>
-              )}
-              
-              {client.users?.full_name && (
-                <div className="flex items-center gap-2">
-                  <UserCheck className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
-                  <span>{client.users.full_name}</span>
-                </div>
-              )}
+              <div className="grid grid-cols-2 gap-y-2 gap-x-1 text-sm">
+                {client.email && (
+                  <div className="flex items-center gap-2 col-span-2">
+                    <Mail className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                    <span className="truncate">{client.email}</span>
+                  </div>
+                )}
+                
+                {client.phone && (
+                  <div className="flex items-center gap-2">
+                    <Phone className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                    <span>{client.phone}</span>
+                  </div>
+                )}
+                
+                {client.users?.full_name && (
+                  <div className="flex items-center gap-2">
+                    <UserCheck className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
+                    <span className="truncate">{client.users.full_name}</span>
+                  </div>
+                )}
+              </div>
             </div>
             
             <div className="mt-3 flex flex-wrap gap-2">
               {client.next_confirmation_due && (
                 <Badge variant={new Date(client.next_confirmation_due) < new Date() ? "destructive" : "outline"} 
-                       className="text-xs font-normal flex items-center gap-1">
+                       className="text-xs font-normal flex items-center gap-1 py-1">
                   <Calendar className="h-3 w-3" />
                   Conferma: {format(new Date(client.next_confirmation_due), "dd/MM/yy")}
                 </Badge>
@@ -134,7 +145,7 @@ export function ClientListMobileView({
               
               {client.first_meeting_completed !== undefined && (
                 <Badge variant="outline" 
-                       className={`text-xs font-normal flex items-center gap-1 ${client.first_meeting_completed ? 'bg-green-50 text-green-700' : 'bg-yellow-50 text-yellow-700'}`}>
+                       className={`text-xs font-normal flex items-center gap-1 py-1 ${client.first_meeting_completed ? 'bg-green-50 text-green-700 border-green-200' : 'bg-yellow-50 text-yellow-700 border-yellow-200'}`}>
                   {client.first_meeting_completed 
                     ? "Primo Incontro Completato" 
                     : "Primo Incontro da Programmare"}
@@ -142,17 +153,24 @@ export function ClientListMobileView({
               )}
             </div>
             
-            <Button 
-              variant="secondary" 
-              size="sm" 
-              className="w-full mt-3" 
-              onClick={() => handleViewProfile(client.id)}
-            >
-              Visualizza Profilo
-            </Button>
+            <div className="flex justify-between items-center mt-3 pt-3 border-t">
+              <Button 
+                variant="secondary" 
+                size="sm"
+                className="h-8"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleViewProfile(client.id);
+                }}
+              >
+                Visualizza Profilo
+              </Button>
+              
+              <ClientActions client={client} handleViewProfile={handleViewProfile} />
+            </div>
           </CardContent>
         </Card>
       ))}
     </div>
   );
-}
+};

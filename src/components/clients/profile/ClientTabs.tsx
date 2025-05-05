@@ -5,6 +5,7 @@ import ClientActivities from "./ClientActivities";
 import ClientFollowups from "./ClientFollowups";
 import { AssignedTemplate } from "@/types/workout";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { ClipboardList, FileText, Clock } from "lucide-react";
 
 interface ClientActivity {
   id: string;
@@ -35,28 +36,31 @@ const ClientTabs = ({ templates, activities, followups, clientPhone }: ClientTab
   const isMobile = useIsMobile();
   
   return (
-    <Tabs defaultValue="templates" className="space-y-6">
+    <Tabs defaultValue="templates" className="space-y-4">
       <TabsList className={`${isMobile ? 'w-full grid grid-cols-3' : ''}`}>
-        <TabsTrigger value="templates" className={isMobile ? 'flex-1 text-sm px-2' : ''}>
-          Schede
+        <TabsTrigger value="templates" className={isMobile ? 'flex items-center justify-center gap-1 py-2' : ''}>
+          {isMobile && <ClipboardList className="h-4 w-4" />}
+          <span className={isMobile ? "text-xs" : ""}>Schede</span>
         </TabsTrigger>
-        <TabsTrigger value="activities" className={isMobile ? 'flex-1 text-sm px-2' : ''}>
-          Attività
+        <TabsTrigger value="activities" className={isMobile ? 'flex items-center justify-center gap-1 py-2' : ''}>
+          {isMobile && <FileText className="h-4 w-4" />}
+          <span className={isMobile ? "text-xs" : ""}>Attività</span>
         </TabsTrigger>
-        <TabsTrigger value="followups" className={isMobile ? 'flex-1 text-sm px-2' : ''}>
-          Followup
+        <TabsTrigger value="followups" className={isMobile ? 'flex items-center justify-center gap-1 py-2' : ''}>
+          {isMobile && <Clock className="h-4 w-4" />}
+          <span className={isMobile ? "text-xs" : ""}>Followup</span>
         </TabsTrigger>
       </TabsList>
       
-      <TabsContent value="templates" className="space-y-4">
+      <TabsContent value="templates" className="space-y-4 pt-2">
         <ClientTemplates templates={templates} clientPhone={clientPhone} />
       </TabsContent>
       
-      <TabsContent value="activities" className="space-y-4">
+      <TabsContent value="activities" className="space-y-4 pt-2">
         <ClientActivities activities={activities} />
       </TabsContent>
       
-      <TabsContent value="followups" className="space-y-4">
+      <TabsContent value="followups" className="space-y-4 pt-2">
         <ClientFollowups followups={followups} />
       </TabsContent>
     </Tabs>

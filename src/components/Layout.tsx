@@ -1,5 +1,5 @@
 
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "./Header";
 import { cn } from "@/lib/utils";
@@ -25,6 +25,16 @@ const Layout = ({ children }: LayoutProps) => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
+  
+  // Effect to close sidebar on mobile when route changes
+  useEffect(() => {
+    if (isMobile) {
+      setSidebarOpen(false);
+    } else {
+      setSidebarOpen(true);
+    }
+  }, [isMobile, navigate]);
   
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -38,7 +48,10 @@ const Layout = ({ children }: LayoutProps) => {
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <div className="animate-spin h-12 w-12 border-t-2 border-b-2 border-primary rounded-full"></div>
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin h-12 w-12 border-t-2 border-b-2 border-primary rounded-full"></div>
+          <p className="text-muted-foreground">Caricamento in corso...</p>
+        </div>
       </div>
     );
   }
@@ -49,9 +62,12 @@ const Layout = ({ children }: LayoutProps) => {
   }
 
   return (
-    <SidebarProvider defaultOpen={!isMobile}>
+    <SidebarProvider defaultOpen={!isMobile} open={sidebarOpen} onOpenChange={setSidebarOpen}>
       <div className="flex h-screen w-full overflow-hidden bg-background">
-        <Sidebar variant={isMobile ? "floating" : "sidebar"} collapsible={isMobile ? "offcanvas" : "icon"}>
+        <Sidebar 
+          variant={isMobile ? "floating" : "sidebar"} 
+          collapsible={isMobile ? "offcanvas" : "icon"}
+        >
           <SidebarHeader>
             <AppSidebarHeader />
           </SidebarHeader>
@@ -68,7 +84,7 @@ const Layout = ({ children }: LayoutProps) => {
         
         <div className="flex flex-col flex-1 overflow-hidden transition-all duration-300">
           <Header />
-          <main className="flex-1 overflow-auto p-3 sm:p-4 md:p-6">
+          <main className="flex-1 overflow-auto p-3 sm:p-4 md:p-6 pb-20">
             <div className="animate-fade-in">
               {children}
             </div>
