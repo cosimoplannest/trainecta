@@ -1,16 +1,12 @@
 
-import { useState, useEffect } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { NotificationsList } from "@/components/notifications/admin/NotificationsList";
-import { SendNotificationForm } from "@/components/notifications/admin/SendNotificationForm";
+import { useEffect, useState } from "react";
+import { NotificationHistory } from "@/components/notifications/admin/NotificationHistory";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Navigate, Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { History } from "lucide-react";
+import { Navigate } from "react-router-dom";
 
-const NotificationManagement = () => {
+const NotificationHistoryPage = () => {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -65,32 +61,10 @@ const NotificationManagement = () => {
 
   return (
     <div className="container mx-auto py-6">
-      <div className="mb-6 flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Gestione Notifiche</h1>
-        <Button variant="outline" asChild>
-          <Link to="/notification-history" className="flex items-center gap-2">
-            <History className="h-4 w-4" />
-            Visualizza Storico
-          </Link>
-        </Button>
-      </div>
-      
-      <Tabs defaultValue="list" className="w-full">
-        <TabsList className="mb-6">
-          <TabsTrigger value="list">Visualizza Notifiche</TabsTrigger>
-          <TabsTrigger value="send">Invia Notifiche</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="list">
-          <NotificationsList />
-        </TabsContent>
-        
-        <TabsContent value="send">
-          <SendNotificationForm />
-        </TabsContent>
-      </Tabs>
+      <h1 className="mb-6 text-3xl font-bold">Storico Notifiche</h1>
+      <NotificationHistory />
     </div>
   );
 };
 
-export default NotificationManagement;
+export default NotificationHistoryPage;
