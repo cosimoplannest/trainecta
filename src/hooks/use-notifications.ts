@@ -1,19 +1,18 @@
 
-import { useState, useEffect } from 'react';
-import { supabase } from "@/integrations/supabase/client";
+import { useState, useEffect, useCallback } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/hooks/use-auth';
+import { Notification } from '@/types/notification-types';
+import { useNotificationSubscription } from '@/hooks/use-notification-subscription';
+import { 
+  fetchUserNotifications, 
+  markNotificationAsRead, 
+  markAllNotificationsAsRead,
+  sendNotification,
+  sendNotificationToRole
+} from '@/services/notification-service';
 
-// Create a temporary custom type for notifications until Supabase types are regenerated
-export interface Notification {
-  id: string;
-  title: string;
-  message: string;
-  read: boolean;
-  created_at: string;
-  notification_type: 'email' | 'app' | 'both';
-  user_id: string;
-}
+export type { Notification } from '@/types/notification-types';
 
 export function useNotifications() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -22,24 +21,14 @@ export function useNotifications() {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  const fetchNotifications = async () => {
+  const fetchNotificationsData = useCallback(async () => {
     if (!user) return;
     
     setLoading(true);
     try {
-      // Using raw query to avoid TypeScript errors until database types are regenerated
-      const { data, error } = await supabase
-        .from('notifications' as any)
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      // Cast the data to our temporary type
-      const typedNotifications = data as unknown as Notification[];
-      setNotifications(typedNotifications || []);
-      setUnreadCount(typedNotifications?.filter(n => !n.read).length || 0);
+      const notificationsData = await fetchUserNotifications(user.id);
+      setNotifications(notificationsData || []);
+      setUnreadCount(notificationsData?.filter(n => !n.read).length || 0);
     } catch (error) {
       console.error('Error fetching notifications:', error);
       toast({
@@ -50,18 +39,13 @@ export function useNotifications() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, toast]);
 
-  const markNotificationAsRead = async (notificationId: string) => {
+  const handleMarkAsRead = useCallback(async (notificationId: string) => {
     if (!user) return;
     
     try {
-      // Using raw query to bypass TypeScript limitations
-      const { error } = await (supabase.rpc as any)('mark_notification_read', { 
-        p_notification_id: notificationId 
-      });
-
-      if (error) throw error;
+      await markNotificationAsRead(notificationId);
 
       // Update local state
       setNotifications(prev => 
@@ -78,16 +62,13 @@ export function useNotifications() {
         variant: "destructive"
       });
     }
-  };
+  }, [user, toast]);
 
-  const markAllNotificationsAsRead = async () => {
+  const handleMarkAllAsRead = useCallback(async () => {
     if (!user) return;
     
     try {
-      // Using raw query to bypass TypeScript limitations
-      const { data, error } = await (supabase.rpc as any)('mark_all_notifications_read');
-
-      if (error) throw error;
+      const updatedCount = await markAllNotificationsAsRead();
 
       // Update local state
       setNotifications(prev => 
@@ -97,7 +78,7 @@ export function useNotifications() {
 
       toast({
         title: "Success",
-        description: `Marked ${data} notifications as read`
+        description: `Marked ${updatedCount} notifications as read`
       });
     } catch (error) {
       console.error('Error marking all notifications as read:', error);
@@ -107,54 +88,16 @@ export function useNotifications() {
         variant: "destructive"
       });
     }
-  };
+  }, [user, toast]);
 
-  const sendNotification = async ({
+  const handleSendNotification = useCallback(async ({
     userId,
     title,
     message,
     type = 'app'
-  }: {
-    userId: string;
-    title: string;
-    message: string;
-    type?: 'email' | 'app' | 'both';
   }) => {
     try {
-      // Using raw query to bypass TypeScript limitations
-      const { data, error } = await (supabase.rpc as any)('create_notification', {
-        p_user_id: userId,
-        p_title: title,
-        p_message: message,
-        p_notification_type: type
-      });
-
-      if (error) throw error;
-
-      if (type === 'email' || type === 'both') {
-        const userResponse = await supabase
-          .from('users')
-          .select('email')
-          .eq('id', userId)
-          .single();
-          
-        if (userResponse.error) throw userResponse.error;
-
-        const emailResponse = await supabase.functions.invoke('send-notification-email', {
-          body: {
-            to: userResponse.data.email,
-            title: title,
-            message: message,
-            notificationId: data
-          }
-        });
-
-        if (emailResponse.error) {
-          console.error('Error sending email notification:', emailResponse.error);
-        }
-      }
-
-      return data;
+      return await sendNotification({ userId, title, message, type });
     } catch (error) {
       console.error('Error sending notification:', error);
       toast({
@@ -164,31 +107,16 @@ export function useNotifications() {
       });
       throw error;
     }
-  };
+  }, [toast]);
 
-  const sendNotificationToRole = async ({
+  const handleSendNotificationToRole = useCallback(async ({
     role,
     title,
     message,
     type = 'app'
-  }: {
-    role: string;
-    title: string;
-    message: string;
-    type?: 'email' | 'app' | 'both';
   }) => {
     try {
-      // Using raw query to bypass TypeScript limitations
-      const { data, error } = await (supabase.rpc as any)('create_notification_for_role', {
-        p_role: role,
-        p_title: title,
-        p_message: message,
-        p_notification_type: type
-      });
-
-      if (error) throw error;
-
-      return data;
+      return await sendNotificationToRole({ role, title, message, type });
     } catch (error) {
       console.error('Error sending role notification:', error);
       toast({
@@ -198,66 +126,39 @@ export function useNotifications() {
       });
       throw error;
     }
-  };
+  }, [toast]);
 
+  // Handle real-time updates
+  const handleNewNotification = useCallback((newNotification: Notification) => {
+    setNotifications(prev => [newNotification, ...prev]);
+    if (!newNotification.read) {
+      setUnreadCount(prev => prev + 1);
+    }
+  }, []);
+
+  const handleUpdateNotification = useCallback(() => {
+    // When a notification is updated, refetch to get the correct state
+    fetchNotificationsData();
+  }, [fetchNotificationsData]);
+
+  // Set up subscription
+  useNotificationSubscription(user?.id, handleNewNotification, handleUpdateNotification);
+
+  // Initial data fetch
   useEffect(() => {
     if (user) {
-      fetchNotifications();
-
-      // Set up real-time subscription
-      const channel = supabase
-        .channel('notifications-changes')
-        .on(
-          'postgres_changes', 
-          { 
-            event: '*', 
-            schema: 'public', 
-            table: 'notifications',
-            filter: `user_id=eq.${user.id}`
-          },
-          (payload) => {
-            console.log('Notification change received:', payload);
-            
-            if (payload.eventType === 'INSERT') {
-              // Cast to our temporary type
-              const newNotification = payload.new as unknown as Notification;
-              setNotifications(prev => [newNotification, ...prev]);
-              if (!newNotification.read) {
-                setUnreadCount(prev => prev + 1);
-              }
-              
-              // Show toast for new notifications
-              toast({
-                title: newNotification.title,
-                description: newNotification.message,
-              });
-            } else if (payload.eventType === 'UPDATE') {
-              // Update the notification in the list
-              setNotifications(prev => 
-                prev.map(n => n.id === payload.new.id ? { ...n, ...payload.new as unknown as Notification } : n)
-              );
-              
-              // Recalculate unread count
-              fetchNotifications();
-            }
-          }
-        )
-        .subscribe();
-
-      return () => {
-        supabase.removeChannel(channel);
-      };
+      fetchNotificationsData();
     }
-  }, [user]);
+  }, [user, fetchNotificationsData]);
 
   return {
     notifications,
     loading,
     unreadCount,
-    markNotificationAsRead,
-    markAllNotificationsAsRead,
-    sendNotification,
-    sendNotificationToRole,
-    fetchNotifications
+    markNotificationAsRead: handleMarkAsRead,
+    markAllNotificationsAsRead: handleMarkAllAsRead,
+    sendNotification: handleSendNotification,
+    sendNotificationToRole: handleSendNotificationToRole,
+    fetchNotifications: fetchNotificationsData
   };
 }
