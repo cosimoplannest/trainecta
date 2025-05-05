@@ -14,3 +14,4 @@ export * from './components/TableEmptyState';
 export * from './components/TableLoadingState';
 export * from './components/TrainerCell';
 export * from './utils/tableUtils';
+export * from './actions';
