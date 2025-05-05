@@ -1,9 +1,9 @@
 
-import { Search, RefreshCw, Filter } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { KeyboardEvent } from "react";
+import { Input } from "@/components/ui/input";
+import { RefreshCw, Search } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ClientListSearchBarProps {
   displaySearchQuery: string;
@@ -11,79 +11,72 @@ interface ClientListSearchBarProps {
   handleSearch: () => void;
   handleRefreshClients: () => void;
   loading: boolean;
-  totalItems?: number;
+  totalItems: number;
   searchQuery: string;
 }
 
-export function ClientListSearchBar({ 
-  displaySearchQuery, 
-  setDisplaySearchQuery, 
+export function ClientListSearchBar({
+  displaySearchQuery,
+  setDisplaySearchQuery,
   handleSearch,
-  handleRefreshClients, 
+  handleRefreshClients,
   loading,
-  totalItems = 0,
+  totalItems,
   searchQuery
 }: ClientListSearchBarProps) {
-  // Mostra il conteggio dei risultati solo se c'è una query di ricerca
-  const showResultCount = searchQuery.trim().length > 0;
+  const isMobile = useIsMobile();
+  const [isFocused, setIsFocused] = useState(false);
   
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       handleSearch();
     }
   };
-  
-  return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center justify-between gap-4">
-        <div className="relative flex-1 flex items-center gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Cerca cliente per nome, email o telefono..."
-              className="pl-9 pr-4 w-full"
-              value={displaySearchQuery}
-              onChange={(e) => setDisplaySearchQuery(e.target.value)}
-              onKeyDown={handleKeyDown}
-            />
-          </div>
-          <Button 
-            onClick={handleSearch}
-            disabled={loading}
-            className="whitespace-nowrap"
-          >
-            <Search className="h-4 w-4 mr-2" />
-            Cerca
-          </Button>
-        </div>
 
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
+  return (
+    <div className={`flex ${isMobile ? 'flex-col gap-3' : 'flex-row items-center justify-between'}`}>
+      <div className={`relative ${isMobile ? 'w-full' : 'w-80'}`}>
+        <div className={`flex items-center rounded-md border ${isFocused ? 'ring-2 ring-ring ring-offset-1' : ''} overflow-hidden`}>
+          <Input
+            type="text"
+            placeholder="Cerca cliente..."
+            value={displaySearchQuery}
+            onChange={(e) => setDisplaySearchQuery(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 h-9"
+          />
+          <Button
+            type="submit"
             size="sm"
-            onClick={handleRefreshClients}
-            disabled={loading}
-            className="whitespace-nowrap"
+            variant="ghost"
+            onClick={handleSearch}
+            className="h-9 px-3"
           >
-            <RefreshCw className={`h-3.5 w-3.5 mr-2 ${loading ? 'animate-spin' : ''}`} />
-            {loading ? "Caricamento..." : "Aggiorna"}
+            <Search className="h-4 w-4" />
           </Button>
         </div>
       </div>
       
-      {showResultCount && (
-        <div className="flex items-center">
-          <Badge variant="outline" className="text-xs font-normal">
-            {totalItems} clienti trovati
-          </Badge>
-          {searchQuery.trim().length > 0 && totalItems === 0 && (
-            <span className="ml-2 text-xs text-muted-foreground">
-              Nessun cliente trovato con "{searchQuery}"
-            </span>
-          )}
-        </div>
-      )}
+      <div className={`flex ${isMobile ? 'justify-between' : 'gap-2 items-center'}`}>
+        {searchQuery && (
+          <div className="text-sm text-muted-foreground">
+            {totalItems} risultati per "{searchQuery}"
+          </div>
+        )}
+        
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleRefreshClients}
+          disabled={loading}
+          className="h-9"
+        >
+          <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+          <span>Aggiorna</span>
+        </Button>
+      </div>
     </div>
   );
 }

@@ -4,6 +4,7 @@ import ClientTemplates from "./ClientTemplates";
 import ClientActivities from "./ClientActivities";
 import ClientFollowups from "./ClientFollowups";
 import { AssignedTemplate } from "@/types/workout";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ClientActivity {
   id: string;
@@ -31,12 +32,20 @@ interface ClientTabsProps {
 }
 
 const ClientTabs = ({ templates, activities, followups, clientPhone }: ClientTabsProps) => {
+  const isMobile = useIsMobile();
+  
   return (
     <Tabs defaultValue="templates" className="space-y-6">
-      <TabsList>
-        <TabsTrigger value="templates">Schede Assegnate</TabsTrigger>
-        <TabsTrigger value="activities">Attività</TabsTrigger>
-        <TabsTrigger value="followups">Followup</TabsTrigger>
+      <TabsList className={`${isMobile ? 'w-full grid grid-cols-3' : ''}`}>
+        <TabsTrigger value="templates" className={isMobile ? 'flex-1 text-sm px-2' : ''}>
+          Schede
+        </TabsTrigger>
+        <TabsTrigger value="activities" className={isMobile ? 'flex-1 text-sm px-2' : ''}>
+          Attività
+        </TabsTrigger>
+        <TabsTrigger value="followups" className={isMobile ? 'flex-1 text-sm px-2' : ''}>
+          Followup
+        </TabsTrigger>
       </TabsList>
       
       <TabsContent value="templates" className="space-y-4">

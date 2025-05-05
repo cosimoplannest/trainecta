@@ -15,6 +15,7 @@ import { SidebarNavigation } from "./sidebar/SidebarNavigation";
 import { SidebarFooter as AppSidebarFooter } from "./sidebar/SidebarFooter";
 import { SidebarHeader as AppSidebarHeader } from "./sidebar/SidebarHeader";
 import { useAuth } from "@/hooks/use-auth";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface LayoutProps {
   children: ReactNode;
@@ -23,6 +24,7 @@ interface LayoutProps {
 const Layout = ({ children }: LayoutProps) => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -47,9 +49,9 @@ const Layout = ({ children }: LayoutProps) => {
   }
 
   return (
-    <SidebarProvider defaultOpen>
+    <SidebarProvider defaultOpen={!isMobile}>
       <div className="flex h-screen w-full overflow-hidden bg-background">
-        <Sidebar variant="sidebar" collapsible="icon">
+        <Sidebar variant={isMobile ? "floating" : "sidebar"} collapsible={isMobile ? "offcanvas" : "icon"}>
           <SidebarHeader>
             <AppSidebarHeader />
           </SidebarHeader>
@@ -66,8 +68,10 @@ const Layout = ({ children }: LayoutProps) => {
         
         <div className="flex flex-col flex-1 overflow-hidden transition-all duration-300">
           <Header />
-          <main className="flex-1 overflow-auto p-4 md:p-6">
-            {children}
+          <main className="flex-1 overflow-auto p-3 sm:p-4 md:p-6">
+            <div className="animate-fade-in">
+              {children}
+            </div>
           </main>
         </div>
       </div>
