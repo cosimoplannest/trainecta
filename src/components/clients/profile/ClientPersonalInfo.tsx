@@ -6,7 +6,7 @@ import { it } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { AssignTrainer } from "../AssignTrainer";
+import { AssignTrainer } from "../trainer-assignment";
 import EditClientDialog from "./EditClientDialog";
 import { Badge } from "@/components/ui/badge";
 import { fitnessGoals, workoutTimePreferences } from "../constants/clientFormData";

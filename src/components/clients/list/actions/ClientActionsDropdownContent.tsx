@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 import { ClientData } from "../../types/client-types";
-import { AssignTrainer } from "../../AssignTrainer";
+import { AssignTrainer } from "../../trainer-assignment";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 
 interface ClientActionsDropdownContentProps {
