@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/hooks/use-auth';
 
+// Create a temporary custom type for notifications until Supabase types are regenerated
 export interface Notification {
   id: string;
   title: string;
@@ -11,6 +12,7 @@ export interface Notification {
   read: boolean;
   created_at: string;
   notification_type: 'email' | 'app' | 'both';
+  user_id: string;
 }
 
 export function useNotifications() {
@@ -25,6 +27,7 @@ export function useNotifications() {
     
     setLoading(true);
     try {
+      // Using raw query to avoid TypeScript errors until database types are regenerated
       const { data, error } = await supabase
         .from('notifications')
         .select('*')
@@ -33,8 +36,10 @@ export function useNotifications() {
 
       if (error) throw error;
 
-      setNotifications(data || []);
-      setUnreadCount(data?.filter(n => !n.read).length || 0);
+      // Cast the data to our temporary type
+      const typedNotifications = data as unknown as Notification[];
+      setNotifications(typedNotifications || []);
+      setUnreadCount(typedNotifications?.filter(n => !n.read).length || 0);
     } catch (error) {
       console.error('Error fetching notifications:', error);
       toast({
@@ -51,10 +56,10 @@ export function useNotifications() {
     if (!user) return;
     
     try {
-      const { error } = await supabase
-        .rpc('mark_notification_read', { 
-          p_notification_id: notificationId 
-        });
+      // Using raw query to bypass TypeScript limitations
+      const { error } = await supabase.rpc('mark_notification_read', { 
+        p_notification_id: notificationId 
+      } as any);
 
       if (error) throw error;
 
@@ -79,8 +84,8 @@ export function useNotifications() {
     if (!user) return;
     
     try {
-      const { data, error } = await supabase
-        .rpc('mark_all_notifications_read');
+      // Using raw query to bypass TypeScript limitations
+      const { data, error } = await supabase.rpc('mark_all_notifications_read') as any;
 
       if (error) throw error;
 
@@ -116,12 +121,13 @@ export function useNotifications() {
     type?: 'email' | 'app' | 'both';
   }) => {
     try {
+      // Using raw query to bypass TypeScript limitations
       const { data, error } = await supabase.rpc('create_notification', {
         p_user_id: userId,
         p_title: title,
         p_message: message,
         p_notification_type: type
-      });
+      } as any);
 
       if (error) throw error;
 
@@ -172,17 +178,15 @@ export function useNotifications() {
     type?: 'email' | 'app' | 'both';
   }) => {
     try {
+      // Using raw query to bypass TypeScript limitations
       const { data, error } = await supabase.rpc('create_notification_for_role', {
         p_role: role,
         p_title: title,
         p_message: message,
         p_notification_type: type
-      });
+      } as any);
 
       if (error) throw error;
-
-      // If email notifications are required, we'd need to send them in a separate call
-      // or modify the database function to handle that
 
       return data;
     } catch (error) {
@@ -215,7 +219,8 @@ export function useNotifications() {
             console.log('Notification change received:', payload);
             
             if (payload.eventType === 'INSERT') {
-              const newNotification = payload.new as Notification;
+              // Cast to our temporary type
+              const newNotification = payload.new as unknown as Notification;
               setNotifications(prev => [newNotification, ...prev]);
               if (!newNotification.read) {
                 setUnreadCount(prev => prev + 1);
@@ -229,7 +234,7 @@ export function useNotifications() {
             } else if (payload.eventType === 'UPDATE') {
               // Update the notification in the list
               setNotifications(prev => 
-                prev.map(n => n.id === payload.new.id ? { ...n, ...payload.new } : n)
+                prev.map(n => n.id === payload.new.id ? { ...n, ...payload.new as unknown as Notification } : n)
               );
               
               // Recalculate unread count
