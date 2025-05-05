@@ -170,6 +170,26 @@ const AdminDashboard = () => {
             
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Notifiche</CardTitle>
+                <Bell className="h-4 w-4 text-primary" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">Gestione Notifiche</div>
+                <p className="text-xs text-muted-foreground mt-1 mb-3">
+                  Gestisci tutte le notifiche del sistema
+                </p>
+                <Button variant="outline" size="sm" className="w-full" asChild>
+                  <Link to="/notifications" className="flex items-center justify-center">
+                    Gestisci <ArrowUpRight className="h-4 w-4 ml-1" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+          
+          <div className="grid gap-4 md:grid-cols-1">
+            <Card className="hover:shadow-md transition-shadow">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Configurazione</CardTitle>
                 <SettingsIcon className="h-4 w-4 text-primary" />
               </CardHeader>

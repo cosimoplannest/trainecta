@@ -32,6 +32,7 @@ import OperatorDashboard from "./pages/dashboards/OperatorDashboard";
 import TrainerDashboard from "./pages/dashboards/TrainerDashboard";
 import AssistantDashboard from "./pages/dashboards/AssistantDashboard";
 import InstructorDashboard from "./pages/dashboards/InstructorDashboard";
+import NotificationManagement from "./pages/NotificationManagement";
 
 const queryClient = new QueryClient();
 
@@ -124,6 +125,11 @@ const App = () => (
             <Route path="/admin-settings" element={
               <RequireAuth allowedRoles={['admin']}>
                 <Layout><AdminSettings /></Layout>
+              </RequireAuth>
+            } />
+            <Route path="/notifications" element={
+              <RequireAuth allowedRoles={['admin']}>
+                <Layout><NotificationManagement /></Layout>
               </RequireAuth>
             } />
             <Route path="/settings" element={

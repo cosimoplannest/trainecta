@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { 
   BarChart2, Dumbbell, Home, LineChart, MessageSquare, Users, Calendar, Clock, Ticket,
-  UserCog, ShieldCheck, UserRound
+  UserCog, ShieldCheck, UserRound, Bell
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -23,6 +23,7 @@ export function SidebarNavigation() {
     { name: "Statistiche", href: "/statistics", icon: BarChart2 },
     { name: "Monitoraggio & Analisi", href: "/tracking", icon: LineChart },
     { name: "Comunicazione", href: "/communications", icon: MessageSquare },
+    { name: "Notifiche", href: "/notifications", icon: Bell },
     { name: "Impostazioni", href: "/admin-settings", icon: ShieldCheck }
   ];
 
