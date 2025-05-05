@@ -29,7 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SendCheck, Users, User, Bell, Mail } from "lucide-react";
+import { Send, Users, User, Bell, Mail } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 // Define form schema for validations
@@ -249,7 +249,7 @@ export function SendNotificationForm() {
                                 <FormControl>
                                   <RadioGroupItem value="both" className="sr-only" />
                                 </FormControl>
-                                <SendCheck className="mb-3 h-6 w-6" />
+                                <Send className="mb-3 h-6 w-6" />
                                 Entrambi
                               </FormLabel>
                             </FormItem>
@@ -268,7 +268,7 @@ export function SendNotificationForm() {
                       </>
                     ) : (
                       <>
-                        <SendCheck className="mr-2 h-4 w-4" />
+                        <Send className="mr-2 h-4 w-4" />
                         Invia notifica
                       </>
                     )}
@@ -381,7 +381,7 @@ export function SendNotificationForm() {
                                 <FormControl>
                                   <RadioGroupItem value="both" className="sr-only" />
                                 </FormControl>
-                                <SendCheck className="mb-3 h-6 w-6" />
+                                <Send className="mb-3 h-6 w-6" />
                                 Entrambi
                               </FormLabel>
                             </FormItem>
@@ -400,7 +400,7 @@ export function SendNotificationForm() {
                       </>
                     ) : (
                       <>
-                        <SendCheck className="mr-2 h-4 w-4" />
+                        <Send className="mr-2 h-4 w-4" />
                         Invia notifica per ruolo
                       </>
                     )}
