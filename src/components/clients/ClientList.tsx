@@ -31,9 +31,9 @@ const ClientList = () => {
   };
 
   return (
-    <Card>
+    <Card className="shadow-sm">
       <ClientListHeader userRole={userRole} />
-      <CardContent>
+      <CardContent className="p-6">
         <ClientListSearchBar 
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
@@ -51,8 +51,8 @@ const ClientList = () => {
           searchQuery={searchQuery}
         />
         
-        {!loading && (
-          <div className="mt-2 flex flex-col items-center justify-between gap-4 sm:flex-row">
+        {!loading && filteredClients.length > 0 && (
+          <div className="mt-4 flex flex-col items-center justify-between gap-4 sm:flex-row">
             <p className="text-sm text-muted-foreground">
               Mostrati {paginatedClients.length} di {totalItems} clienti
             </p>

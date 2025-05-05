@@ -1,5 +1,5 @@
 
-import { Search } from "lucide-react";
+import { Search, RefreshCw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -26,13 +26,13 @@ export function ClientListSearchBar({
   
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex items-center justify-between">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+      <div className="flex items-center justify-between gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
             placeholder="Cerca cliente per nome, email o telefono..."
-            className="pl-8 pr-4 w-full"
+            className="pl-9 pr-4 w-full"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -42,8 +42,9 @@ export function ClientListSearchBar({
           size="sm"
           onClick={handleRefreshClients}
           disabled={loading}
-          className="ml-2"
+          className="whitespace-nowrap"
         >
+          <RefreshCw className={`h-3.5 w-3.5 mr-2 ${loading ? 'animate-spin' : ''}`} />
           {loading ? "Caricamento..." : "Aggiorna"}
         </Button>
       </div>
