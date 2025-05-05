@@ -4,7 +4,7 @@ import { useClientData } from "./profile/hooks/useClientData";
 import { LoadingState } from "./profile/LoadingState";
 import { NotFoundState } from "./profile/NotFoundState";
 import ClientProfileHeader from "./profile/ClientProfileHeader";
-import ClientPersonalInfo from "./profile/ClientPersonalInfo";
+import { ClientPersonalInfo } from "./profile/personal-info";
 import ClientTabs from "./profile/ClientTabs";
 import { useIsMobile } from "@/hooks/use-mobile";
 
