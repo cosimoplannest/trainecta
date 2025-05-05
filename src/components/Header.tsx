@@ -1,3 +1,4 @@
+
 import { Menu, User, MessageSquare, Settings, LogOut, Search, HelpCircle, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -10,7 +11,7 @@ import {
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
