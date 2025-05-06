@@ -5,6 +5,7 @@ import { it } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { AssignTrainer } from "../../trainer-assignment";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuth } from "@/hooks/use-auth";
 
 interface GymInfoProps {
   trainerName: string | null;
@@ -24,6 +25,10 @@ export const GymInfoSection = ({
   onEditClick 
 }: GymInfoProps) => {
   const isMobile = useIsMobile();
+  const { userRole } = useAuth();
+  
+  // Only admin and operators should be able to assign trainers
+  const canAssignTrainer = userRole === 'admin' || userRole === 'operator';
   
   return (
     <div className="py-4 space-y-3">
@@ -48,11 +53,13 @@ export const GymInfoSection = ({
       </div>
       
       <div className={`pt-3 flex ${isMobile ? 'flex-col' : 'sm:flex-row'} gap-2`}>
-        <AssignTrainer 
-          clientId={clientId} 
-          currentTrainerId={trainerId}
-          onAssigned={onRefresh}
-        />
+        {canAssignTrainer && (
+          <AssignTrainer 
+            clientId={clientId} 
+            currentTrainerId={trainerId}
+            onAssigned={onRefresh}
+          />
+        )}
         
         <Button 
           variant="outline"
