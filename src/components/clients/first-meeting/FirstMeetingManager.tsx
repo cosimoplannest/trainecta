@@ -24,6 +24,9 @@ export const FirstMeetingManager = ({ client, onUpdate }: FirstMeetingManagerPro
   const isTrainer = userRole === 'trainer';
   const isClientAssignedToCurrentUser = client.assigned_to === useAuth().user?.id;
   
+  // Pass onUpdate to the client object
+  const clientWithCallback = { ...client, onRefresh: onUpdate };
+  
   const {
     meetingDate,
     setMeetingDate,
@@ -31,7 +34,7 @@ export const FirstMeetingManager = ({ client, onUpdate }: FirstMeetingManagerPro
     isUpdating,
     updateFirstMeetingDate,
     markFirstMeetingCompleted,
-  } = useFirstMeeting(client);
+  } = useFirstMeeting(clientWithCallback);
   
   const [calendarOpen, setCalendarOpen] = useState(false);
   

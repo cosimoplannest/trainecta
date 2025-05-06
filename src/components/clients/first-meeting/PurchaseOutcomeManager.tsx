@@ -1,17 +1,15 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { CheckCircle2, ShoppingBag, FileText, AlertTriangle } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/use-auth";
+import { Badge } from "@/components/ui/badge";
 import { ClientData } from "../types/client-types";
 import { usePurchaseOutcome } from "./usePurchaseOutcome";
-import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/hooks/use-auth";
 
 interface PurchaseOutcomeManagerProps {
   client: ClientData;
@@ -28,6 +26,9 @@ export const PurchaseOutcomeManager = ({ client, onUpdate }: PurchaseOutcomeMana
   // Check if current user can edit the outcome
   const canEdit = isTrainer ? isClientAssignedToCurrentUser : true;
   
+  // Pass onUpdate to the client object
+  const clientWithCallback = { ...client, onRefresh: onUpdate };
+  
   const {
     purchaseType,
     setPurchaseType,
@@ -36,7 +37,7 @@ export const PurchaseOutcomeManager = ({ client, onUpdate }: PurchaseOutcomeMana
     isUpdating,
     savePurchaseOutcome,
     gymSettings
-  } = usePurchaseOutcome(client);
+  } = usePurchaseOutcome(clientWithCallback);
 
   const isFirstMeetingCompleted = client.first_meeting_completed;
   const hasOutcome = client.purchase_type !== null && client.purchase_type !== undefined;

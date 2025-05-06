@@ -10,7 +10,7 @@ type PurchaseType = "package" | "custom_plan" | "none" | null;
 
 interface GymSettings {
   days_to_first_followup: number;
-  require_default_template_assignment: boolean;
+  require_default_template_assignment?: boolean;
   package_confirmation_days: number;
   custom_plan_confirmation_days: number;
 }
@@ -27,17 +27,22 @@ export const usePurchaseOutcome = (client: ClientData) => {
   // Fetch gym settings on component mount
   useEffect(() => {
     const fetchGymSettings = async () => {
-      if (!client.gym_id) return;
+      if (!client.gym_id) {
+        console.error("Client gym_id is missing");
+        return;
+      }
       
       try {
         const { data, error } = await supabase
           .from("gym_settings")
-          .select("days_to_first_followup, require_default_template_assignment, package_confirmation_days, custom_plan_confirmation_days")
+          .select("days_to_first_followup, package_confirmation_days, custom_plan_confirmation_days")
           .eq("gym_id", client.gym_id)
           .single();
           
         if (error) throw error;
-        setGymSettings(data);
+        
+        // Safe type casting since we're selecting only the fields we need
+        setGymSettings(data as GymSettings);
       } catch (error) {
         console.error("Error fetching gym settings:", error);
       }
@@ -73,6 +78,16 @@ export const usePurchaseOutcome = (client: ClientData) => {
       });
       return;
     }
+
+    if (!client.gym_id) {
+      console.error("Client gym_id is missing");
+      toast({
+        title: "Errore",
+        description: "ID palestra mancante",
+        variant: "destructive",
+      });
+      return;
+    }
     
     setIsUpdating(true);
     try {
@@ -95,12 +110,13 @@ export const usePurchaseOutcome = (client: ClientData) => {
       if (purchaseType === "none" && gymSettings) {
         const followupDate = addDays(new Date(), gymSettings.days_to_first_followup);
         
+        // Using in_app as type which is one of the allowed enum values
         const { error: followupError } = await supabase
           .from("client_followups")
           .insert({
             client_id: client.id,
             trainer_id: client.assigned_to,
-            type: "post_first_meeting",
+            type: "in_app", // Changed from "post_first_meeting" to a valid enum value
             sent_at: followupDate.toISOString(),
             notes: "Follow-up automatico dopo primo incontro senza acquisto"
           });
@@ -147,6 +163,11 @@ export const usePurchaseOutcome = (client: ClientData) => {
   };
 
   const logActivity = async (action: string, notes: string) => {
+    if (!client.gym_id) {
+      console.error("Client gym_id is missing");
+      return;
+    }
+    
     try {
       await supabase.from("activity_logs").insert({
         action,

@@ -34,6 +34,10 @@ export interface ClientData {
   fitness_level?: string | null;
   contact_method?: string | null;
   contact_time?: string | null;
+  
+  // Additional properties needed by new functionality
+  gym_id?: string;
+  onRefresh?: () => void;
 }
 
 export interface ClientFormData {

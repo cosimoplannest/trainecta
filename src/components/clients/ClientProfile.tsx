@@ -7,8 +7,7 @@ import ClientProfileHeader from "./profile/ClientProfileHeader";
 import { ClientPersonalInfo } from "./profile/personal-info";
 import ClientTabs from "./profile/ClientTabs";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { FirstMeetingManager } from "./first-meeting/FirstMeetingManager";
-import { PurchaseOutcomeManager } from "./first-meeting/PurchaseOutcomeManager";
+import { FirstMeetingManager, PurchaseOutcomeManager } from "./first-meeting";
 import { useAuth } from "@/hooks/use-auth";
 
 const ClientProfile = () => {
@@ -28,6 +27,9 @@ const ClientProfile = () => {
   const isTrainer = userRole === 'trainer';
   const isAssigned = !!client.assigned_to;
   const isAssignedToCurrentUser = isAssigned && client.assigned_to === user?.id;
+
+  // Make sure we're passing all required props to child components
+  const clientWithGymId = { ...client };
 
   return (
     <div className="space-y-4 pb-16">
@@ -57,8 +59,8 @@ const ClientProfile = () => {
             <div className="space-y-6 mt-2">
               {isTrainer && (
                 <>
-                  <FirstMeetingManager client={client} onUpdate={handleRefresh} />
-                  <PurchaseOutcomeManager client={client} onUpdate={handleRefresh} />
+                  <FirstMeetingManager client={clientWithGymId} onUpdate={handleRefresh} />
+                  <PurchaseOutcomeManager client={clientWithGymId} onUpdate={handleRefresh} />
                 </>
               )}
               <ClientPersonalInfo client={client} onRefresh={handleRefresh} />
@@ -74,8 +76,8 @@ const ClientProfile = () => {
             <div className="lg:col-span-3 space-y-6">
               {isTrainer && (
                 <div className="grid gap-6 md:grid-cols-2">
-                  <FirstMeetingManager client={client} onUpdate={handleRefresh} />
-                  <PurchaseOutcomeManager client={client} onUpdate={handleRefresh} />
+                  <FirstMeetingManager client={clientWithGymId} onUpdate={handleRefresh} />
+                  <PurchaseOutcomeManager client={clientWithGymId} onUpdate={handleRefresh} />
                 </div>
               )}
               <ClientTabs 

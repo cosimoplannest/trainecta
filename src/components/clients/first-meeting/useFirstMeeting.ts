@@ -40,6 +40,11 @@ export const useFirstMeeting = (client: ClientData) => {
         title: "Data aggiornata",
         description: "La data del primo incontro è stata aggiornata con successo",
       });
+
+      // Trigger refresh if callback exists
+      if (client.onRefresh) {
+        client.onRefresh();
+      }
     } catch (error: any) {
       console.error("Error updating first meeting date:", error);
       toast({
@@ -84,6 +89,11 @@ export const useFirstMeeting = (client: ClientData) => {
         title: "Incontro completato",
         description: "Il primo incontro è stato segnato come completato",
       });
+
+      // Trigger refresh if callback exists
+      if (client.onRefresh) {
+        client.onRefresh();
+      }
     } catch (error: any) {
       console.error("Error marking first meeting as completed:", error);
       toast({
@@ -97,6 +107,11 @@ export const useFirstMeeting = (client: ClientData) => {
   };
 
   const logActivity = async (action: string, notes: string) => {
+    if (!client.gym_id) {
+      console.error("Client gym_id is missing");
+      return;
+    }
+    
     try {
       await supabase.from("activity_logs").insert({
         action,

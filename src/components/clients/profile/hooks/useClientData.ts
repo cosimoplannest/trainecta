@@ -3,20 +3,7 @@ import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { AssignedTemplate } from "@/types/workout";
-
-interface ClientData {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string | null;
-  phone: string | null;
-  gender: string | null;
-  birth_date: string | null;
-  joined_at: string;
-  internal_notes: string | null;
-  assigned_to: string | null;
-  user?: { full_name: string } | null;
-}
+import { ClientData } from "../../types/client-types";
 
 interface ClientActivity {
   id: string;
