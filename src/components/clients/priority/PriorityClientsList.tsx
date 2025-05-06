@@ -1,9 +1,11 @@
 
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CalendarPlus, User } from "lucide-react";
+import { CalendarPlus, User, ChevronDown, ChevronUp } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
 import { useNavigate } from "react-router-dom";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface PriorityClient {
   id: string;
@@ -26,6 +28,12 @@ interface PriorityClientsListProps {
 
 export function PriorityClientsList({ clients, loading, type }: PriorityClientsListProps) {
   const navigate = useNavigate();
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  const initialDisplayCount = 10;
+  const hasMoreClients = clients.length > initialDisplayCount;
+  const displayedClients = isExpanded ? clients : clients.slice(0, initialDisplayCount);
+  const hiddenClientsCount = clients.length - initialDisplayCount;
 
   const getUrgencyBadge = (date: string) => {
     const days = differenceInDays(new Date(), new Date(date));
@@ -57,7 +65,7 @@ export function PriorityClientsList({ clients, loading, type }: PriorityClientsL
 
   return (
     <div className="space-y-4">
-      {clients.map((client) => (
+      {displayedClients.map((client) => (
         <div 
           key={client.id} 
           className="flex items-center justify-between p-4 rounded-lg border"
@@ -93,6 +101,71 @@ export function PriorityClientsList({ clients, loading, type }: PriorityClientsL
           </Button>
         </div>
       ))}
+
+      {hasMoreClients && (
+        <Collapsible
+          open={isExpanded}
+          onOpenChange={setIsExpanded}
+          className="space-y-4"
+        >
+          <CollapsibleContent className="space-y-4 pt-2">
+            {clients.slice(initialDisplayCount).map((client) => (
+              <div 
+                key={client.id} 
+                className="flex items-center justify-between p-4 rounded-lg border"
+              >
+                <div className="space-y-1">
+                  <p className="font-medium">
+                    {client.first_name} {client.last_name}
+                  </p>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <span>
+                      {type === 'first-meeting' 
+                        ? `Iscritto il ${format(new Date(client.created_at), 'dd/MM/yyyy')}`
+                        : `Follow-up previsto: ${format(new Date(client.next_confirmation_due!), 'dd/MM/yyyy')}`
+                      }
+                    </span>
+                    {getUrgencyBadge(type === 'first-meeting' ? client.created_at : client.next_confirmation_due!)}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    {client.users?.full_name 
+                      ? `Trainer: ${client.users.full_name}`
+                      : "Trainer non assegnato"
+                    }
+                  </div>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => navigate(`/client/${client.id}`)}
+                  className="ml-4"
+                >
+                  <CalendarPlus className="h-4 w-4 mr-2" />
+                  {type === 'first-meeting' ? 'Programma' : 'Gestisci'}
+                </Button>
+              </div>
+            ))}
+          </CollapsibleContent>
+          
+          <CollapsibleTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="w-full flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground"
+            >
+              {isExpanded ? (
+                <>
+                  <ChevronUp className="h-4 w-4" /> Mostra meno
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="h-4 w-4" /> Mostra altri {hiddenClientsCount} clienti
+                </>
+              )}
+            </Button>
+          </CollapsibleTrigger>
+        </Collapsible>
+      )}
     </div>
   );
 };
