@@ -1,4 +1,3 @@
-
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
@@ -16,12 +15,12 @@ export function SidebarNavigation() {
     { name: "Dashboard", href: "/dashboard/admin", icon: Home },
     { name: "Schede Allenamento", href: "/workout-templates", icon: Dumbbell },
     { name: "Gestione Clienti", href: "/client-management", icon: Users },
+    { name: "Monitoraggio Clienti", href: "/tracking", icon: LineChart },
     { name: "Trainer", href: "/admin-settings?tab=user-management&role=trainers", icon: Dumbbell },
     { name: "Istruttori", href: "/admin-settings?tab=user-management&role=instructors", icon: Ticket },
     { name: "Assistenti", href: "/admin-settings?tab=user-management&role=assistants", icon: UserRound },
     { name: "Operatori", href: "/admin-settings?tab=user-management&role=operators", icon: UserCog },
     { name: "Statistiche", href: "/statistics", icon: BarChart2 },
-    { name: "Monitoraggio & Analisi", href: "/tracking", icon: LineChart },
     { name: "Comunicazione", href: "/communications", icon: MessageSquare },
     { name: "Notifiche", href: "/notifications", icon: Bell },
     { name: "Storico Notifiche", href: "/notification-history", icon: History },
@@ -31,6 +30,7 @@ export function SidebarNavigation() {
   const operatorLinks = [
     { name: "Dashboard", href: "/dashboard/operator", icon: Home },
     { name: "Gestione Clienti", href: "/client-management", icon: Users },
+    { name: "Monitoraggio Clienti", href: "/tracking", icon: LineChart },
     { name: "Statistiche", href: "/statistics", icon: BarChart2 },
     { name: "Comunicazione", href: "/communications", icon: MessageSquare }
   ];
@@ -39,7 +39,7 @@ export function SidebarNavigation() {
     { name: "Dashboard", href: "/dashboard/trainer", icon: Home },
     { name: "Schede Allenamento", href: "/workout-templates", icon: Dumbbell },
     { name: "Gestione Clienti", href: "/client-management", icon: Users },
-    { name: "Monitoraggio & Analisi", href: "/tracking", icon: LineChart },
+    { name: "Monitoraggio Clienti", href: "/tracking", icon: LineChart },
     { name: "Comunicazione", href: "/communications", icon: MessageSquare }
   ];
 
