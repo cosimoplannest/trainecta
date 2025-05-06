@@ -11,15 +11,17 @@ interface GenericRegistrationFormProps {
   roleId: string;
   showPhoneField?: boolean;
   requiresSpecialties?: boolean;
+  gymCode?: string;
 }
 
 export const GenericRegistrationForm = ({
   roleName,
   roleId,
   showPhoneField = false,
-  requiresSpecialties = false
+  requiresSpecialties = false,
+  gymCode
 }: GenericRegistrationFormProps) => {
-  const { gymCode } = useParams<{ gymCode: string }>();
+  // Remove the useParams call as we're now receiving gymCode as a prop
   const { signUp } = useAuth();
   const navigate = useNavigate();
   
