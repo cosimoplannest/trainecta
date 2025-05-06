@@ -22,7 +22,7 @@ const ClientProfile = () => {
   }
 
   return (
-    <div className="space-y-6 pb-16">
+    <div className="space-y-4 pb-16">
       <ClientProfileHeader 
         firstName={client.first_name}
         lastName={client.last_name}
@@ -31,9 +31,9 @@ const ClientProfile = () => {
       
       <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'lg:grid-cols-4'}`}>
         {isMobile ? (
-          // On mobile, show tabs first, then personal info
+          // On mobile, improved layout with clearer hierarchy
           <>
-            <div className="order-1">
+            <div className="sticky top-0 z-10 bg-background pb-2">
               <ClientTabs 
                 templates={templates} 
                 activities={activities} 
@@ -42,7 +42,7 @@ const ClientProfile = () => {
               />
             </div>
             
-            <div className="order-2">
+            <div className="mt-2">
               <ClientPersonalInfo client={client} onRefresh={handleRefresh} />
             </div>
           </>

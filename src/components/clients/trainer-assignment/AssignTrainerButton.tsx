@@ -15,10 +15,10 @@ export const AssignTrainerButton = ({ currentTrainerId }: AssignTrainerButtonPro
     <DialogTrigger asChild>
       <Button 
         variant="outline" 
-        size="sm" 
-        className={`flex items-center justify-center gap-1 h-9 ${isMobile ? 'w-full' : ''}`}
+        size={isMobile ? "default" : "sm"}
+        className={`flex items-center justify-center gap-2 ${isMobile ? 'w-full h-10 text-base' : 'h-9'}`}
       >
-        <User className="h-4 w-4 flex-shrink-0" />
+        <User className={`${isMobile ? 'h-5 w-5' : 'h-4 w-4'} flex-shrink-0`} />
         <span className="truncate">
           {currentTrainerId ? "Cambia Trainer" : "Assegna Trainer"}
         </span>

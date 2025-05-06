@@ -97,7 +97,7 @@ function App() {
           </Layout>
         </RequireAuth>
       } />
-      <Route path="/trainer-profile" element={
+      <Route path="/trainer/:id" element={
         <RequireAuth>
           <Layout>
             <TrainerProfile />
