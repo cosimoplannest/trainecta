@@ -107,6 +107,8 @@ const JoinWithCode = () => {
   };
 
   const getRegistrationPath = (role: string): string => {
+    if (!code) return '/register';
+    
     switch (role) {
       case 'trainer':
         return `/trainer-registration/${code}`;

@@ -24,14 +24,20 @@ interface GenericRegistrationProps {
   roleId: string;
   showPhoneField?: boolean;
   requiresSpecialties?: boolean;
+  gymCode?: string;
 }
 
 const GenericRegistration = ({
   roleName,
   roleId,
   showPhoneField = false,
-  requiresSpecialties = false
+  requiresSpecialties = false,
+  gymCode
 }: GenericRegistrationProps) => {
+  // If no gymCode is passed as prop, try to get it from URL params
+  const params = useParams<{ gymCode?: string }>();
+  const codeToUse = gymCode || params.gymCode;
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/40 p-4">
       <div className="max-w-md w-full space-y-6">
@@ -61,6 +67,7 @@ const GenericRegistration = ({
               roleId={roleId}
               showPhoneField={showPhoneField}
               requiresSpecialties={requiresSpecialties}
+              gymCode={codeToUse}
             />
           </CardContent>
           

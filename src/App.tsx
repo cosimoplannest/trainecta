@@ -1,3 +1,4 @@
+
 import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import Index from './pages/Index';
@@ -45,6 +46,12 @@ function App() {
       <Route path="/register/:type" element={<GenericRegistration roleName="User" roleId="user" />} />
       <Route path="/join/:code" element={<JoinWithCode />} />
       <Route path="/dashboard" element={<Dashboard />} />
+      
+      {/* Add routes for registration with gym code */}
+      <Route path="/trainer-registration/:gymCode" element={<TrainerRegistration />} />
+      <Route path="/operator-registration/:gymCode" element={<OperatorRegistration />} />
+      <Route path="/assistant-registration/:gymCode" element={<AssistantRegistration />} />
+      <Route path="/instructor-registration/:gymCode" element={<InstructorRegistration />} />
 
       <Route path="/dashboard/admin" element={
         <RequireAuth>
