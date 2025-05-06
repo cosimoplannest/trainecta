@@ -1,3 +1,4 @@
+
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -9,6 +10,7 @@ import { ProfileHeader } from "@/components/trainer/profile/ProfileHeader";
 import { TrainerInfo } from "@/components/trainer/profile/TrainerInfo";
 import { MetricsGrid } from "@/components/trainer/profile/MetricsGrid";
 import { PerformanceStats } from "@/components/trainer/profile/PerformanceStats";
+import { ClientData } from "@/components/clients/types/client-types";
 
 type TrainerData = {
   id: string;
@@ -26,6 +28,13 @@ type TrainerMetrics = {
   customPlanClients: number;
 };
 
+type ClientsDataByCategory = {
+  awaitingFirstMeeting: ClientData[];
+  awaitingFollowup: ClientData[];
+  personalPackageClients: ClientData[];
+  customPlanClients: ClientData[];
+};
+
 const TrainerProfile = () => {
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
@@ -38,6 +47,12 @@ const TrainerProfile = () => {
     awaitingFollowup: 0,
     personalPackageClients: 0,
     customPlanClients: 0,
+  });
+  const [clientsData, setClientsData] = useState<ClientsDataByCategory>({
+    awaitingFirstMeeting: [],
+    awaitingFollowup: [],
+    personalPackageClients: [],
+    customPlanClients: [],
   });
 
   useEffect(() => {
@@ -61,7 +76,10 @@ const TrainerProfile = () => {
             
           supabase
             .from("clients")
-            .select("*")
+            .select(`
+              *,
+              users(full_name)
+            `)
             .eq("assigned_to", id)
         ]);
 
@@ -82,14 +100,28 @@ const TrainerProfile = () => {
         }]);
 
         const clients = clientsResult.data;
+        
+        // Filter clients into categories
+        const awaitingFirstMeeting = clients.filter((c: any) => !c.first_meeting_completed);
+        const awaitingFollowup = clients.filter((c: any) => {
+          const needsFollowup = c.next_confirmation_due && new Date(c.next_confirmation_due) <= new Date();
+          return needsFollowup;
+        });
+        const personalPackageClients = clients.filter((c: any) => c.subscription_type === 'personal');
+        const customPlanClients = clients.filter((c: any) => c.subscription_type === 'custom_plan');
+        
         setMetrics({
-          awaitingFirstMeeting: clients.filter((c: any) => !c.first_meeting_completed).length,
-          awaitingFollowup: clients.filter((c: any) => {
-            const needsFollowup = c.next_confirmation_due && new Date(c.next_confirmation_due) <= new Date();
-            return needsFollowup;
-          }).length,
-          personalPackageClients: clients.filter((c: any) => c.subscription_type === 'personal').length,
-          customPlanClients: clients.filter((c: any) => c.subscription_type === 'custom_plan').length,
+          awaitingFirstMeeting: awaitingFirstMeeting.length,
+          awaitingFollowup: awaitingFollowup.length,
+          personalPackageClients: personalPackageClients.length,
+          customPlanClients: customPlanClients.length,
+        });
+        
+        setClientsData({
+          awaitingFirstMeeting,
+          awaitingFollowup,
+          personalPackageClients,
+          customPlanClients,
         });
 
       } catch (error: any) {
@@ -138,7 +170,7 @@ const TrainerProfile = () => {
       
       <div className="grid gap-6">
         <TrainerInfo trainer={trainer} />
-        <MetricsGrid metrics={metrics} />
+        <MetricsGrid metrics={metrics} clientsData={clientsData} />
         
         {performanceData && <PerformanceStats performanceData={performanceData} />}
         
