@@ -50,7 +50,7 @@ export const ClientsModal = ({ title, clients, isOpen, onClose }: ClientsModalPr
                     </TableCell>
                     {!isMobile && <TableCell>{client.email || '-'}</TableCell>}
                     <TableCell>{client.phone || '-'}</TableCell>
-                    {!isMobile && <TableCell>{client.user?.full_name || '-'}</TableCell>}
+                    {!isMobile && <TableCell>{client.users?.full_name || '-'}</TableCell>}
                   </TableRow>
                 ))}
               </TableBody>
