@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+import { sendNotification } from "@/services/notification-service";
 
 interface UseTrainerAssignmentProps {
   clientId: string;
@@ -93,6 +94,19 @@ export const useTrainerAssignment = ({ clientId, currentTrainerId, onAssigned }:
 
     setLoading(true);
     try {
+      // Fetch client data for the notification
+      const { data: clientData, error: clientError } = await supabase
+        .from("clients")
+        .select("first_name, last_name")
+        .eq("id", clientId)
+        .single();
+
+      if (clientError) throw clientError;
+      
+      // Get the selected trainer's name
+      const selectedTrainerData = trainers.find(t => t.id === selectedTrainer);
+      const trainerName = selectedTrainerData?.name || "trainer selezionato";
+
       // Update client with assigned trainer
       const { error: updateError } = await supabase
         .from("clients")
@@ -114,16 +128,31 @@ export const useTrainerAssignment = ({ clientId, currentTrainerId, onAssigned }:
       if (activityError) {
         console.error("Activity log error:", activityError);
         // Continue even if activity logging fails
+      }
+
+      // Send email notification to the trainer
+      try {
+        await sendNotification({
+          userId: selectedTrainer,
+          title: "Nuovo cliente assegnato",
+          message: `Ti è stato assegnato un nuovo cliente: ${clientData.first_name} ${clientData.last_name}. Per favore contattalo al più presto.`,
+          type: "email" // Send only as email
+        });
+
+        console.log("Email notification sent to trainer");
+      } catch (notificationError) {
+        console.error("Error sending notification:", notificationError);
+        // Don't block the assignment process if notification fails
         toast({
           title: "Avviso",
-          description: "Trainer assegnato, ma si è verificato un errore nel registrare l'attività",
-        });
-      } else {
-        toast({
-          title: "Successo",
-          description: "Cliente assegnato al trainer con successo",
+          description: "Cliente assegnato, ma si è verificato un errore nell'invio della notifica al trainer",
         });
       }
+      
+      toast({
+        title: "Successo",
+        description: `Cliente assegnato al trainer ${trainerName} con successo. Notifica inviata via email.`,
+      });
       
       onAssigned();
       return true;
