@@ -1,174 +1,77 @@
 
-import { Routes, Route } from 'react-router-dom';
-import Layout from './components/Layout';
-import Index from './pages/Index';
-import GymRegistration from './pages/GymRegistration';
-import Dashboard from './pages/Dashboard';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import JoinWithCode from './pages/JoinWithCode';
-import NotFound from './pages/NotFound';
-import RequireAuth from './components/auth/RequireAuth';
-import AdminDashboard from './pages/dashboards/AdminDashboard';
-import TrainerDashboard from './pages/dashboards/TrainerDashboard';
-import OperatorDashboard from './pages/dashboards/OperatorDashboard';
-import AssistantDashboard from './pages/dashboards/AssistantDashboard';
-import InstructorDashboard from './pages/dashboards/InstructorDashboard';
-import Settings from './pages/Settings';
-import AdminSettings from './pages/AdminSettings';
-import TrainerRegistration from './pages/registration/TrainerRegistration';
-import InstructorRegistration from './pages/registration/InstructorRegistration';
-import AssistantRegistration from './pages/registration/AssistantRegistration';
-import OperatorRegistration from './pages/registration/OperatorRegistration';
-import GenericRegistration from './pages/registration/GenericRegistration';
-import TrainerProfile from './pages/TrainerProfile';
-import WorkoutTemplates from './pages/WorkoutTemplates';
-import ClientManagement from './pages/ClientManagement';
-import ClientProfile from './components/clients/ClientProfile';
-import Statistics from './pages/Statistics';
-import TrackingPage from './pages/TrackingPage';
-import Communications from './pages/Communications';
-import NotificationManagement from './pages/NotificationManagement';
-import NotificationHistoryPage from './pages/NotificationHistory';
-import './App.css';
+import { lazy, Suspense } from "react";
+import { Routes, Route } from "react-router-dom";
+import Layout from "./components/Layout";
+import Statistics from "./pages/Statistics";
+import GymLoad from "./pages/GymLoad";
+import GymLoadSettings from "./pages/GymLoadSettings";
+
+// Import pages
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const ClientManagement = lazy(() => import("./pages/ClientManagement"));
+const WorkoutTemplates = lazy(() => import("./pages/WorkoutTemplates"));
+const Communications = lazy(() => import("./pages/Communications"));
+const LandingPage = lazy(() => import("./pages/LandingPage"));
+const Login = lazy(() => import("./pages/Login"));
+const Register = lazy(() => import("./pages/Register"));
+const AdminSettings = lazy(() => import("./pages/AdminSettings"));
+const TrainerProfile = lazy(() => import("./pages/TrainerProfile"));
+const ClientProfile = lazy(() => import("./components/clients/ClientProfile"));
+const TrackingPage = lazy(() => import("./pages/TrackingPage"));
+const NotificationHistory = lazy(() => import("./pages/NotificationHistory"));
+const NotificationManagement = lazy(() => import("./pages/NotificationManagement"));
+const Settings = lazy(() => import("./pages/Settings"));
+const JoinWithCode = lazy(() => import("./pages/JoinWithCode"));
+const GymRegistration = lazy(() => import("./pages/GymRegistration"));
+const TrainerRegistration = lazy(() => import("./pages/registration/TrainerRegistration"));
+const OperatorRegistration = lazy(() => import("./pages/registration/OperatorRegistration"));
+const InstructorRegistration = lazy(() => import("./pages/registration/InstructorRegistration"));
+const AssistantRegistration = lazy(() => import("./pages/registration/AssistantRegistration"));
+const GenericRegistration = lazy(() => import("./pages/registration/GenericRegistration"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Index />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/register/gym" element={<GymRegistration />} />
-      <Route path="/register/trainer" element={<TrainerRegistration />} />
-      <Route path="/register/instructor" element={<InstructorRegistration />} />
-      <Route path="/register/assistant" element={<AssistantRegistration />} />
-      <Route path="/register/operator" element={<OperatorRegistration />} />
-      <Route path="/register/:type" element={<GenericRegistration roleName="User" roleId="user" />} />
-      <Route path="/join/:code" element={<JoinWithCode />} />
-      <Route path="/dashboard" element={<Dashboard />} />
-      
-      {/* Add routes for registration with gym code */}
-      <Route path="/trainer-registration/:gymCode" element={<TrainerRegistration />} />
-      <Route path="/operator-registration/:gymCode" element={<OperatorRegistration />} />
-      <Route path="/assistant-registration/:gymCode" element={<AssistantRegistration />} />
-      <Route path="/instructor-registration/:gymCode" element={<InstructorRegistration />} />
+    <Suspense fallback={<div className="flex h-screen items-center justify-center">Caricamento...</div>}>
+      <Routes>
+        {/* Public routes */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/join/:code" element={<JoinWithCode />} />
+        <Route path="/registration/gym" element={<GymRegistration />} />
+        <Route path="/registration/trainer" element={<TrainerRegistration />} />
+        <Route path="/registration/operator" element={<OperatorRegistration />} />
+        <Route path="/registration/instructor" element={<InstructorRegistration />} />
+        <Route path="/registration/assistant" element={<AssistantRegistration />} />
+        <Route path="/registration/generic/:role" element={<GenericRegistration />} />
 
-      <Route path="/dashboard/admin" element={
-        <RequireAuth>
-          <Layout>
-            <AdminDashboard />
-          </Layout>
-        </RequireAuth>
-      } />
-      <Route path="/dashboard/trainer" element={
-        <RequireAuth>
-          <Layout>
-            <TrainerDashboard />
-          </Layout>
-        </RequireAuth>
-      } />
-      <Route path="/dashboard/operator" element={
-        <RequireAuth>
-          <Layout>
-            <OperatorDashboard />
-          </Layout>
-        </RequireAuth>
-      } />
-      <Route path="/dashboard/assistant" element={
-        <RequireAuth>
-          <Layout>
-            <AssistantDashboard />
-          </Layout>
-        </RequireAuth>
-      } />
-      <Route path="/dashboard/instructor" element={
-        <RequireAuth>
-          <Layout>
-            <InstructorDashboard />
-          </Layout>
-        </RequireAuth>
-      } />
-      
-      <Route path="/settings" element={
-        <RequireAuth>
-          <Layout>
-            <Settings />
-          </Layout>
-        </RequireAuth>
-      } />
-      <Route path="/admin-settings" element={
-        <RequireAuth>
-          <Layout>
-            <AdminSettings />
-          </Layout>
-        </RequireAuth>
-      } />
-      <Route path="/trainer/:id" element={
-        <RequireAuth>
-          <Layout>
-            <TrainerProfile />
-          </Layout>
-        </RequireAuth>
-      } />
-      <Route path="/workout-templates" element={
-        <RequireAuth>
-          <Layout>
-            <WorkoutTemplates />
-          </Layout>
-        </RequireAuth>
-      } />
-      <Route path="/client-management" element={
-        <RequireAuth>
-          <Layout>
-            <ClientManagement />
-          </Layout>
-        </RequireAuth>
-      } />
-      <Route path="/client/:id" element={
-        <RequireAuth>
-          <Layout>
-            <ClientProfile />
-          </Layout>
-        </RequireAuth>
-      } />
-      <Route path="/statistics" element={
-        <RequireAuth>
-          <Layout>
-            <Statistics />
-          </Layout>
-        </RequireAuth>
-      } />
-      <Route path="/tracking" element={
-        <RequireAuth>
-          <Layout>
-            <TrackingPage />
-          </Layout>
-        </RequireAuth>
-      } />
-      <Route path="/communications" element={
-        <RequireAuth>
-          <Layout>
-            <Communications />
-          </Layout>
-        </RequireAuth>
-      } />
-      <Route path="/notifications" element={
-        <RequireAuth>
-          <Layout>
-            <NotificationManagement />
-          </Layout>
-        </RequireAuth>
-      } />
-      <Route path="/notification-history" element={
-        <RequireAuth>
-          <Layout>
-            <NotificationHistoryPage />
-          </Layout>
-        </RequireAuth>
-      } />
+        {/* Protected routes */}
+        <Route path="/" element={<Layout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/clients" element={<ClientManagement />} />
+          <Route path="/client/:id" element={<ClientProfile />} />
+          <Route path="/workout-templates" element={<WorkoutTemplates />} />
+          <Route path="/communications" element={<Communications />} />
+          <Route path="/tracking" element={<TrackingPage />} />
+          <Route path="/statistics" element={<Statistics />} />
+          <Route path="/gym-load" element={<GymLoad />} />
+          
+          {/* Admin routes */}
+          <Route path="/admin/settings" element={<AdminSettings />} />
+          <Route path="/admin/gym-load-settings" element={<GymLoadSettings />} />
+          <Route path="/admin/notifications/history" element={<NotificationHistory />} />
+          <Route path="/admin/notifications" element={<NotificationManagement />} />
 
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+          {/* User routes */}
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/trainer/:id" element={<TrainerProfile />} />
+        </Route>
+
+        {/* 404 route */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Suspense>
   );
 }
 

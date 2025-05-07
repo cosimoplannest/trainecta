@@ -187,6 +187,111 @@ export type Database = {
           },
         ]
       }
+      class_attendance: {
+        Row: {
+          class_id: string
+          created_at: string
+          created_by: string | null
+          date: string
+          id: string
+          participants: number
+          updated_at: string
+        }
+        Insert: {
+          class_id: string
+          created_at?: string
+          created_by?: string | null
+          date: string
+          id?: string
+          participants?: number
+          updated_at?: string
+        }
+        Update: {
+          class_id?: string
+          created_at?: string
+          created_by?: string | null
+          date?: string
+          id?: string
+          participants?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_attendance_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_attendance_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      classes: {
+        Row: {
+          created_at: string
+          day_of_week: number
+          end_time: string
+          gym_id: string
+          id: string
+          instructor_id: string | null
+          max_capacity: number
+          name: string
+          requires_booking: boolean | null
+          room_id: string
+          start_time: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          day_of_week: number
+          end_time: string
+          gym_id: string
+          id?: string
+          instructor_id?: string | null
+          max_capacity: number
+          name: string
+          requires_booking?: boolean | null
+          room_id: string
+          start_time: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          day_of_week?: number
+          end_time?: string
+          gym_id?: string
+          id?: string
+          instructor_id?: string | null
+          max_capacity?: number
+          name?: string
+          requires_booking?: boolean | null
+          room_id?: string
+          start_time?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "classes_instructor_id_fkey"
+            columns: ["instructor_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "classes_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_followups: {
         Row: {
           client_id: string
@@ -409,6 +514,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      gym_access_logs: {
+        Row: {
+          created_at: string
+          date: string
+          entries: number
+          gym_id: string
+          hour: number
+          id: string
+          minute: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          entries?: number
+          gym_id: string
+          hour: number
+          id?: string
+          minute: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          entries?: number
+          gym_id?: string
+          hour?: number
+          id?: string
+          minute?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       gym_registration_codes: {
         Row: {
@@ -653,6 +791,39 @@ export type Database = {
           read?: boolean
           title?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      rooms: {
+        Row: {
+          capacity: number
+          created_at: string
+          gym_id: string
+          id: string
+          is_bookable: boolean | null
+          name: string
+          type: string | null
+          updated_at: string
+        }
+        Insert: {
+          capacity: number
+          created_at?: string
+          gym_id: string
+          id?: string
+          is_bookable?: boolean | null
+          name: string
+          type?: string | null
+          updated_at?: string
+        }
+        Update: {
+          capacity?: number
+          created_at?: string
+          gym_id?: string
+          id?: string
+          is_bookable?: boolean | null
+          name?: string
+          type?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
