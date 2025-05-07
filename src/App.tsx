@@ -31,18 +31,9 @@ const AssistantRegistration = lazy(() => import("./pages/registration/AssistantR
 const GenericRegistration = lazy(() => import("./pages/registration/GenericRegistration"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
-// Define props for GenericRegistration
-interface GenericRegistrationProps {
-  roleName: string;
-  roleId: string;
-}
-
-// Define props for Layout
-interface LayoutProps {
-  children: React.ReactNode;
-}
-
 function App() {
+  console.log("App rendering at path:", window.location.pathname);
+  
   return (
     <Suspense fallback={<div className="flex h-screen items-center justify-center">Caricamento...</div>}>
       <Routes>
@@ -58,8 +49,8 @@ function App() {
         <Route path="/registration/assistant" element={<AssistantRegistration />} />
         <Route path="/registration/generic/:role" element={<GenericRegistration roleName="Generic" roleId="generic" />} />
 
-        {/* Protected routes */}
-        <Route path="/" element={<Layout children={null} />}>
+        {/* Protected routes - Fixed to use Layout with Outlet */}
+        <Route path="/" element={<Layout />}>
           <Route path="/dashboard" element={
             <RequireAuth>
               <Dashboard />

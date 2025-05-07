@@ -1,20 +1,33 @@
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Plus, Megaphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { BroadcastMessageForm } from "./broadcast/BroadcastMessageForm";
 import { BroadcastMessagesList } from "./broadcast/BroadcastMessagesList";
+import { useAuth } from "@/hooks/use-auth";
 
 export function BroadcastMessages() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const listRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
+  
+  // Add debug logging
+  useEffect(() => {
+    console.log("BroadcastMessages component mounted, user:", user?.id);
+  }, [user]);
 
   const handleFormSuccess = () => {
-    // This will trigger a re-fetch in the BroadcastMessagesList component
-    const messagesList = document.querySelector("[data-broadcast-messages-list]");
-    if (messagesList) {
+    console.log("Message form submitted successfully, triggering refresh");
+    setIsSheetOpen(false);
+    
+    // Fix the event dispatch issue by using the ref approach
+    if (listRef.current) {
+      console.log("Dispatching refreshMessages event to list element");
       const event = new CustomEvent("refreshMessages");
-      messagesList.dispatchEvent(event);
+      listRef.current.dispatchEvent(event);
+    } else {
+      console.warn("List element ref not available, can't dispatch event");
     }
   };
 
@@ -43,7 +56,7 @@ export function BroadcastMessages() {
         </Sheet>
       </div>
 
-      <div data-broadcast-messages-list>
+      <div ref={listRef} data-broadcast-messages-list>
         <BroadcastMessagesList />
       </div>
     </div>

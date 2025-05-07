@@ -1,6 +1,6 @@
 
 import { ReactNode, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Outlet } from "react-router-dom";
 import Header from "./Header";
 import { 
   Sidebar, 
@@ -17,7 +17,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface LayoutProps {
-  children: ReactNode;
+  children?: ReactNode; // Made optional since we'll use Outlet as well
 }
 
 const Layout = ({ children }: LayoutProps) => {
@@ -26,8 +26,8 @@ const Layout = ({ children }: LayoutProps) => {
   const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
   
-  // For debugging
-  console.log("Layout rendering with user:", user?.id, "loading:", loading);
+  // Add debug log for Layout rendering
+  console.log("Layout rendering with user:", user?.id, "loading:", loading, "location:", window.location.pathname);
   
   // Effect to close sidebar on mobile when route changes
   useEffect(() => {
@@ -88,7 +88,8 @@ const Layout = ({ children }: LayoutProps) => {
           <Header />
           <main className="flex-1 overflow-auto p-3 sm:p-4 md:p-6 pb-20">
             <div className="animate-fade-in">
-              {children}
+              {/* Use Outlet for nested routes AND render children prop if provided */}
+              {children || <Outlet />}
             </div>
           </main>
         </div>
