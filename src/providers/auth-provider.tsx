@@ -3,6 +3,7 @@ import { ReactNode, createContext, useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import AuthContext from "@/contexts/auth-context";
 import { toast } from "@/hooks/use-toast";
+import { User, Session } from "@supabase/supabase-js";
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -10,7 +11,7 @@ interface AuthProviderProps {
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [userStatus, setUserStatus] = useState<string | null>(null);
 
@@ -136,7 +137,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       console.log("Sign in successful:", data.user?.id);
       
       // User will be set by onAuthStateChange
-      return data;
+      return { user: data.user, session: data.session };
     } catch (error: any) {
       console.error("Sign in error:", error);
       
