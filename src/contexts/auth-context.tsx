@@ -6,8 +6,6 @@ type AuthContextType = {
   signIn: (email: string, password: string) => Promise<{
     user: User | null;
     session: Session | null;
-  } | {
-    error: Error;
   }>;
   signUp: (email: string, password: string, userData: any) => Promise<{user: any, error: any}>;
   signOut: () => Promise<void>;

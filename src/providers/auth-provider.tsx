@@ -55,7 +55,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                   console.error("Error fetching user data in auth state change:", error);
                 }
               }, 0);
-            } else if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+            } else if (event === 'SIGNED_OUT') {
+              // Fixed: Removed comparison with 'USER_DELETED' as it's not in the valid event types
               setUser(null);
               setUserRole(null);
               setUserStatus(null);
