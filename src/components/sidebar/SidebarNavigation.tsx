@@ -97,18 +97,21 @@ export function SidebarNavigation() {
         </SidebarMenuItem>
       )}
       
-      <SidebarMenuItem>
-        <SidebarMenuButton 
-          isActive={isPathActive("/gym-load")}
-          asChild
-          tooltip="Carico Palestra"
-        >
-          <Link to="/gym-load">
-            <BarChart3 className="h-4 w-4" />
-            <span>Carico Palestra</span>
-          </Link>
-        </SidebarMenuButton>
-      </SidebarMenuItem>
+      {/* Modified: Now only admins can see Gym Load */}
+      {isAdmin && (
+        <SidebarMenuItem>
+          <SidebarMenuButton 
+            isActive={isPathActive("/gym-load")}
+            asChild
+            tooltip="Carico Palestra"
+          >
+            <Link to="/gym-load">
+              <BarChart3 className="h-4 w-4" />
+              <span>Carico Palestra</span>
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      )}
       
       {isAdmin && (
         <SidebarMenuItem>

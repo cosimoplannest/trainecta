@@ -86,8 +86,9 @@ function App() {
               <Statistics />
             </RequireAuth>
           } />
+          {/* Modified: Now only admins can access Gym Load */}
           <Route path="/gym-load" element={
-            <RequireAuth>
+            <RequireAuth allowedRoles={["admin"]}>
               <GymLoad />
             </RequireAuth>
           } />
