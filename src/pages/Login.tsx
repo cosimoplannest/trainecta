@@ -65,24 +65,10 @@ const Login = () => {
     }
   }, [loading, isLoggingIn]);
 
-  // If user is authenticated, redirect based on role
+  // If user is authenticated, redirect to dashboard
   if (!loading && user) {
-    console.log("User is authenticated, redirecting...");
-    
-    // Redirect path based on status and role
-    let redirectPath = "/dashboard";
-    
-    if (userStatus === 'pending_approval') {
-      console.log("User pending approval, redirecting to dashboard");
-    } else if (userRole) {
-      console.log(`User has role ${userRole}, redirecting to dashboard/${userRole}`);
-      redirectPath = `/dashboard/${userRole}`;
-    } else {
-      console.log("User authenticated but no role/status yet, redirecting to dashboard");
-    }
-    
-    console.log(`Redirecting to: ${redirectPath}`);
-    return <Navigate to={redirectPath} replace />;
+    console.log("User is authenticated, redirecting to dashboard");
+    return <Navigate to="/dashboard" replace />;
   }
 
   // Show a loading state while waiting for login to complete

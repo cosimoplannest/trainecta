@@ -6,6 +6,13 @@ import { Loader2, AlarmClock } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
 
+// Import dashboard components
+import AdminDashboard from "./dashboards/AdminDashboard";
+import TrainerDashboard from "./dashboards/TrainerDashboard";
+import OperatorDashboard from "./dashboards/OperatorDashboard";
+import InstructorDashboard from "./dashboards/InstructorDashboard";
+import AssistantDashboard from "./dashboards/AssistantDashboard";
+
 const Dashboard = () => {
   const { userRole, user, loading } = useAuth();
   const navigate = useNavigate();
@@ -39,31 +46,6 @@ const Dashboard = () => {
     }
   }, [user, loading]);
 
-  // Effect to handle redirects based on role and approval status
-  useEffect(() => {
-    if (!loading && !loadingStatus) {
-      console.log("Dashboard: redirecting based on role", { userRole, approvalPending, user });
-      
-      if (approvalPending) {
-        // User is registered but pending approval - stay on this page
-        console.log("User is pending approval, staying on dashboard");
-      } else if (userRole) {
-        // User has a role and is approved, navigate to role-specific dashboard
-        const dashboardPath = `/dashboard/${userRole}`;
-        console.log(`Redirecting to ${dashboardPath}`);
-        navigate(dashboardPath, { replace: true });
-      } else if (user) {
-        // User is logged in but has no role (edge case)
-        console.log("User has no role, redirecting to login");
-        navigate("/login", { replace: true });
-      } else {
-        // Not logged in
-        console.log("User not logged in, redirecting to login");
-        navigate("/login", { replace: true });
-      }
-    }
-  }, [userRole, loading, navigate, loadingStatus, approvalPending, user]);
-
   if (loading || loadingStatus) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -75,6 +57,14 @@ const Dashboard = () => {
     );
   }
 
+  // If not logged in, redirect to login page (this should be handled by RequireAuth)
+  if (!user) {
+    console.log("User not logged in, redirecting to login");
+    navigate("/login", { replace: true });
+    return null;
+  }
+
+  // If pending approval, show pending approval message
   if (approvalPending) {
     return (
       <div className="flex h-full items-center justify-center p-4">
@@ -92,15 +82,33 @@ const Dashboard = () => {
     );
   }
 
-  // This should not be visible as we redirect in the useEffect
-  return (
-    <div className="flex h-full items-center justify-center">
-      <div className="flex flex-col items-center gap-4">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="text-muted-foreground">Reindirizzamento in corso...</p>
-      </div>
-    </div>
-  );
+  // Render the appropriate dashboard based on the user role
+  // Instead of redirecting, we render the appropriate dashboard component
+  switch (userRole) {
+    case 'admin':
+      return <AdminDashboard />;
+    case 'trainer':
+      return <TrainerDashboard />;
+    case 'operator':
+      return <OperatorDashboard />;
+    case 'instructor':
+      return <InstructorDashboard />;
+    case 'assistant':
+      return <AssistantDashboard />;
+    default:
+      return (
+        <div className="flex h-full items-center justify-center p-4">
+          <div className="max-w-md w-full">
+            <Alert>
+              <AlertTitle>Ruolo non definito</AlertTitle>
+              <AlertDescription>
+                Il tuo account non ha ancora un ruolo assegnato. Contatta l'amministratore per assistenza.
+              </AlertDescription>
+            </Alert>
+          </div>
+        </div>
+      );
+  }
 };
 
 export default Dashboard;

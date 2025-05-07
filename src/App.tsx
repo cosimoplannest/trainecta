@@ -5,6 +5,7 @@ import Layout from "./components/Layout";
 import Statistics from "./pages/Statistics";
 import GymLoad from "./pages/GymLoad";
 import GymLoadSettings from "./pages/GymLoadSettings";
+import RequireAuth from "./components/auth/RequireAuth";
 
 // Import pages
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -30,6 +31,17 @@ const AssistantRegistration = lazy(() => import("./pages/registration/AssistantR
 const GenericRegistration = lazy(() => import("./pages/registration/GenericRegistration"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
+// Define props for GenericRegistration
+interface GenericRegistrationProps {
+  roleName: string;
+  roleId: string;
+}
+
+// Define props for Layout
+interface LayoutProps {
+  children: React.ReactNode;
+}
+
 function App() {
   return (
     <Suspense fallback={<div className="flex h-screen items-center justify-center">Caricamento...</div>}>
@@ -48,24 +60,80 @@ function App() {
 
         {/* Protected routes */}
         <Route path="/" element={<Layout children={null} />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/clients" element={<ClientManagement />} />
-          <Route path="/client/:id" element={<ClientProfile />} />
-          <Route path="/workout-templates" element={<WorkoutTemplates />} />
-          <Route path="/communications" element={<Communications />} />
-          <Route path="/tracking" element={<TrackingPage />} />
-          <Route path="/statistics" element={<Statistics />} />
-          <Route path="/gym-load" element={<GymLoad />} />
+          <Route path="/dashboard" element={
+            <RequireAuth>
+              <Dashboard />
+            </RequireAuth>
+          } />
+          <Route path="/clients" element={
+            <RequireAuth>
+              <ClientManagement />
+            </RequireAuth>
+          } />
+          <Route path="/client/:id" element={
+            <RequireAuth>
+              <ClientProfile />
+            </RequireAuth>
+          } />
+          <Route path="/workout-templates" element={
+            <RequireAuth>
+              <WorkoutTemplates />
+            </RequireAuth>
+          } />
+          <Route path="/communications" element={
+            <RequireAuth>
+              <Communications />
+            </RequireAuth>
+          } />
+          <Route path="/tracking" element={
+            <RequireAuth>
+              <TrackingPage />
+            </RequireAuth>
+          } />
+          <Route path="/statistics" element={
+            <RequireAuth>
+              <Statistics />
+            </RequireAuth>
+          } />
+          <Route path="/gym-load" element={
+            <RequireAuth>
+              <GymLoad />
+            </RequireAuth>
+          } />
           
           {/* Admin routes */}
-          <Route path="/admin/settings" element={<AdminSettings />} />
-          <Route path="/admin/gym-load-settings" element={<GymLoadSettings />} />
-          <Route path="/admin/notifications/history" element={<NotificationHistory />} />
-          <Route path="/admin/notifications" element={<NotificationManagement />} />
+          <Route path="/admin/settings" element={
+            <RequireAuth allowedRoles={["admin"]}>
+              <AdminSettings />
+            </RequireAuth>
+          } />
+          <Route path="/admin/gym-load-settings" element={
+            <RequireAuth allowedRoles={["admin"]}>
+              <GymLoadSettings />
+            </RequireAuth>
+          } />
+          <Route path="/admin/notifications/history" element={
+            <RequireAuth allowedRoles={["admin"]}>
+              <NotificationHistory />
+            </RequireAuth>
+          } />
+          <Route path="/admin/notifications" element={
+            <RequireAuth allowedRoles={["admin"]}>
+              <NotificationManagement />
+            </RequireAuth>
+          } />
 
           {/* User routes */}
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/trainer/:id" element={<TrainerProfile />} />
+          <Route path="/settings" element={
+            <RequireAuth>
+              <Settings />
+            </RequireAuth>
+          } />
+          <Route path="/trainer/:id" element={
+            <RequireAuth>
+              <TrainerProfile />
+            </RequireAuth>
+          } />
         </Route>
 
         {/* 404 route */}
