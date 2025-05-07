@@ -153,8 +153,8 @@ export function LoadDashboard() {
                       height={70}
                     />
                     <YAxis />
-                    <Tooltip formatter={(value, name) => {
-                      if (name === "Percentuale in corsi") return `${value.toFixed(1)}%`;
+                    <Tooltip formatter={(value: any, name) => {
+                      if (name === "Percentuale in corsi") return `${Number(value).toFixed(1)}%`;
                       return value;
                     }} />
                     <Legend />
@@ -214,7 +214,7 @@ export function LoadDashboard() {
                         </TableCell>
                         <TableCell>
                           {data.totalEntries > 20 && data.percentageInClasses < 30 && (
-                            <Alert variant="warning" className="p-2">
+                            <Alert variant="default" className="p-2 bg-amber-50 border-amber-200">
                               <AlertTriangle className="h-4 w-4" />
                               <AlertTitle className="text-xs font-medium">Bassa Partecipazione ai Corsi</AlertTitle>
                               <AlertDescription className="text-xs">

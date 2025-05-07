@@ -44,10 +44,10 @@ function App() {
         <Route path="/registration/operator" element={<OperatorRegistration />} />
         <Route path="/registration/instructor" element={<InstructorRegistration />} />
         <Route path="/registration/assistant" element={<AssistantRegistration />} />
-        <Route path="/registration/generic/:role" element={<GenericRegistration />} />
+        <Route path="/registration/generic/:role" element={<GenericRegistration roleName="Generic" roleId="generic" />} />
 
         {/* Protected routes */}
-        <Route path="/" element={<Layout />}>
+        <Route path="/" element={<Layout children={null} />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/clients" element={<ClientManagement />} />
           <Route path="/client/:id" element={<ClientProfile />} />
