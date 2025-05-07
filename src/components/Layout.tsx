@@ -2,7 +2,6 @@
 import { ReactNode, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "./Header";
-import { cn } from "@/lib/utils";
 import { 
   Sidebar, 
   SidebarProvider, 
@@ -26,6 +25,9 @@ const Layout = ({ children }: LayoutProps) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
+  
+  // For debugging
+  console.log("Layout rendering with user:", user?.id, "loading:", loading);
   
   // Effect to close sidebar on mobile when route changes
   useEffect(() => {

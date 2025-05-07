@@ -62,6 +62,9 @@ export function useClientList(initialParams: ClientListParams = {}) {
           users(full_name)
         `, { count: 'exact' });
       
+      // Add console logs to debug the query
+      console.log("Fetching clients with role:", userRole, "user ID:", user?.id);
+      
       // Handle role-based restrictions
       if (userRole === 'trainer' && user) {
         query = query.eq('assigned_to', user.id);
@@ -81,6 +84,8 @@ export function useClientList(initialParams: ClientListParams = {}) {
       
       // Execute query
       const { data, error, count } = await query;
+
+      console.log("Clients query result:", { data, error, count });
 
       if (error) throw error;
       

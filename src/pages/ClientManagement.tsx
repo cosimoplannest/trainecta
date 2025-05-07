@@ -13,19 +13,22 @@ const ClientManagement = () => {
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { userRole } = useAuth();
-  const tabFromUrl = searchParams.get("tab");
+  const { userRole, user, loading } = useAuth();
   
   // Only allow tab "add" if role is admin or operator
   const canAddClients = userRole === 'admin' || userRole === 'operator';
+  const tabFromUrl = searchParams.get("tab");
   const validTab = tabFromUrl === "add" && canAddClients ? "add" : "list";
   const [activeTab, setActiveTab] = useState(validTab);
+
+  // For debugging
+  console.log("ClientManagement - Auth state:", { userRole, userId: user?.id, loading });
 
   // If role changes, ensure we're on a valid tab
   useEffect(() => {
     if (activeTab === "add" && !canAddClients) {
       setActiveTab("list");
-      navigate("/client-management");
+      navigate("/clients");
     }
   }, [userRole, canAddClients, navigate, activeTab]);
 
@@ -35,17 +38,32 @@ const ClientManagement = () => {
       description: "Il cliente è stato aggiunto con successo.",
     });
     setActiveTab("list");
-    navigate("/client-management");
+    navigate("/clients");
   };
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
     if (value === "add") {
-      navigate("/client-management?tab=add");
+      navigate("/clients?tab=add");
     } else {
-      navigate("/client-management");
+      navigate("/clients");
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col space-y-6 p-6">
+        <div className="flex flex-col space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight">Gestione Clienti</h1>
+          <p className="text-muted-foreground">Caricamento in corso...</p>
+        </div>
+        <div className="animate-pulse space-y-4">
+          <div className="h-10 bg-muted rounded-md w-64"></div>
+          <div className="h-96 bg-muted rounded-md w-full"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col space-y-6 p-6">

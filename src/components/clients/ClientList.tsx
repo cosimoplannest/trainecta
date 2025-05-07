@@ -38,6 +38,8 @@ const ClientList = () => {
     userRole,
   } = useClientList();
 
+  console.log("ClientList rendered with", clients.length, "clients");
+
   const handleViewProfile = (clientId: string) => {
     navigate(`/client/${clientId}`);
   };
