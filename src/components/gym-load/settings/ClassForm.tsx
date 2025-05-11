@@ -26,7 +26,7 @@ import {
 const classSchema = z.object({
   name: z.string().min(1, "Il nome è obbligatorio"),
   room_id: z.string().min(1, "Seleziona una sala"),
-  instructor_id: z.string().optional(),
+  instructor_id: z.string().nullable(),
   day_of_week: z.coerce.number().min(0).max(6),
   start_time: z.string().min(1, "Orario di inizio obbligatorio"),
   end_time: z.string().min(1, "Orario di fine obbligatorio"),
@@ -53,7 +53,7 @@ export function ClassForm({ gymClass, onSubmit, onCancel }: ClassFormProps) {
     defaultValues: {
       name: gymClass?.name || "",
       room_id: gymClass?.room_id || "",
-      instructor_id: gymClass?.instructor_id || undefined,
+      instructor_id: gymClass?.instructor_id || null,
       day_of_week: gymClass?.day_of_week ?? 1,
       start_time: gymClass?.start_time?.substring(0, 5) || "09:00",
       end_time: gymClass?.end_time?.substring(0, 5) || "10:00",
@@ -221,8 +221,8 @@ export function ClassForm({ gymClass, onSubmit, onCancel }: ClassFormProps) {
               <FormItem>
                 <FormLabel>Istruttore</FormLabel>
                 <Select
-                  value={field.value || ""}
-                  onValueChange={field.onChange}
+                  value={field.value || "null"}
+                  onValueChange={(val) => field.onChange(val === "null" ? null : val)}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -230,7 +230,7 @@ export function ClassForm({ gymClass, onSubmit, onCancel }: ClassFormProps) {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="">Nessuno</SelectItem>
+                    <SelectItem value="null">Nessuno</SelectItem>
                     {trainers.map((trainer) => (
                       <SelectItem key={trainer.id} value={trainer.id}>
                         {trainer.full_name}
