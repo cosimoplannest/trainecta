@@ -128,7 +128,7 @@ export function MyClientsCard({ filter }: MyClientsCardProps) {
       </CardContent>
       <CardFooter>
         <Button variant="outline" className="w-full" asChild>
-          <Link to="/client-management">
+          <Link to="/clients">
             Vedi tutti i clienti
           </Link>
         </Button>

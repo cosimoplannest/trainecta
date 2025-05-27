@@ -37,7 +37,7 @@ const Header = () => {
     else if (path.includes("/dashboard/assistant")) setPageTitle("Dashboard Assistente");
     else if (path.includes("/dashboard/instructor")) setPageTitle("Dashboard Istruttore");
     else if (path.includes("/workout-templates")) setPageTitle("Schede Allenamento");
-    else if (path.includes("/client-management")) setPageTitle("Gestione Clienti");
+    else if (path.includes("/clients")) setPageTitle("Gestione Clienti");
     else if (path.includes("/statistics")) setPageTitle("Statistiche");
     else if (path.includes("/tracking")) setPageTitle("Tracking");
     else if (path.includes("/communications")) setPageTitle("Comunicazioni");

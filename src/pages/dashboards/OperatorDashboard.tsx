@@ -38,7 +38,7 @@ const OperatorDashboard = () => {
                   Visualizza e modifica i dati dei clienti
                 </p>
                 <Button variant="link" className="mt-2 p-0" asChild>
-                  <Link to="/client-management" className="flex items-center">
+                  <Link to="/clients" className="flex items-center">
                     Gestisci <ArrowUpRight className="h-4 w-4 ml-1" />
                   </Link>
                 </Button>
@@ -74,7 +74,7 @@ const OperatorDashboard = () => {
                   Gestisci le prove gratuite e i potenziali clienti
                 </p>
                 <Button variant="link" className="mt-2 p-0" asChild>
-                  <Link to="/client-management?tab=trials" className="flex items-center">
+                  <Link to="/clients?tab=trials" className="flex items-center">
                     Gestisci <ArrowUpRight className="h-4 w-4 ml-1" />
                   </Link>
                 </Button>
