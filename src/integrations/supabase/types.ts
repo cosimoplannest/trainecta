@@ -1352,6 +1352,19 @@ export type Database = {
         Args: { p_notification_id: string }
         Returns: undefined
       }
+      register_gym: {
+        Args: {
+          p_gym_name: string
+          p_gym_address: string
+          p_gym_phone: string
+          p_gym_email: string
+          p_gym_website: string
+          p_user_id: string
+          p_user_full_name: string
+          p_user_email: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       app_role: "admin" | "operator" | "trainer" | "assistant" | "instructor"

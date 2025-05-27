@@ -45,85 +45,9 @@ export const useGymRegistration = () => {
   const nextStep = () => setStep(prev => prev + 1);
   const prevStep = () => setStep(prev => prev - 1);
 
-  // Create gym and return the gym ID
-  const createGym = async () => {
-    const { data: gymData, error: gymError } = await supabase
-      .from('gyms')
-      .insert({
-        name: formData.gymName,
-        address: formData.address,
-        phone: formData.phone,
-        website: formData.socialLink,
-        email: formData.email
-      })
-      .select('id')
-      .single();
-
-    if (gymError) {
-      throw new Error(`Errore nella creazione della palestra: ${gymError.message}`);
-    }
-
-    return gymData.id;
-  };
-
-  // Create default gym settings
-  const createGymSettings = async (gymId: string) => {
-    const { error: settingsError } = await supabase
-      .from('gym_settings')
-      .insert({
-        gym_id: gymId,
-        max_trials_per_client: 1,
-        enable_auto_followup: true,
-        days_to_first_followup: 7,
-        days_to_active_confirmation: 30,
-        template_sent_by: 'both',
-        template_viewable_by_client: true,
-        allow_template_duplication: true,
-        default_trainer_assignment_logic: 'manual'
-      });
-
-    if (settingsError) {
-      throw new Error(`Errore nell'impostazione delle configurazioni: ${settingsError.message}`);
-    }
-  };
-
-  // Update user record with gym_id and admin role
-  const assignUserToGym = async (userId: string, gymId: string) => {
-    const { error: userError } = await supabase
-      .from('users')
-      .update({
-        gym_id: gymId,
-        role: 'admin'
-      })
-      .eq('id', userId);
-
-    if (userError) {
-      throw new Error(`Errore nell'aggiornamento del profilo utente: ${userError.message}`);
-    }
-  };
-
-  // Clean up in case of errors
-  const cleanUpOnError = async (userId?: string, gymId?: string) => {
-    // Delete gym if it was created
-    if (gymId) {
-      await supabase
-        .from('gyms')
-        .delete()
-        .eq('id', gymId);
-    }
-
-    // Sign out the user if they were signed up
-    if (userId) {
-      await supabase.auth.signOut();
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    let userId = null;
-    let gymId = null;
     
     try {
       // Step 1: Register the user with Supabase Auth
@@ -145,7 +69,7 @@ export const useGymRegistration = () => {
         return;
       }
 
-      userId = authData.user?.id;
+      const userId = authData.user?.id;
 
       if (!userId) {
         toast.error("Errore: Impossibile creare l'utente");
@@ -156,14 +80,40 @@ export const useGymRegistration = () => {
       // Show registration in progress
       setRegistrationComplete(true);
       
-      // Step 2: Create the gym
-      gymId = await createGym();
-      
-      // Step 3: Update the user with gym_id and admin role
-      await assignUserToGym(userId, gymId);
-      
-      // Step 4: Create default gym settings
-      await createGymSettings(gymId);
+      // Step 2: Use the secure database function to register the gym
+      const { data: gymResult, error: gymError } = await supabase.rpc('register_gym', {
+        p_gym_name: formData.gymName,
+        p_gym_address: formData.address,
+        p_gym_phone: formData.phone,
+        p_gym_email: formData.email,
+        p_gym_website: formData.socialLink,
+        p_user_id: userId,
+        p_user_full_name: formData.fullName,
+        p_user_email: formData.email
+      });
+
+      if (gymError) {
+        console.error("Gym registration error:", gymError);
+        toast.error(`Errore durante la registrazione della palestra: ${gymError.message}`);
+        setRegistrationComplete(false);
+        
+        // Sign out the user if gym registration failed
+        await supabase.auth.signOut();
+        setIsLoading(false);
+        return;
+      }
+
+      // Check if the function returned a success result
+      if (!gymResult?.success) {
+        console.error("Gym registration failed:", gymResult);
+        toast.error(gymResult?.message || "Errore durante la registrazione della palestra");
+        setRegistrationComplete(false);
+        
+        // Sign out the user if gym registration failed
+        await supabase.auth.signOut();
+        setIsLoading(false);
+        return;
+      }
 
       toast.success("Registrazione completata con successo");
       
@@ -177,8 +127,8 @@ export const useGymRegistration = () => {
       toast.error(error.message || "Errore durante la registrazione");
       setRegistrationComplete(false);
       
-      // Attempt to clean up partial registrations
-      await cleanUpOnError(userId, gymId);
+      // Sign out the user if there was an error
+      await supabase.auth.signOut();
       
     } finally {
       setIsLoading(false);
