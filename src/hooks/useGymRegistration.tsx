@@ -110,8 +110,8 @@ export const useGymRegistration = () => {
         return;
       }
 
-      // Cast the result to our interface type
-      const result = gymResult as GymRegistrationResponse;
+      // Cast the result to our interface type with proper type safety
+      const result = gymResult as unknown as GymRegistrationResponse;
 
       // Check if the function returned a success result
       if (!result?.success) {
