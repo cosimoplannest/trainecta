@@ -57,19 +57,34 @@ export function ClientListVirtualTable({
           onSort={onSort}
         />
       ),
-      cell: ({ row }) => <ClientNameCell client={row.original} />
+      cell: ({ row }) => (
+        <ClientNameCell 
+          firstName={row.original.first_name}
+          lastName={row.original.last_name}
+          joinedAt={row.original.joined_at}
+        />
+      )
     }),
     
     columnHelper.accessor('email', {
       id: 'contact',
       header: 'Contatto',
-      cell: ({ row }) => <ClientContactCell client={row.original} />
+      cell: ({ row }) => (
+        <ClientContactCell 
+          email={row.original.email}
+          phone={row.original.phone}
+        />
+      )
     }),
     
     columnHelper.accessor('next_confirmation_due', {
       id: 'status',
       header: 'Stato',
-      cell: ({ row }) => <ClientStatusCell client={row.original} />
+      cell: ({ row }) => (
+        <ClientStatusCell 
+          nextConfirmationDue={row.original.next_confirmation_due}
+        />
+      )
     }),
     
     columnHelper.accessor(row => row.users?.full_name, {
@@ -82,19 +97,32 @@ export function ClientListVirtualTable({
           onSort={onSort}
         />
       ),
-      cell: ({ row }) => <TrainerCell client={row.original} />
+      cell: ({ row }) => (
+        <TrainerCell 
+          trainerName={row.original.users?.full_name || row.original.trainer?.full_name}
+        />
+      )
     }),
     
     columnHelper.accessor('first_meeting_completed', {
       id: 'firstMeeting',
       header: 'Primo Incontro',
-      cell: ({ row }) => <MeetingStatusCell client={row.original} />
+      cell: ({ row }) => (
+        <MeetingStatusCell 
+          firstMeetingCompleted={row.original.first_meeting_completed}
+          firstMeetingDate={row.original.first_meeting_date}
+        />
+      )
     }),
     
     columnHelper.accessor('purchase_type', {
       id: 'purchase',
       header: 'Acquisto',
-      cell: ({ row }) => <PurchaseTypeCell client={row.original} />
+      cell: ({ row }) => (
+        <PurchaseTypeCell 
+          purchaseType={row.original.purchase_type}
+        />
+      )
     }),
     
     columnHelper.display({
