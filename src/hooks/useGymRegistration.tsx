@@ -16,6 +16,13 @@ export interface RegistrationFormData {
   socialLink: string;
 }
 
+interface GymRegistrationResponse {
+  success: boolean;
+  gym_id?: string;
+  message: string;
+  error?: string;
+}
+
 export const useGymRegistration = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState<RegistrationFormData>({
@@ -103,10 +110,13 @@ export const useGymRegistration = () => {
         return;
       }
 
+      // Cast the result to our interface type
+      const result = gymResult as GymRegistrationResponse;
+
       // Check if the function returned a success result
-      if (!gymResult?.success) {
-        console.error("Gym registration failed:", gymResult);
-        toast.error(gymResult?.message || "Errore durante la registrazione della palestra");
+      if (!result?.success) {
+        console.error("Gym registration failed:", result);
+        toast.error(result?.message || "Errore durante la registrazione della palestra");
         setRegistrationComplete(false);
         
         // Sign out the user if gym registration failed
