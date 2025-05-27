@@ -2,24 +2,23 @@
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "lucide-react";
 import { format } from "date-fns";
-import { ClientData } from "../../types/client-types";
 
 interface ClientStatusCellProps {
-  client: ClientData;
+  nextConfirmationDue?: string | null;
 }
 
-export function ClientStatusCell({ client }: ClientStatusCellProps) {
-  if (!client.next_confirmation_due) return null;
-  
-  const isPastDue = new Date(client.next_confirmation_due) < new Date();
-  
+export function ClientStatusCell({ nextConfirmationDue }: ClientStatusCellProps) {
+  if (!nextConfirmationDue) return null;
+
+  const isOverdue = new Date(nextConfirmationDue) < new Date();
+
   return (
     <Badge 
-      variant={isPastDue ? "destructive" : "outline"} 
+      variant={isOverdue ? "destructive" : "outline"} 
       className="text-xs font-normal flex items-center gap-1"
     >
       <Calendar className="h-3 w-3" />
-      Conferma: {format(new Date(client.next_confirmation_due), "dd/MM/yy")}
+      Conferma: {format(new Date(nextConfirmationDue), "dd/MM/yy")}
     </Badge>
   );
 }
