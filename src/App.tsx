@@ -1,6 +1,6 @@
 
 import { lazy, Suspense } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/Layout";
 import Statistics from "./pages/Statistics";
 import GymLoad from "./pages/GymLoad";
@@ -42,12 +42,17 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/join/:code" element={<JoinWithCode />} />
+        
+        {/* Registration routes */}
         <Route path="/registration/gym" element={<GymRegistration />} />
         <Route path="/registration/trainer" element={<TrainerRegistration />} />
         <Route path="/registration/operator" element={<OperatorRegistration />} />
         <Route path="/registration/instructor" element={<InstructorRegistration />} />
         <Route path="/registration/assistant" element={<AssistantRegistration />} />
         <Route path="/registration/generic/:role" element={<GenericRegistration roleName="Generic" roleId="generic" />} />
+        
+        {/* Legacy redirects */}
+        <Route path="/gym-registration" element={<Navigate to="/registration/gym" replace />} />
 
         {/* Protected routes - Fixed to use Layout with Outlet */}
         <Route path="/" element={<Layout />}>
